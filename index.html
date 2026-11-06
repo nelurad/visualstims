@@ -7,7 +7,7 @@
 <meta name="description" content="Visual stimuli grown from the nervous system, by Nelu Radpour: live, moving pictures made from neurons.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&family=Homemade+Apple&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&family=Homemade+Apple&family=Permanent+Marker&display=swap">
 <style>
   /* Layout: live melting-cortex stage behind a lowercase hero; it dissolves into a mauve page with a blinking eye column and a big-type index. */
   :root{
@@ -50,7 +50,7 @@
   .melt{height:70vh}
 
   .about{position:relative;z-index:6;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:48px;align-items:start;padding-block:4vh 10vh}
-  .about h2{margin:0 0 34px;font-weight:420;font-size:clamp(30px,3.1vw,46px);line-height:1.06;letter-spacing:-.02em;font-variation-settings:"opsz" 60,"wdth" 92;text-wrap:balance}
+  .about h2{margin:0 0 34px;font-family:"Permanent Marker","Marker Felt","Comic Sans MS",cursive;font-weight:400;font-size:clamp(30px,3.1vw,46px);line-height:1.18;letter-spacing:.005em;text-wrap:balance;transform:rotate(-1.2deg);transform-origin:left}
   .about p{margin:0 0 18px;font-size:clamp(17px,1.35vw,20px);line-height:1.32;max-width:36em;color:var(--soft);font-variation-settings:"opsz" 16}
   .about p a{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
   .eyes{display:flex;flex-direction:column;align-items:center;gap:14px}
@@ -61,9 +61,10 @@
   .row{display:grid;grid-template-columns:4.2em minmax(0,1fr) auto;align-items:baseline;gap:16px;border-top:1px solid var(--rule);padding-block:18px 22px;text-decoration:none;position:relative}
   .row:last-child{border-bottom:1px solid var(--rule)}
   .row .n{font-family:var(--mono);font-size:13px;color:var(--dim)}
-  .row .t{font-weight:330;font-size:clamp(44px,8vw,128px);line-height:.92;letter-spacing:-.045em;font-variation-settings:"opsz" 96,"wdth" 80;transition:font-variation-settings .5s ease,letter-spacing .5s ease,color .3s}
+  .row .t{font-family:"Permanent Marker","Marker Felt","Comic Sans MS",cursive;font-weight:400;font-size:clamp(40px,7vw,112px);line-height:1.08;letter-spacing:.01em;display:inline-block;transform-origin:left center;transition:transform .45s cubic-bezier(.3,1.6,.5,1),color .3s}
+  .row:nth-child(odd) .t{transform:rotate(-1.5deg)} .row:nth-child(even) .t{transform:rotate(1deg)}
   .row .tags{font-family:var(--mono);font-size:12px;color:var(--dim);text-align:right;max-width:16em}
-  a.row:hover .t,a.row:focus-visible .t{font-variation-settings:"opsz" 96,"wdth" 100;letter-spacing:-.03em;color:var(--hot)}
+  a.row:hover .t,a.row:focus-visible .t{transform:rotate(-3deg) scale(1.04);color:var(--hot)}
   a.row:focus-visible{outline:none}
   .row.soon .t{color:#ffffff59;font-weight:200}
   .row .mobile-pic{display:none}
@@ -451,20 +452,29 @@ requestAnimationFrame(frame);
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ---- a column of line-drawn eyes that blink in a wave and watch the cursor ---- */
 const NS = 'http://www.w3.org/2000/svg', box = document.getElementById('eyes');
-const N = 6, eyes = [];
+const N = 7, eyes = [];
 for (let i = 0; i < N; i++){
   const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', '-100 -46 200 92');
   const mk = (tag, a) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); svg.appendChild(e); return e; };
   const st = {fill:'none', stroke:'#f3efe9', 'stroke-width':1.6, 'vector-effect':'non-scaling-stroke'};
-  const lid = mk('path', st);
+  const lid = mk('path', Object.assign({}, st, {fill:'#f6f1ec', 'fill-opacity':.94}));
   const clip = document.createElementNS(NS, 'clipPath'); clip.id = 'eyeclip' + i; svg.appendChild(clip);
   const cp = document.createElementNS(NS, 'path'); clip.appendChild(cp);
   const g = mk('g', {'clip-path':`url(#eyeclip${i})`});
-  const rings = [36, 26, 17].map(r => { const c = document.createElementNS(NS, 'circle'); Object.entries(Object.assign({r}, st)).forEach(([k,v]) => c.setAttribute(k, v)); g.appendChild(c); return c; });
-  const pupil = document.createElementNS(NS, 'circle'); pupil.setAttribute('r', 7); pupil.setAttribute('fill', '#f3efe9'); g.appendChild(pupil);
+  // a real iris colour for each eye: dark brown, brown, amber, hazel, green, blue (and a grey one if there are more)
+  const IRIS = [['#3b2316','#6b4128'],['#5a3418','#9a6332'],['#8a5a14','#d9a441'],['#5e5a26','#a08a3e'],['#3d6b3c','#8dbb6a'],['#2f5f9e','#8ec0ec'],['#5d6b78','#b4c2cc']][i % 7];
+  const defs = document.createElementNS(NS, 'defs'); svg.insertBefore(defs, svg.firstChild);
+  defs.innerHTML = `<radialGradient id="iris${i}" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="${IRIS[1]}"/><stop offset=".55" stop-color="${IRIS[1]}"/><stop offset="1" stop-color="${IRIS[0]}"/></radialGradient>`;
+  const mkc = (r, a) => { const c = document.createElementNS(NS, 'circle'); c.setAttribute('r', r); for (const k in a) c.setAttribute(k, a[k]); g.appendChild(c); return c; };
+  const rings = [
+    mkc(27, {fill:`url(#iris${i})`, stroke:IRIS[0], 'stroke-width':2.4, 'vector-effect':'non-scaling-stroke'}),
+    mkc(15, {fill:'none', stroke:IRIS[1], 'stroke-width':1.2, 'stroke-dasharray':'2 3', opacity:.8, 'vector-effect':'non-scaling-stroke'})
+  ];
+  const pupil = mkc(9.5, {fill:'#120a0e'});
+  const glint = mkc(3, {fill:'#ffffff', opacity:.9});
   const lashes = [-50,-25,0,25,50].map(() => mk('line', st));
   box.appendChild(svg);
-  eyes.push({svg, lid, cp, rings, pupil, lashes, ph:i*.55});
+  eyes.push({svg, lid, cp, rings, pupil, glint, lashes, ph:i*.55});
 }
 let mx = innerWidth/2, my = innerHeight/2;
 addEventListener('pointermove', e => { mx = e.clientX; my = e.clientY; }, {passive:true});
@@ -482,6 +492,7 @@ function frame(t){
     const px = Math.cos(ang)*26*dist, py = Math.sin(ang)*12*dist;
     E.rings.forEach((c, k) => { c.setAttribute('cx', px*(1 - k*.12)); c.setAttribute('cy', py*(1 - k*.12)); });
     E.pupil.setAttribute('cx', px*1.1); E.pupil.setAttribute('cy', py*1.1);
+    E.glint.setAttribute('cx', px*1.1 + 5); E.glint.setAttribute('cy', py*1.1 - 5);
     const top = -60*Math.max(.04, o)*.75;
     E.lashes.forEach((l, k) => { const x = [-50,-25,0,25,50][k]*w/92, y = top*(1 - Math.pow(Math.abs(x)/w, 2))*1.0;
       l.setAttribute('x1', x); l.setAttribute('y1', y); l.setAttribute('x2', x*1.12); l.setAttribute('y2', y - 9*o); });
