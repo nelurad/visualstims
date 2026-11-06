@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>In Sync · VisualStims</title>
+<meta name="description" content="A living brain-wave painting: thousands of oscillating neurons drift in and out of sync, and four EEG electrodes listen in.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&family=Homemade+Apple&display=swap">
+<style>
+  /* Layout: one full-bleed canvas (brain field left, EEG ribbons right); title bottom-left, controls bottom-right. */
+  :root{
+    --bg:#0b0710;
+    --ink:#f5eee9;
+    --dim:#b9a9b8;
+    --glass:#140c18c4;
+    --rule:#ffffff26;
+    --hot:#ffc79e;
+    --grot:"Bricolage Grotesque","Helvetica Neue",Arial,system-ui,sans-serif;
+    --mono:"Geist Mono",ui-monospace,Menlo,monospace;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hidden}
+  body{font-family:var(--grot);-webkit-font-smoothing:antialiased}
+  #c{position:fixed;inset:0;width:100vw;height:100vh;display:block;cursor:crosshair}
+  header{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:22px max(28px,env(safe-area-inset-right,0px)) 0 max(28px,env(safe-area-inset-left,0px));pointer-events:none}
+  header a{pointer-events:auto;font-size:14px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--ink)}
+  header span{font-family:var(--mono);font-size:12px;color:var(--dim)}
+  .title{position:fixed;left:max(28px,env(safe-area-inset-left,0px));bottom:max(26px,env(safe-area-inset-bottom,0px));z-index:5;max-width:min(470px,calc(100vw - 56px));pointer-events:none}
+  .title h1{margin:0;line-height:1}
+  .title .script{display:block;font-family:"Homemade Apple","Snell Roundhand",cursive;font-weight:400;font-size:clamp(34px,4vw,58px);line-height:1.5;transform:rotate(-3deg);transform-origin:left bottom}
+  .title .sub{display:block;font-weight:330;font-size:clamp(20px,1.8vw,26px);letter-spacing:-.02em;font-variation-settings:"opsz" 40,"wdth" 85;color:var(--dim);margin-top:2px}
+  .title p{margin:12px 0 0;font-size:15px;line-height:1.38;color:#e4d8df;text-shadow:0 1px 14px #000}
+  .title p b{color:var(--hot);font-weight:600}
+  .panel{position:fixed;right:max(28px,env(safe-area-inset-right,0px));bottom:max(26px,env(safe-area-inset-bottom,0px));z-index:5;width:min(390px,calc(100vw - 56px));background:var(--glass);border:1px solid var(--rule);border-radius:18px;padding:14px 16px 14px;backdrop-filter:blur(10px)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chips button{font:500 13px/1 var(--grot);color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:999px;padding:8px 12px;cursor:pointer}
+  .chips button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .chips button:focus-visible,input:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .state{margin:12px 0 10px;font-size:14.5px;line-height:1.35;color:#eadfe6;min-height:2.7em}
+  .state b{color:var(--hot);font-weight:600}
+  .row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+  .row input{width:100%;accent-color:var(--hot)}
+  .meter{display:flex;justify-content:space-between;gap:10px;margin-top:10px;font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+  .meter b{color:var(--ink);font-weight:500}
+  @media (max-width:860px){
+    .title p{display:none}
+    .panel{left:16px;right:16px;width:auto;bottom:16px}
+    .title{bottom:auto;top:58px;left:16px}
+  }
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="Brain made of oscillating neurons, with four EEG traces. Click the brain to stimulate it."></canvas>
+<header>
+  <a href="../">&larr; VisualStims</a>
+  <span id="slow">time slowed ×8</span>
+</header>
+
+<div class="title">
+  <h1><span class="script">Brainwaves</span><span class="sub">No. 03 · in sync</span></h1>
+  <p>Each speck is a patch of cortex with its own rhythm. An EEG electrode hears thousands of them at once. When they rise and fall <b>together</b>, their signals add up into a big wave. When each one does its own thing, they cancel out. Click the brain to zap it.</p>
+</div>
+
+<section class="panel" aria-label="Brain state">
+  <div class="chips" id="chips" role="group" aria-label="Brain state"></div>
+  <p class="state" id="stateTxt" aria-live="polite"></p>
+  <div class="row"><span>chaos</span><input type="range" id="K" min="0" max="6" step="0.05" value="2" aria-label="How strongly neighbouring neurons pull each other into sync"><span>order</span></div>
+  <div class="meter"><span>synchrony <b id="R">0.00</b></span><span>rhythm <b id="hz">10 Hz</b></span><span>EEG size <b id="amp">—</b></span></div>
+</section>
+
+<script>
+(function(){
+'use strict';
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1;
+
+/* ---------- oscillator field shaped like a brain seen from above (front at the top) ---------- */
+const GW = 96, GH = 116, N = GW*GH;
+const mask = new Uint8Array(N), theta = new Float32Array(N), omega = new Float32Array(N), kmul = new Float32Array(N), next = new Float32Array(N);
+const nbrs = [];
+for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++){
+  const nx = (x + .5)/GW - .5, ny = (y + .5)/GH - .5, i = y*GW + x;
+  const side = nx < 0 ? -1 : 1, ex = (nx - side*.252)/.236, ey = (ny + (ny < 0 ? .02 : 0))/(.47 - Math.max(0, -ny)*.06);
+  const wob = .03*Math.sin(ny*38 + side) + .02*Math.sin(nx*41);
+  mask[i] = (ex*ex + ey*ey < 1 + wob && Math.abs(nx) > .012) ? 1 : 0;
+}
+for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++){
+  const i = y*GW + x; const list = [];
+  if (mask[i]) for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++){
+    if (!dx && !dy) continue; const xx = x + dx, yy = y + dy;
+    if (xx >= 0 && yy >= 0 && xx < GW && yy < GH && mask[yy*GW + xx]) list.push(yy*GW + xx);
+  }
+  nbrs.push(Int32Array.from(list));
+}
+let gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(6.2832*v); };
+for (let i = 0; i < N; i++) theta[i] = Math.random()*6.2832;
+
+/* ---------- brain states (real frequencies are slowed so the eye can follow them) ---------- */
+const STATES = {
+  sleep:  {label:'Deep sleep', f:1.5, slow:1.2, K:3.4, spread:.06, glob:.25, post:0,   text:'<b>Delta, 1–3 Hz.</b> Huge, slow waves. Big patches of cortex fall silent and fire again together, so the electrodes see enormous swings.'},
+  relaxed:{label:'Relaxed', f:10, slow:8, K:2.1, spread:.10, glob:.05, post:1, text:'<b>Alpha, 8–12 Hz.</b> Eyes closed, mind idling. The rhythm is strongest over the <b>back of the head</b>, above the visual cortex.'},
+  focused:{label:'Focused', f:20, slow:8, K:.35, spread:.35, glob:0, post:0, text:'<b>Beta, 13–30 Hz.</b> Alert and thinking. Neurons are busy with different jobs, so they fall out of step and the EEG gets small and fast.'},
+  gamma:  {label:'Gamma', f:40, slow:16, K:1.25, spread:.16, glob:0, post:0, text:'<b>Gamma, 30–100 Hz.</b> Fast, local bursts of sync, thought to help bind features (colour, shape, motion) into one percept.'},
+  seizure:{label:'Seizure', f:3, slow:2, K:6, spread:.03, glob:1.2, post:0, text:'<b>Hypersynchrony.</b> Far too many neurons lock together and fire as one. The EEG shows giant, repeating spike-and-wave patterns.'}
+};
+let S = STATES.relaxed, K = S.K, glob = S.glob;
+function setState(key){
+  S = STATES[key]; K = S.K; glob = S.glob; document.getElementById('K').value = K;
+  for (let i = 0; i < N; i++){
+    const y = Math.floor(i/GW)/GH;                                     // 0 = front, 1 = back
+    omega[i] = 6.2832*(S.f/S.slow)*(1 + S.spread*gauss())*(1 + .1*(y - .5));
+    kmul[i] = S.post ? .35 + 1.3*y*y : 1;
+  }
+  document.getElementById('stateTxt').innerHTML = S.text;
+  document.getElementById('hz').textContent = S.f + ' Hz';
+  document.getElementById('slow').textContent = 'time slowed ×' + S.slow;
+  [...document.querySelectorAll('#chips button')].forEach(b => b.setAttribute('aria-pressed', b.dataset.k === key));
+}
+const chips = document.getElementById('chips');
+Object.entries(STATES).forEach(([k, s]) => { const b = document.createElement('button'); b.textContent = s.label; b.dataset.k = k; b.addEventListener('click', () => setState(k)); chips.appendChild(b); });
+document.getElementById('K').addEventListener('input', e => { K = +e.target.value; });
+
+/* ---------- electrodes ---------- */
+const EL = [{n:'F3', x:-.24, y:-.3, c:'#ffc79e'}, {n:'C4', x:.24, y:-.02, c:'#ff8fb8'}, {n:'P3', x:-.25, y:.2, c:'#b79cff'}, {n:'O2', x:.2, y:.38, c:'#8fe3ff'}];
+const HIST = 520;
+EL.forEach(e => { e.gx = Math.round((e.x + .5)*GW); e.gy = Math.round((e.y + .5)*GH); e.cells = [];
+  for (let y = e.gy - 9; y <= e.gy + 9; y++) for (let x = e.gx - 9; x <= e.gx + 9; x++){ if (x < 0 || y < 0 || x >= GW || y >= GH) continue; const i = y*GW + x; if (mask[i] && (x-e.gx)**2 + (y-e.gy)**2 <= 81) e.cells.push(i); }
+  e.buf = new Float32Array(HIST); e.v = 0; });
+
+/* ---------- layout ---------- */
+let brain = {x:0, y:0, w:0, h:0}, traces = {x:0, y:0, w:0, h:0};
+function layout(){
+  DPR = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+  cv.width = W*DPR; cv.height = H*DPR;
+  const narrow = W < 860;
+  if (narrow){ const bh = H*.42; brain = {w:bh*GW/GH, h:bh, x:(W - bh*GW/GH)/2, y:H*.12}; traces = {x:16, y:H*.56, w:W - 32, h:H*.18}; }
+  else { const bh = H*.78; brain = {w:bh*GW/GH, h:bh, x:W*.08, y:H*.09}; const tx = brain.x + brain.w + W*.05; traces = {x:tx, y:H*.12, w:W - tx - 40, h:H*.5}; }
+  ctx.setTransform(DPR,0,0,DPR,0,0); ctx.fillStyle = '#0b0710'; ctx.fillRect(0,0,W,H);
+}
+addEventListener('resize', layout); layout();
+
+/* ---------- stimulation: click the brain ---------- */
+function zap(px, py){
+  const gx = (px - brain.x)/brain.w*GW, gy = (py - brain.y)/brain.h*GH;
+  if (gx < -4 || gy < -4 || gx > GW + 4 || gy > GH + 4) return;
+  for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++){ const i = y*GW + x; if (!mask[i]) continue;
+    const d = Math.hypot(x - gx, y - gy); if (d < 13) theta[i] = (d*.35 + Math.random()*.2) % 6.2832; }
+}
+cv.addEventListener('pointerdown', e => zap(e.clientX, e.clientY));
+
+/* ---------- colour: a cyclic palette keyed to phase ---------- */
+const PAL = new Uint8ClampedArray(256*3);
+for (let k = 0; k < 256; k++){ const t = k/256;
+  const r = .55 + .45*Math.cos(6.2832*(t + .00)), g = .38 + .36*Math.cos(6.2832*(t + .78)), b = .62 + .38*Math.cos(6.2832*(t + .58));
+  PAL[3*k] = r*255; PAL[3*k+1] = g*255; PAL[3*k+2] = b*255; }
+const off = document.createElement('canvas'); off.width = GW; off.height = GH; const ox = off.getContext('2d');
+const img = ox.createImageData(GW, GH);
+
+/* ---------- loop ---------- */
+let last = performance.now(), Rs = 0;
+function step(dt){
+  let cr = 0, ci = 0, n = 0;
+  for (let i = 0; i < N; i++) if (mask[i]){ cr += Math.cos(theta[i]); ci += Math.sin(theta[i]); n++; }
+  const R = Math.hypot(cr, ci)/n, Psi = Math.atan2(ci, cr);
+  for (let i = 0; i < N; i++){
+    if (!mask[i]) continue;
+    const nb = nbrs[i], th = theta[i]; let s = 0;
+    for (let j = 0; j < nb.length; j++) s += Math.sin(theta[nb[j]] - th);
+    const local = nb.length ? s/nb.length : 0;
+    next[i] = th + dt*(omega[i] + K*kmul[i]*local*2.2 + glob*R*Math.sin(Psi - th)*2 + .12*gauss());
+  }
+  for (let i = 0; i < N; i++) if (mask[i]) theta[i] = next[i] % 6.2832;
+  return R;
+}
+function frame(now){
+  const dt = Math.min(.05, (now - last)/1000); last = now;
+  const sub = RM ? 1 : 2; let R = 0;
+  for (let k = 0; k < sub; k++) R = step(dt/sub);
+  Rs += (R - Rs)*.08;
+
+  // electrodes: average of cos(phase) under each one
+  EL.forEach(e => { let s = 0; for (const i of e.cells) s += Math.cos(theta[i]); e.v = s/e.cells.length; e.buf.copyWithin(0, 1); e.buf[HIST-1] = e.v; });
+
+  // long-exposure trails
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = RM ? '#0b0710' : 'rgba(11,7,16,.22)'; ctx.fillRect(0, 0, W, H);
+
+  // the brain field
+  const d = img.data;
+  for (let i = 0; i < N; i++){
+    if (!mask[i]){ d[4*i+3] = 0; continue; }
+    const th = theta[i], b = .5 + .5*Math.cos(th), k = ((th/6.2832)*256 | 0) & 255, lum = .08 + .92*b*b;
+    d[4*i] = PAL[3*k]*lum; d[4*i+1] = PAL[3*k+1]*lum; d[4*i+2] = PAL[3*k+2]*lum; d[4*i+3] = 255;
+  }
+  ox.putImageData(img, 0, 0);
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = .8; ctx.drawImage(off, brain.x, brain.y, brain.w, brain.h);
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = .3; ctx.filter = 'blur(18px)'; ctx.drawImage(off, brain.x, brain.y, brain.w, brain.h);
+  ctx.filter = 'none';
+  ctx.globalAlpha = 1;
+
+  // electrodes on the brain
+  ctx.globalCompositeOperation = 'source-over';
+  EL.forEach(e => { const px = brain.x + (e.gx/GW)*brain.w, py = brain.y + (e.gy/GH)*brain.h;
+    ctx.strokeStyle = e.c; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(px, py, 9 + 4*Math.abs(e.v), 0, 6.2832); ctx.stroke();
+    ctx.fillStyle = e.c; ctx.font = '500 11px "Geist Mono", monospace'; ctx.fillText(e.n, px + 14, py + 4); });
+
+  // EEG ribbons
+  const rows = EL.length, rh = traces.h/rows;
+  ctx.globalCompositeOperation = 'lighter';
+  EL.forEach((e, r) => {
+    const cy = traces.y + rh*(r + .5), amp = rh*.46;
+    for (let pass = 0; pass < 2; pass++){
+      ctx.strokeStyle = e.c; ctx.globalAlpha = pass ? .95 : .18; ctx.lineWidth = pass ? 1.6 : 7; ctx.lineJoin = 'round';
+      ctx.beginPath();
+      for (let k = 0; k < HIST; k++){ const x = traces.x + traces.w*k/(HIST-1), y = cy - e.buf[k]*amp; k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+      ctx.stroke();
+    }
+    ctx.globalAlpha = .8; ctx.fillStyle = e.c; ctx.font = '500 11px "Geist Mono", monospace'; ctx.fillText(e.n, traces.x - 26, cy + 4);
+  });
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+
+  document.getElementById('R').textContent = Rs.toFixed(2);
+  const ampAvg = EL.reduce((s, e) => { let m = 0; for (let k = HIST - 120; k < HIST; k++) m = Math.max(m, Math.abs(e.buf[k])); return s + m; }, 0)/EL.length;
+  document.getElementById('amp').textContent = ampAvg > .6 ? 'huge' : ampAvg > .35 ? 'big' : ampAvg > .15 ? 'medium' : 'tiny';
+  requestAnimationFrame(frame);
+}
+setState('relaxed');
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
