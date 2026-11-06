@@ -43,6 +43,10 @@
   .hero h1 em{font-style:normal;font-weight:200;font-variation-settings:"opsz" 96,"wdth" 75}
   .hero h1 .script{display:block;font-family:"Homemade Apple","Snell Roundhand","Segoe Script",cursive;font-weight:400;font-variation-settings:normal;letter-spacing:0;font-size:.95em;line-height:1.5;margin-bottom:-.12em;transform:rotate(-3deg);transform-origin:left bottom}
   .hero h1 .rest{display:block}
+  .hero h1 .rest .w{white-space:nowrap}
+  .hero h1 .rest .ch{display:inline-block;transform:translateY(var(--y,0));animation:wave 2.8s ease-in-out infinite;animation-delay:calc(var(--i) * -.19s)}
+  @keyframes wave{0%,100%{transform:translateY(.17em) rotate(4deg)}50%{transform:translateY(-.19em) rotate(-5deg)}}
+  @media (prefers-reduced-motion: reduce){.hero h1 .rest .ch{animation:none}}
   .melt{height:70vh}
 
   .about{position:relative;z-index:6;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:48px;align-items:start;padding-block:4vh 10vh}
@@ -487,6 +491,29 @@ document.querySelectorAll('a.row[data-peek]').forEach(a => {
   a.addEventListener('pointerleave', () => peek.classList.remove('on'));
 });
 addEventListener('pointermove', e => { peek.style.left = (e.clientX + 170) + 'px'; peek.style.top = e.clientY + 'px'; }, {passive:true});
+})();
+</script>
+<script>
+/* make "grown from the nervous system" wavy: wrap each letter, offset each one along a wave */
+(function(){
+  const rest = document.querySelector('.hero h1 .rest'); if (!rest) return;
+  let i = 0;
+  const wrap = node => {
+    if (node.nodeType === 3){
+      const frag = document.createDocumentFragment();
+      node.textContent.split(/(\s+)/).forEach(part => {
+        if (!part) return;
+        if (/^\s+$/.test(part)){ frag.appendChild(document.createTextNode(part)); return; }
+        const w = document.createElement('span'); w.className = 'w';
+        for (const c of part){ const s = document.createElement('span'); s.className = 'ch'; s.textContent = c;
+          s.style.setProperty('--i', i); s.style.setProperty('--y', (Math.sin(i*.55)*.1).toFixed(3) + 'em'); i++; w.appendChild(s); }
+        frag.appendChild(w);
+      });
+      node.replaceWith(frag);
+    } else [...node.childNodes].forEach(wrap);
+  };
+  [...rest.childNodes].forEach(wrap);
+  rest.setAttribute('aria-label', rest.textContent);
 })();
 </script>
 </body>
