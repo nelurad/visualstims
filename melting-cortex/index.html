@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Melting Cortex · VisualStims</title>
+<meta name="description" content="A slice of cortex, drawn live, false-coloured by a WebGL shader, melting as you scroll, with contour lines that follow your cursor.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;600&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+  /* Layout: one 200vh WebGL "stage" behind a hero; the lower half melts into the page colour, then a quiet explainer. Single dark world by choice. */
+  :root{
+    --page:#1d2730;      /* the colour the footage dissolves into */
+    --ink:#eef1ee;
+    --muted:#9fb0b7;
+    --line:#3a4853;
+    --chip:#ffffff14;
+    --accent:#f0b38a;
+    --display:"Instrument Serif","Iowan Old Style",Georgia,serif;
+    --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    color-scheme:dark;
+  }
+  html,body{margin:0;background:var(--page);color:var(--ink)}
+  *{box-sizing:border-box}
+  body{font-family:var(--body);font-weight:400;line-height:1.55;overflow-x:hidden}
+  .stage{position:absolute;inset:0 0 auto 0;height:200vh;z-index:0}
+  #gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+  #topo{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:5}
+  header{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+    padding-block:18px;padding-left:max(22px,env(safe-area-inset-left,0px));padding-right:max(22px,env(safe-area-inset-right,0px))}
+  .mark{color:var(--ink);text-decoration:none;font-family:var(--mono);font-size:12px;letter-spacing:.32em;text-transform:uppercase}
+  .layers{display:flex;gap:6px;flex-wrap:wrap}
+  .layers button{font:500 12px/1 var(--body);letter-spacing:.04em;color:var(--ink);background:var(--chip);border:1px solid #ffffff2a;border-radius:999px;padding:8px 12px;cursor:pointer;backdrop-filter:blur(6px)}
+  .layers button[aria-pressed="true"]{background:var(--ink);color:#111a20;border-color:var(--ink)}
+  .layers button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .hero{position:relative;z-index:6;height:100vh;display:flex;align-items:flex-end;
+    padding-block:0 9vh;padding-left:max(22px,env(safe-area-inset-left,0px));padding-right:max(22px,env(safe-area-inset-right,0px));pointer-events:none}
+  .hero h1{font-family:var(--display);font-weight:400;font-size:clamp(44px,7.4vw,112px);line-height:.95;margin:0;letter-spacing:-.01em;text-wrap:balance;text-shadow:0 2px 30px #0006}
+  .hero h1 i{font-style:italic}
+  .hero p{margin:14px 0 0;max-width:34ch;font-size:15px;color:#e9eeeb;text-shadow:0 1px 12px #000a}
+  .melt{height:78vh}
+  main{position:relative;z-index:6;padding-block:8vh 14vh;padding-left:max(22px,env(safe-area-inset-left,0px));padding-right:max(22px,env(safe-area-inset-right,0px))}
+  .inner{max-width:1080px;margin:0 auto}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted)}
+  h2{font-family:var(--display);font-weight:400;font-size:clamp(32px,4vw,54px);line-height:1.05;margin:10px 0 18px;text-wrap:balance}
+  .lead{max-width:62ch;color:#cfd8d6;font-size:16.5px}
+  .cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:44px;border-top:1px solid var(--line)}
+  .col{padding:22px 22px 6px 0;min-width:0}
+  .col+.col{padding-left:22px;border-left:1px solid var(--line)}
+  .col h3{font-family:var(--display);font-weight:400;font-size:26px;margin:4px 0 8px}
+  .col p{margin:0 0 10px;color:#c3cecc;font-size:14.5px}
+  .col code{font-family:var(--mono);font-size:12px;color:var(--accent)}
+  .hint{margin-top:40px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  @media (max-width:760px){.cols{grid-template-columns:1fr}.col+.col{padding-left:0;border-left:0;border-top:1px solid var(--line)}}
+</style>
+</head>
+<body>
+
+<div class="stage"><canvas id="gl" aria-label="Animated false-colour slice of cortex with pyramidal neurons"></canvas></div>
+<canvas id="topo" aria-hidden="true"></canvas>
+
+<header>
+  <a class="mark" href="../">&larr;&nbsp;VisualStims</a>
+  <div class="layers" role="group" aria-label="Which layers to show">
+    <button id="L1" aria-pressed="false">1 · Footage</button>
+    <button id="L2" aria-pressed="false">2 · + Shader</button>
+    <button id="L3" aria-pressed="true">3 · + Contours</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div>
+    <h1>A slice of<br><i>cortex</i>, melting</h1>
+    <p>Pyramidal neurons, the main cells of the cortex: triangle-shaped bodies, one long apical dendrite reaching up, spines on every branch. Watch for cells firing. Move your cursor over them, then scroll down.</p>
+  </div>
+</section>
+<div class="melt" aria-hidden="true"></div>
+
+<main>
+  <div class="inner">
+    <div class="eyebrow">How it's built</div>
+    <h2>Three layers, each one simple</h2>
+    <p class="lead">This page borrows the technique behind the butterfly-wing background on <a href="https://metamorphic.com/" style="color:var(--accent)">metamorphic.com</a>, with different footage. Nothing here is a prerendered video: the "footage" is drawn live, so you can turn each layer on and off.</p>
+    <div class="cols">
+      <div class="col">
+        <div class="eyebrow">Layer 1</div>
+        <h3>The footage</h3>
+        <p>A hidden canvas grows 26 pyramidal neurons once (cell body, apical dendrite and tuft, basal dendrites, spines, axon with boutons) over a felt of faint fibres. Every frame it pans across them like a microscope stage, and now and then a cell fires: its body flashes and a pulse runs down the axon. In the original site this layer is a real MP4 of a wing.</p>
+        <p><code>drawImage(tissue)</code> + action-potential pulses</p>
+      </div>
+      <div class="col">
+        <div class="eyebrow">Layer 2</div>
+        <h3>The shader</h3>
+        <p>Each frame is uploaded to the GPU. A fragment shader false-colours it by brightness, finds edges by comparing neighbouring pixels, and lower down the page bends the image with two sine waves and those edges, then dissolves it into the page colour.</p>
+        <p><code>texture(uSrc, uv + warp)</code></p>
+      </div>
+      <div class="col">
+        <div class="eyebrow">Layer 3</div>
+        <h3>The contours</h3>
+        <p>A transparent canvas on top shrinks what's on screen to a 128 × 80 grid, treats brightness as height, and traces topographic lines with marching squares. Only the lines near your cursor are drawn. On a phone, a point drifts around by itself.</p>
+        <p><code>marchingSquares(grid, level)</code></p>
+      </div>
+    </div>
+    <p class="hint">Tip: "1 · Footage" shows the raw drawing, before the shader colours it.</p>
+  </div>
+</main>
+
+<script>
+(function(){
+'use strict';
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const PAGE = [0x1d/255, 0x27/255, 0x30/255];
+let layer = 3;
+
+/* ---------- Layer 1: procedural "footage" (a slice of cortex) ---------- */
+const SW = 1280, SH = 720;
+const src = document.createElement('canvas'); src.width = SW; src.height = SH;
+const sx = src.getContext('2d');
+let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const LW = 1760, LH = 990;                       // static tissue layer, larger than the frame so we can pan
+const tissue = document.createElement('canvas'); tissue.width = LW; tissue.height = LH;
+const tc = tissue.getContext('2d');
+const CREAM = 'rgba(250,236,214,';
+
+function walk(x, y, ang, len, w, taper, wig){        // a wiggly path; returns points [x,y,w]
+  const pts = [[x, y, w]]; let a = ang;
+  for (let d = 0; d < len; d += 5){
+    a += (rnd() - .5) * wig; x += Math.cos(a) * 5; y += Math.sin(a) * 5; w = Math.max(.6, w * taper);
+    pts.push([x, y, w]);
+  }
+  return pts;
+}
+function stroke(pts, alpha, spines){
+  tc.lineCap = 'round'; tc.lineJoin = 'round';
+  for (let i = 1; i < pts.length; i++){
+    const [x0, y0, w0] = pts[i-1], [x1, y1] = pts[i];
+    tc.strokeStyle = CREAM + alpha + ')'; tc.lineWidth = w0;
+    tc.beginPath(); tc.moveTo(x0, y0); tc.lineTo(x1, y1); tc.stroke();
+    if (spines && w0 < 3.2 && rnd() < .7){            // dendritic spines: tiny stalks with round heads
+      const a = Math.atan2(y1 - y0, x1 - x0) + (rnd() < .5 ? 1 : -1) * (1.2 + rnd() * .5), L = 2.5 + rnd() * 3.5;
+      const hx = x1 + Math.cos(a) * L, hy = y1 + Math.sin(a) * L;
+      tc.lineWidth = .7; tc.beginPath(); tc.moveTo(x1, y1); tc.lineTo(hx, hy); tc.stroke();
+      tc.fillStyle = CREAM + alpha + ')'; tc.beginPath(); tc.arc(hx, hy, .9 + rnd() * .8, 0, 6.2832); tc.fill();
+    }
+  }
+}
+function tree(x, y, ang, len, w, depth, maxD, alpha){   // dendrite that forks as it goes
+  const pts = walk(x, y, ang, len, w, .985, .22); stroke(pts, alpha, true);
+  if (depth >= maxD) return;
+  const [ex, ey] = pts[pts.length-1], a = Math.atan2(ey - pts[pts.length-3][1], ex - pts[pts.length-3][0]);
+  tree(ex, ey, a - .35 - rnd()*.35, len * (.6 + rnd()*.25), w * .7, depth + 1, maxD, alpha);
+  tree(ex, ey, a + .35 + rnd()*.35, len * (.6 + rnd()*.25), w * .7, depth + 1, maxD, alpha);
+}
+const neurons = [];
+function pyramidal(x, y, s, alpha){
+  // apical dendrite: one thick trunk straight up toward the brain surface, with side branches and a tuft
+  const ap = walk(x, y - s*1.25, -Math.PI/2 + (rnd()-.5)*.12, 170 + rnd()*120, s*.42, .992, .06);
+  stroke(ap, alpha, true);
+  for (let i = 8; i < ap.length - 4; i += 6 + Math.floor(rnd()*5)){
+    const [px, py, pw] = ap[i], side = rnd() < .5 ? -1 : 1;
+    tree(px, py, -Math.PI/2 + side*(.9 + rnd()*.5), 30 + rnd()*40, pw*.55, 1, 2, alpha);
+  }
+  const [tx, ty, tw] = ap[ap.length-1];
+  for (let k = 0; k < 4; k++) tree(tx, ty, -Math.PI/2 + (k - 1.5)*.55 + (rnd()-.5)*.2, 40 + rnd()*40, tw*.8, 1, 3, alpha);
+  // basal dendrites: a skirt of shorter branches from the bottom of the cell body
+  for (let k = 0; k < 6; k++){
+    const a = Math.PI*(.02 + .96*k/5) + (rnd()-.5)*.25;
+    tree(x + Math.cos(a)*s*.7, y + s*.35, a, 45 + rnd()*45, s*.28, 1, 3, alpha);
+  }
+  // axon: thin, leaves from the base, runs down, with a couple of collaterals ending in boutons
+  const ax = walk(x, y + s*.6, Math.PI/2 + (rnd()-.5)*.3, 200 + rnd()*120, 1.3, 1, .08);
+  stroke(ax, alpha*.85, false);
+  for (let i = 18; i < ax.length; i += 16){
+    const c = walk(ax[i][0], ax[i][1], Math.PI/2 + (rnd() < .5 ? -1 : 1)*(1 + rnd()*.4), 40 + rnd()*40, .9, 1, .15);
+    stroke(c, alpha*.7, false);
+    tc.fillStyle = CREAM + alpha + ')'; const e = c[c.length-1]; tc.beginPath(); tc.arc(e[0], e[1], 2, 0, 6.2832); tc.fill();
+  }
+  // cell body: the classic triangle, apex pointing up
+  tc.fillStyle = CREAM + Math.min(1, alpha + .1) + ')';
+  tc.beginPath(); tc.moveTo(x, y - s*1.35); tc.quadraticCurveTo(x + s*.35, y - s*.2, x + s*.95, y + s*.55);
+  tc.quadraticCurveTo(x, y + s*.85, x - s*.95, y + s*.55); tc.quadraticCurveTo(x - s*.35, y - s*.2, x, y - s*1.35); tc.fill();
+  tc.fillStyle = 'rgba(40,24,20,.55)'; tc.beginPath(); tc.arc(x, y + s*.1, s*.32, 0, 6.2832); tc.fill();   // nucleus
+  neurons.push({x, y, s, axon:ax, apical:ap, next:2 + rnd()*9, fire:-10});
+}
+function buildTissue(){
+  tc.fillStyle = '#000'; tc.clearRect(0, 0, LW, LH);
+  for (let i = 0; i < 420; i++){                        // neuropil: a faint felt of passing fibres
+    const pts = walk(rnd()*LW, rnd()*LH, rnd()*6.28, 60 + rnd()*200, .6 + rnd()*.6, 1, .25);
+    stroke(pts, .08 + rnd()*.1, false);
+  }
+  for (let i = 0; i < 70; i++){                         // small round glial nuclei
+    tc.fillStyle = CREAM + (.15 + rnd()*.2) + ')'; tc.beginPath(); tc.arc(rnd()*LW, rnd()*LH, 2.5 + rnd()*3, 0, 6.2832); tc.fill();
+  }
+  // two rough layers of pyramidal cells, like layers III and V of cortex; a few faint ones deeper in the slice
+  for (let i = 0; i < 26; i++){
+    const deep = i >= 18, row = i % 2;
+    const slot = deep ? rnd() : ((i >> 1) + .15 + rnd()*.7)/9;
+    const x = 70 + slot*(LW - 140), y = deep ? 200 + rnd()*(LH - 260) : (row ? LH*.40 : LH*.68) + (rnd()-.5)*80;
+    pyramidal(x, y, deep ? 9 + rnd()*4 : 13 + rnd()*7, deep ? .32 : .92);
+  }
+}
+buildTissue();
+const blobs = Array.from({length:8}, () => ({x:rnd()*SW, y:rnd()*SH, r:160+rnd()*200, vx:(rnd()-.5)*10, vy:(rnd()-.5)*8, light:rnd()<.45}));
+
+function along(pts, k){ const i = Math.min(pts.length - 1, Math.floor(k*(pts.length-1))); return pts[i]; }
+function drawSource(t){
+  const g = sx.createRadialGradient(SW*.45, SH*.4, 60, SW*.5, SH*.5, SW*.8);
+  g.addColorStop(0, '#4a3832'); g.addColorStop(1, '#140e0d');
+  sx.setTransform(1,0,0,1,0,0); sx.fillStyle = g; sx.fillRect(0, 0, SW, SH);
+  for (const b of blobs){                                // out-of-focus depth in the slice
+    b.x += b.vx*.016; b.y += b.vy*.016; if (b.x < -200 || b.x > SW+200) b.vx *= -1; if (b.y < -200 || b.y > SH+200) b.vy *= -1;
+    const bg = sx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+    bg.addColorStop(0, b.light ? 'rgba(150,100,80,.45)' : 'rgba(4,2,3,.8)'); bg.addColorStop(1, b.light ? 'rgba(150,100,80,0)' : 'rgba(4,2,3,0)');
+    sx.fillStyle = bg; sx.beginPath(); sx.arc(b.x, b.y, b.r, 0, 6.2832); sx.fill();
+  }
+  // slow microscope-stage drift across the tissue
+  const z = SW/LW * (1.04 + Math.sin(t*.029)*.04);
+  const ox = (SW - LW*z)/2 + Math.sin(t*.041)*40, oy = (SH - LH*z)/2 + Math.cos(t*.033)*26;
+  sx.setTransform(z, 0, 0, z, ox, oy);
+  sx.globalAlpha = .55; sx.filter = 'blur(3px)'; sx.drawImage(tissue, 0, 0);   // soft glow
+  sx.filter = 'none'; sx.globalAlpha = 1; sx.drawImage(tissue, 0, 0);
+  // action potentials: a cell body flashes and a pulse runs down its axon
+  for (const n of neurons){
+    if (t > n.next){ n.fire = t; n.next = t + 3 + rnd()*10; }
+    const age = t - n.fire; if (age < 0 || age > 1.6) continue;
+    const flash = Math.max(0, 1 - age/0.5);
+    if (flash > 0){
+      const fg = sx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.s*5);
+      fg.addColorStop(0, `rgba(255,250,235,${.85*flash})`); fg.addColorStop(1, 'rgba(255,250,235,0)');
+      sx.fillStyle = fg; sx.beginPath(); sx.arc(n.x, n.y, n.s*5, 0, 6.2832); sx.fill();
+    }
+    const k = Math.min(1, age/1.3), p = along(n.axon, k);
+    const pg = sx.createRadialGradient(p[0], p[1], 0, p[0], p[1], 14);
+    pg.addColorStop(0, `rgba(255,252,240,${1 - k*.5})`); pg.addColorStop(1, 'rgba(255,252,240,0)');
+    sx.fillStyle = pg; sx.beginPath(); sx.arc(p[0], p[1], 14, 0, 6.2832); sx.fill();
+  }
+}
+
+/* ---------- Layer 2: WebGL shader ---------- */
+const cv = document.getElementById('gl');
+const gl = cv.getContext('webgl2', {antialias:false, premultipliedAlpha:false, preserveDrawingBuffer:true});
+const vs = `#version 300 es
+in vec2 aPos; out vec2 vUv;
+void main(){ vUv = aPos*.5+.5; gl_Position = vec4(aPos,0.,1.); }`;
+const fs = `#version 300 es
+precision highp float;
+uniform sampler2D uSrc; uniform vec2 uRes; uniform vec2 uSrcRes; uniform float uTime; uniform int uMode; uniform vec3 uPage;
+in vec2 vUv; out vec4 o;
+float luma(vec3 c){ return dot(c, vec3(.2126,.7152,.0722)); }
+vec2 cover(vec2 uv){              // uv top-down over the 200vh stage; the hero is the top half
+  float hero = (uRes.x/uRes.y)*2.0, sa = uSrcRes.x/uSrcRes.y;
+  vec2 q = vec2(uv.x, uv.y*2.0);
+  if (sa > hero) q.x = .5 + (q.x-.5)*(hero/sa); else q.y = .5 + (q.y-.5)*(sa/hero);
+  return clamp(q, 0., 1.);
+}
+vec3 falseColour(float l, float e){
+  vec3 c0=vec3(.17,.07,.15), c1=vec3(.52,.16,.20), c2=vec3(.86,.44,.24), c3=vec3(.50,.70,.64), c4=vec3(.92,.89,.80);
+  vec3 c = mix(c0,c1,smoothstep(.04,.34,l));
+  c = mix(c,c2,smoothstep(.34,.52,l));
+  c = mix(c,c3,smoothstep(.52,.72,l));
+  c = mix(c,c4,smoothstep(.76,.95,l));
+  return mix(c, vec3(.42,.78,.80), e*.35);          // teal halo on edges
+}
+void main(){
+  vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
+  float y = uv.y;
+  vec2 b = cover(vec2(uv.x, y*.5));
+  vec2 px = 1.0/uSrcRes;
+  float gx = luma(texture(uSrc, b+vec2(px.x*3.,0)).rgb) - luma(texture(uSrc, b-vec2(px.x*3.,0)).rgb);
+  float gy = luma(texture(uSrc, b+vec2(0,px.y*3.)).rgb) - luma(texture(uSrc, b-vec2(0,px.y*3.)).rgb);
+  float edge = clamp(length(vec2(gx,gy))*4.0, 0., 1.);
+  float d = clamp((y-.36)/.30, 0., 1.); d = d*d*(3.-2.*d);
+  float w1 = sin(uv.x*6.2831*.9 + y*5. - uTime*.36);
+  float w2 = sin(uv.x*6.2831*.9*1.71 - y*8. + uTime*.21 + .8);
+  float flow = w1*.68 + w2*.32;
+  float sY = .36 + (y-.36)/(1. + d*.62*3.5);
+  sY += flow*.032*.62*d + gy*.10*.55*d;
+  sY = mix(y, sY, d);
+  float shiftX = flow*.5*.052*d + gx*.55*.07*d;
+  vec2 w = cover(vec2(clamp(uv.x+shiftX,0.,1.), clamp(sY,0.,1.)*.5));
+  vec3 s = texture(uSrc, w).rgb;
+  float l = luma(s);
+  float e2 = clamp(length(vec2(gx,gy))*3.0,0.,1.);
+  vec3 col = falseColour(l, e2*(1.-d*.5));
+  if (uMode == 1) col = texture(uSrc, b).rgb;
+  else col += (fract(sin(dot(uv*uRes + uTime, vec2(12.9898,78.233)))*43758.5453)-.5)*.035;   // film grain
+  float irr = (edge-.42)*.055*.55 + sin(uv.x*8. + uTime*.05)*.008;
+  float reveal = smoothstep(.70+irr, .70+.12+irr, y);
+  o = vec4(mix(col, uPage, reveal), 1.);
+}`;
+function sh(type, s){ const x = gl.createShader(type); gl.shaderSource(x, s); gl.compileShader(x);
+  if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; }
+let prog, U = {};
+if (gl){
+  prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(prog); gl.useProgram(prog);
+  const vao = gl.createVertexArray(); gl.bindVertexArray(vao);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'aPos'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+  [[gl.TEXTURE_MIN_FILTER, gl.LINEAR],[gl.TEXTURE_MAG_FILTER, gl.LINEAR],[gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]].forEach(([k,v]) => gl.texParameteri(gl.TEXTURE_2D, k, v));
+  ['uSrc','uRes','uSrcRes','uTime','uMode','uPage'].forEach(n => U[n] = gl.getUniformLocation(prog, n));
+  gl.uniform1i(U.uSrc, 0); gl.uniform2f(U.uSrcRes, SW, SH); gl.uniform3f(U.uPage, ...PAGE);
+}
+function sizeGL(){
+  const dpr = Math.min(devicePixelRatio || 1, 1.5);
+  cv.width = Math.round(cv.clientWidth * dpr); cv.height = Math.round(cv.clientHeight * dpr);
+  if (gl){ gl.viewport(0, 0, cv.width, cv.height); gl.uniform2f(U.uRes, cv.width, cv.height); }
+}
+
+/* ---------- Layer 3: contour overlay ---------- */
+const topo = document.getElementById('topo'), tx = topo.getContext('2d');
+const GW = 128, GH = 80, small = document.createElement('canvas'); small.width = GW; small.height = GH;
+const smx = small.getContext('2d', {willReadFrequently:true});
+const raw = new Float32Array(GW*GH), field = new Float32Array(GW*GH);
+const P = {x:innerWidth*.5, y:innerHeight*.5, tx:innerWidth*.5, ty:innerHeight*.5, inside:false, energy:0};
+const touch = matchMedia('(hover: none)').matches;
+let lastSample = 0, W = innerWidth, H = innerHeight, tDPR = 1;
+function sizeTopo(){ W = innerWidth; H = innerHeight; tDPR = Math.min(devicePixelRatio || 1, 2);
+  topo.width = W*tDPR; topo.height = H*tDPR; }
+addEventListener('pointermove', e => { P.tx = e.clientX; P.ty = e.clientY; P.inside = true; }, {passive:true});
+document.documentElement.addEventListener('pointerleave', () => { P.inside = false; });
+
+function sample(){
+  const r = cv.getBoundingClientRect(), top = Math.max(0, r.top), bot = Math.min(H, r.bottom);
+  smx.fillStyle = '#1d2730'; smx.fillRect(0, 0, GW, GH);
+  if (bot > top){
+    const sy = (top - r.top) / r.height * cv.height, sh_ = (bot - top) / r.height * cv.height;
+    smx.drawImage(cv, 0, sy, cv.width, sh_, 0, top/H*GH, GW, (bot-top)/H*GH);
+  }
+  const d = smx.getImageData(0, 0, GW, GH).data;
+  for (let i = 0; i < GW*GH; i++){
+    const R = d[4*i]/255, G = d[4*i+1]/255, B = d[4*i+2]/255;
+    raw[i] = Math.min(1, .72*(.2126*R + .7152*G + .0722*B) + .38*(Math.max(R,G,B) - Math.min(R,G,B)));
+  }
+  for (let pass = 0; pass < 3; pass++){
+  const c = raw.slice();
+  for (let y = 1; y < GH-1; y++) for (let x = 1; x < GW-1; x++){
+    let s = 0, n = 0; for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++){ const k = (i|j) ? 1 : 4; s += c[(y+j)*GW + x+i]*k; n += k; }
+    raw[y*GW + x] = s/n;
+  }
+  }
+}
+const LEVELS = [1,2,3,4,5,6,7,8].map(i => .1 + .8*i/9);
+const lerpT = (a, b, v) => { const r = b - a; return Math.abs(r) < 1e-5 ? .5 : Math.max(0, Math.min(1, (v - a)/r)); };
+function drawContours(){
+  tx.setTransform(tDPR, 0, 0, tDPR, 0, 0); tx.clearRect(0, 0, W, H);
+  if (layer < 3 || P.energy < .01) return;
+  const cw = W/(GW-1), ch = H/(GH-1), RAD = Math.max(200, Math.min(W, H)*.34);
+  tx.strokeStyle = '#f4f1ea'; tx.lineWidth = 1.3; tx.lineCap = 'round';
+  for (const lv of LEVELS){
+    for (let y = 0; y < GH-1; y++) for (let x = 0; x < GW-1; x++){
+      const cx = x*cw, cy = y*ch;
+      const dist = Math.hypot(cx - P.x, cy - P.y); if (dist > RAD) continue;
+      const a = field[y*GW+x], b = field[y*GW+x+1], c = field[(y+1)*GW+x+1], d = field[(y+1)*GW+x];
+      const code = (a>lv?8:0) | (b>lv?4:0) | (c>lv?2:0) | (d>lv?1:0);
+      if (code === 0 || code === 15) continue;
+      const T = {x:cx + lerpT(a,b,lv)*cw, y:cy}, R = {x:cx+cw, y:cy + lerpT(b,c,lv)*ch},
+            Bm = {x:cx + lerpT(d,c,lv)*cw, y:cy+ch}, L = {x:cx, y:cy + lerpT(a,d,lv)*ch};
+      let pairs;
+      switch(code){ case 1: case 14: pairs=[[L,Bm]]; break; case 2: case 13: pairs=[[Bm,R]]; break; case 3: case 12: pairs=[[L,R]]; break;
+        case 4: case 11: pairs=[[T,R]]; break; case 5: pairs=[[L,T],[Bm,R]]; break; case 6: case 9: pairs=[[T,Bm]]; break;
+        case 7: case 8: pairs=[[L,T]]; break; case 10: pairs=[[T,R],[L,Bm]]; break; }
+      const k = Math.max(0, 1 - dist/RAD), al = P.energy * k*k*(3-2*k);
+      if (al < .02) continue;
+      tx.globalAlpha = .3 + .7*al;
+      tx.beginPath(); for (const [p, q] of pairs){ tx.moveTo(p.x, p.y); tx.lineTo(q.x, q.y); } tx.stroke();
+    }
+  }
+  tx.globalAlpha = 1;
+}
+
+/* ---------- loop ---------- */
+const t0 = performance.now(); let frozen = 0;
+function frame(now){
+  const t = RM ? 4 + frozen : (now - t0)/1000;
+  if (!RM || frozen === 0){ drawSource(t); frozen = 1; }
+  if (gl){
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
+    gl.uniform1f(U.uTime, t); gl.uniform1i(U.uMode, layer === 1 ? 1 : 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+  }
+  if (now - lastSample > 90){ lastSample = now; sample(); }
+  for (let i = 0; i < field.length; i++) field[i] += (raw[i] - field[i]) * .22;
+  if (touch || !P.inside){
+    const s = now/1000;
+    P.tx = W*.5 + Math.sin(.33*s*.45 + 1.3)*W*.24 + Math.sin(.11*s*.45)*W*.08;
+    P.ty = H*.5 + Math.cos(.27*s*.45 + .4)*H*.2 + Math.sin(.09*s*.45 + 2)*H*.07;
+  }
+  P.x += (P.tx - P.x)*.12; P.y += (P.ty - P.y)*.12;
+  P.energy += (1 - P.energy)*.05;
+  drawContours();
+  requestAnimationFrame(frame);
+}
+function resize(){ sizeGL(); sizeTopo(); }
+addEventListener('resize', resize);
+resize();
+const btns = [1,2,3].map(n => document.getElementById('L'+n));
+btns.forEach((b, i) => b.addEventListener('click', () => { layer = i + 1; btns.forEach((x, j) => x.setAttribute('aria-pressed', j === i)); }));
+requestAnimationFrame(frame);
+})();
+</script>
+
+</body>
+</html>
