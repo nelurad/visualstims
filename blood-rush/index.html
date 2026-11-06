@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blood Rush · VisualStims</title>
+<meta name="description" content="fMRI as art: oxygen-rich blood rushes to the part of the brain you're using, and the scanner sees it as the BOLD signal.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&family=Homemade+Apple&display=swap">
+<style>
+  :root{
+    --bg:#07060d;
+    --ink:#f5eee9;
+    --dim:#b9a9b8;
+    --glass:#120a16c9;
+    --rule:#ffffff26;
+    --hot:#ff8a5c;
+    --gold:#ffd27a;
+    --blue:#7d8cff;
+    --grot:"Bricolage Grotesque","Helvetica Neue",Arial,system-ui,sans-serif;
+    --mono:"Geist Mono",ui-monospace,Menlo,monospace;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hidden}
+  body{font-family:var(--grot);-webkit-font-smoothing:antialiased}
+  #c{position:fixed;inset:0;width:100vw;height:100vh;display:block;cursor:crosshair}
+  header{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:22px max(28px,env(safe-area-inset-right,0px)) 0 max(28px,env(safe-area-inset-left,0px));pointer-events:none}
+  header a{pointer-events:auto;font-size:14px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--ink)}
+  header span{font-family:var(--mono);font-size:12px;color:var(--dim)}
+  .title{position:fixed;left:max(28px,env(safe-area-inset-left,0px));bottom:max(26px,env(safe-area-inset-bottom,0px));z-index:5;max-width:min(440px,calc(100vw - 480px));pointer-events:none}
+  .title h1{margin:0;line-height:1}
+  .title .script{display:block;font-family:"Homemade Apple","Snell Roundhand",cursive;font-weight:400;font-size:clamp(34px,4vw,58px);line-height:1.5;transform:rotate(-3deg);transform-origin:left bottom}
+  .title .sub{display:block;font-weight:330;font-size:clamp(20px,1.8vw,26px);letter-spacing:-.02em;font-variation-settings:"opsz" 40,"wdth" 85;color:var(--dim);margin-top:2px}
+  .title p{margin:12px 0 0;font-size:15px;line-height:1.38;color:#e4d8df;text-shadow:0 1px 14px #000}
+  .title p b{color:var(--hot);font-weight:600}
+  .title p i{color:var(--blue);font-style:normal;font-weight:600}
+  .panel{position:fixed;right:max(28px,env(safe-area-inset-right,0px));bottom:max(26px,env(safe-area-inset-bottom,0px));z-index:5;width:min(400px,calc(100vw - 56px));background:var(--glass);border:1px solid var(--rule);border-radius:18px;padding:14px 16px 14px;backdrop-filter:blur(10px)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chips button{font:500 13px/1 var(--grot);color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:999px;padding:8px 12px;cursor:pointer}
+  .chips button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .chips.view{margin-top:8px}
+  .chips.view button{font-family:var(--mono);font-size:11.5px;padding:6px 10px}
+  .chips button:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .state{margin:12px 0 8px;font-size:14.5px;line-height:1.35;color:#eadfe6;min-height:2.7em}
+  .state b{color:var(--hot);font-weight:600}
+  #tr{display:block;width:100%;height:92px}
+  .meter{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+  .meter b{color:var(--ink);font-weight:500}
+  .key{display:flex;align-items:center;gap:8px;margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .key i{flex:1;height:6px;border-radius:3px;background:linear-gradient(90deg,#2a36c8,#7a2cc0,#e0285a,#ff6a3a,#ffd27a)}
+  @media (max-width:860px){
+    .title p{display:none}
+    .title{bottom:auto;top:58px;left:16px;max-width:calc(100vw - 32px)}
+    .panel{left:16px;right:16px;width:auto;bottom:16px}
+    #tr{height:64px}
+  }
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="A brain made of flowing blood vessels. Pick a task and watch oxygen-rich blood rush to the area doing the work. Click the brain to light up a spot."></canvas>
+<header>
+  <a href="../">&larr; VisualStims</a>
+  <span>real time · left side of the brain, front on the left</span>
+</header>
+
+<div class="title">
+  <h1><span class="script">Blood rush</span><span class="sub">No. 04 · the BOLD signal</span></h1>
+  <p>fMRI can't see neurons. It sees <b>blood</b>. When an area gets busy, nearby arteries widen and more oxygen-rich blood floods in than the neurons can use. Used-up, <i>oxygen-poor</i> blood is slightly magnetic and dims the MRI signal, so when the fresh blood washes it out, the spot gets brighter. That brightening is the BOLD signal.</p>
+</div>
+
+<section class="panel" aria-label="Task">
+  <div class="chips" id="chips" role="group" aria-label="What the brain is doing"></div>
+  <p class="state" id="stateTxt" aria-live="polite"></p>
+  <canvas id="tr" aria-label="Time course: task blocks and the BOLD signal"></canvas>
+  <div class="meter"><span>blood flow <b id="mf">+0%</b></span><span>oxygen-poor blood <b id="mq">0%</b></span><span>BOLD <b id="mb">+0.0%</b></span></div>
+  <div class="key"><span>oxygen-poor</span><i></i><span>oxygen-rich</span></div>
+  <div class="chips view" id="view" role="group" aria-label="View">
+    <button data-v="art" aria-pressed="true">blood view</button>
+    <button data-v="scan" aria-pressed="false">scanner view</button>
+  </div>
+</section>
+
+<script>
+(function(){
+'use strict';
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const trail = document.createElement('canvas'), tx = trail.getContext('2d');
+const stat = document.createElement('canvas'), sx = stat.getContext('2d');
+let W = 0, H = 0, DPR = 1, B = {x:0, y:0, s:1};   // brain box: u in 0..1, v in 0..0.8, scale s px per unit
+
+/* ---------- brain shape (lateral view, front to the left), union of ellipses in u,v units ---------- */
+const BLOBS = [
+  [.50,.37,.43,.30,0], [.25,.42,.21,.25,0], [.43,.58,.24,.12,-.08], [.80,.42,.15,.21,0],
+  [.76,.645,.135,.085,0], [.615,.72,.045,.115,-.32]
+];
+function inBrain(u, v){
+  for (const [cx,cy,rx,ry,a] of BLOBS){
+    const c = Math.cos(a), s = Math.sin(a), du = u - cx, dv = v - cy;
+    const x = du*c + dv*s, y = -du*s + dv*c;
+    if ((x*x)/(rx*rx) + (y*y)/(ry*ry) < 1) return true;
+  }
+  return false;
+}
+function inCerebrum(u, v){ return inBrain(u, v) && !((u - .76)**2/(.135**2) + (v - .645)**2/(.085**2) < 1 && v > .6); }
+
+/* ---------- seeded random ---------- */
+let seed = 7; const rnd = () => (seed = (seed*16807) % 2147483647)/2147483647;
+
+/* ---------- grow the vessel trees ---------- */
+const nodes = [];          // {u,v,p,ch:[],d}
+const roots = [];
+const occ = new Uint8Array(70*56);
+function occAt(u, v){ return ((Math.min(55, Math.max(0, v/.8*56)|0))*70) + Math.min(69, Math.max(0, u*70|0)); }
+function grow(pi, ang, len, depth, maxD){
+  const p = nodes[pi];
+  const u = p.u + Math.cos(ang)*len, v = p.v + Math.sin(ang)*len;
+  if (!inBrain(u, v) || !inBrain((u + p.u)/2, (v + p.v)/2)) return;
+  const o = occAt(u, v); if (occ[o] > 2 && depth > 2) return; occ[o]++;
+  const i = nodes.length; nodes.push({u, v, p:pi, ch:[], d:depth}); p.ch.push(i);
+  if (depth >= maxD) return;
+  const nl = len*.9;
+  if (rnd() < .5 || depth < 2){
+    const sp = .35 + rnd()*.35;
+    grow(i, ang - sp + (rnd() - .5)*.2, nl, depth + 1, maxD);
+    grow(i, ang + sp + (rnd() - .5)*.2, nl, depth + 1, maxD);
+  } else grow(i, ang + (rnd() - .5)*.7, nl, depth + 1, maxD);
+}
+function root(u, v, angs, len, maxD){
+  const i = nodes.length; nodes.push({u, v, p:-1, ch:[], d:0}); roots.push(i);
+  angs.forEach(a => grow(i, a, len, 1, maxD));
+}
+root(.42, .52, [-2.6, -2.0, -1.55, -1.1, -.6, -.1, .25], .045, 13);   // middle cerebral artery, out of the Sylvian fissure
+root(.17, .14, [-.1, .5, 1.3], .04, 11);                                // anterior cerebral branches curling over the top
+root(.40, .07, [.1, .6, 2.6], .04, 10);
+root(.66, .58, [-.9, -.4, .0], .04, 12);                                // posterior cerebral, toward the occipital lobe
+root(.66, .675, [-.2, .3], .035, 9);                                    // cerebellar
+root(.10, .45, [-.9, .2, .9], .04, 10);
+root(.36, .60, [1.9, 2.6, .9], .035, 9);                                // temporal lobe underside
+root(.61, .70, [1.5, 1.2, 1.9], .03, 7);                                 // brainstem
+// fill any bare patches with small local trees (like arteries diving in from the surface)
+for (let v = .05; v < .8; v += .05) for (let u = .04; u < 1; u += .05){
+  const jx = u + (rnd() - .5)*.03, jy = v + (rnd() - .5)*.03;
+  if (!inBrain(jx, jy)) continue;
+  let busy = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) busy += occ[occAt(jx + dx*.014, jy + dy*.014)];
+  if (busy < 2){ const a = rnd()*6.28; root(jx, jy, [a, a + 2.1, a + 4.2], .03, 7); }
+}
+for (let k = roots.length - 1; k >= 0; k--) if (!nodes[roots[k]].ch.length) roots.splice(k, 1);
+let maxDepth = 1; nodes.forEach(n => maxDepth = Math.max(maxDepth, n.d));
+const segs = nodes.filter(n => n.p >= 0).length;
+
+/* ---------- regions (where each task lights up), positions in u,v ---------- */
+const TASKS = {
+  rest:   {label:'rest', regs:[]},
+  hand:   {label:'tap your fingers', regs:[{u:.45,v:.11,g:1,n:'motor cortex'},{u:.56,v:.14,g:.55,n:'touch'},{u:.77,v:.64,g:.45,n:'cerebellum'}]},
+  look:   {label:'look at a face', regs:[{u:.9,v:.43,g:1,n:'visual cortex'},{u:.72,v:.56,g:.8,n:'face area'}]},
+  listen: {label:'listen to music', regs:[{u:.5,v:.5,g:1,n:'auditory cortex'},{u:.62,v:.46,g:.45,n:''}]},
+  talk:   {label:'say a word', regs:[{u:.27,v:.42,g:1,n:"Broca's area"},{u:.39,v:.3,g:.65,n:'mouth & tongue'},{u:.63,v:.42,g:.5,n:"Wernicke's"}]},
+  math:   {label:'do mental math', regs:[{u:.2,v:.24,g:.85,n:'prefrontal'},{u:.67,v:.2,g:1,n:'parietal'}]}
+};
+const SIG = .075;
+
+/* ---------- balloon model of blood flow (Friston et al. 2000) for each region ---------- */
+const KAP = .65, GAM = .41, TAU = .98, ALP = .32, E0 = .34, EPS = .3, V0 = .02, k1 = 7*E0, k2 = 2, k3 = 2*E0 - .2;
+function mkReg(r){ return {u:r.u, v:r.v, g:r.g, n:r.n, s:0, f:1, vol:1, q:1, bold:0, neu:0, pulse:0}; }
+function stepReg(R, dt){
+  const z = R.neu;
+  const ds = EPS*z - KAP*R.s - GAM*(R.f - 1);
+  const df = R.s;
+  const E = 1 - Math.pow(1 - E0, 1/R.f);
+  const vq = Math.pow(R.vol, 1/ALP);
+  const dv = (R.f - vq)/TAU;
+  const dq = (R.f*E/E0 - vq*R.q/R.vol)/TAU;
+  R.s += ds*dt; R.f = Math.max(.5, R.f + df*dt); R.vol = Math.max(.5, R.vol + dv*dt); R.q = Math.max(.3, R.q + dq*dt);
+  R.bold = V0*(k1*(1 - R.q) + k2*(1 - R.q/R.vol) + k3*(1 - R.vol));
+}
+let regs = [], clicks = [];
+let task = 'rest', tOn = 0, clock = 0;
+const ON = 10, OFF = 14;
+function blockOn(){ return task !== 'rest' && ((clock - tOn) % (ON + OFF)) < ON; }
+
+/* field values at a point: weighted sums over every region */
+function field(u, v){
+  let f = 0, q = 0, n = 0, b = 0;
+  const all = regs.length ? (clicks.length ? regs.concat(clicks) : regs) : clicks;
+  for (let k = 0; k < all.length; k++){ const R = all[k];
+    const d2 = (u - R.u)**2 + (v - R.v)**2; if (d2 > .09) continue;
+    const w = Math.exp(-d2/(2*SIG*SIG));
+    f += w*(R.f - 1); q += w*(R.q - 1); n += w*R.neu*R.g; b += w*R.bold; }
+  return [1 + f, 1 + q, n, b];
+}
+
+/* ---------- particles: blood cells running down the trees ---------- */
+const NP = RM ? 900 : (innerWidth < 860 ? 1600 : 3200);
+const P = [];
+const nonRoot = nodes.map((n, i) => i).filter(i => nodes[i].p >= 0);
+function spawn(p, anywhere){
+  if (anywhere){ p.b = nonRoot[(rnd()*nonRoot.length)|0]; p.a = nodes[p.b].p; p.t = rnd(); }
+  else { const r = roots[(rnd()*roots.length)|0]; p.a = r; const ch = nodes[r].ch; p.b = ch[(rnd()*ch.length)|0]; p.t = 0; }
+  p.sp = .7 + rnd()*.6; p.px = null;
+}
+for (let i = 0; i < NP; i++){ const p = {}; spawn(p, true); P.push(p); }
+
+/* colour ramp: oxygen-poor blue/violet -> crimson -> scarlet -> gold */
+const STOPS = [[0,[42,54,200]],[.33,[122,44,192]],[.58,[224,40,90]],[.8,[255,106,58]],[1,[255,210,122]],[1.25,[255,246,220]]];
+const NB = 40, LUT = [];
+for (let k = 0; k < NB; k++){ const o = k/(NB - 1)*1.25; let i = 0; while (i < STOPS.length - 2 && o > STOPS[i + 1][0]) i++;
+  const [a, ca] = STOPS[i], [b, cb] = STOPS[i + 1], t = Math.min(1, Math.max(0, (o - a)/(b - a)));
+  LUT.push(`rgb(${ca.map((c, j) => Math.round(c + (cb[j] - c)*t)).join(',')})`); }
+const buckets = Array.from({length:NB}, () => []);
+
+/* ---------- layout ---------- */
+const narrow = () => W < 860;
+function layout(){
+  DPR = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+  for (const c of [cv, trail, stat]){ c.width = W*DPR; c.height = H*DPR; }
+  if (narrow()){ const s = Math.min(W - 24, Math.max(180, H - 520)/.8); B = {s, x:(W - s)/2, y:170}; }
+  else { const s = Math.min((H*.8)/.8, W - 470); B = {s, x:Math.max(28, (W - 430 - s)/2), y:(H - s*.8)/2}; }
+  drawStatic(); tx.setTransform(1,0,0,1,0,0); tx.clearRect(0, 0, trail.width, trail.height);
+}
+const X = u => B.x + u*B.s, Y = v => B.y + v*B.s;
+function brainPath(c, grow){
+  c.beginPath();
+  for (const [cx,cy,rx,ry,a] of BLOBS){ c.moveTo(X(cx) + (rx + grow)*B.s*Math.cos(a), Y(cy) + (rx + grow)*B.s*Math.sin(a)); c.ellipse(X(cx), Y(cy), (rx + grow)*B.s, (ry + grow)*B.s, a, 0, 6.2832); }
+}
+function drawStatic(){
+  sx.setTransform(DPR,0,0,DPR,0,0); sx.clearRect(0, 0, W, H);
+  sx.filter = 'blur(30px)'; sx.fillStyle = '#2a1238'; brainPath(sx, .01); sx.fill('nonzero'); sx.filter = 'none';
+  sx.fillStyle = '#100a19'; brainPath(sx, 0); sx.fill('nonzero');
+  // a few landmark grooves: Sylvian fissure, central sulcus, cerebellum edge
+  sx.strokeStyle = '#ffffff1c'; sx.lineWidth = 1.4; sx.lineCap = 'round';
+  sx.beginPath(); sx.moveTo(X(.33), Y(.5)); sx.bezierCurveTo(X(.45), Y(.47), X(.55), Y(.42), X(.66), Y(.37)); sx.stroke();
+  sx.beginPath(); sx.moveTo(X(.53), Y(.075)); sx.bezierCurveTo(X(.49), Y(.2), X(.5), Y(.3), X(.44), Y(.45)); sx.stroke();
+  sx.beginPath(); sx.moveTo(X(.64), Y(.6)); sx.bezierCurveTo(X(.72), Y(.565), X(.82), Y(.57), X(.9), Y(.6)); sx.stroke();
+  // the vessel trees, faint
+  sx.strokeStyle = '#9a6aa838';
+  for (const n of nodes){ if (n.p < 0) continue; const p = nodes[n.p];
+    sx.lineWidth = Math.max(.5, 3.2*(1 - n.d/maxDepth)); sx.beginPath(); sx.moveTo(X(p.u), Y(p.v)); sx.lineTo(X(n.u), Y(n.v)); sx.stroke(); }
+}
+addEventListener('resize', layout); layout();
+
+/* ---------- UI ---------- */
+const chips = document.getElementById('chips'), stateTxt = document.getElementById('stateTxt');
+Object.entries(TASKS).forEach(([k, T]) => { const b = document.createElement('button'); b.textContent = T.label; b.dataset.k = k; b.setAttribute('aria-pressed', k === task); b.onclick = () => setTask(k); chips.appendChild(b); });
+function setTask(k){
+  const keep = new Map(regs.map(R => [R.n + R.u, R])); task = k; tOn = clock;
+  regs = TASKS[k].regs.map(r => keep.get(r.n + r.u) || mkReg(r));
+  // regions from the previous task keep relaxing back to rest
+  keep.forEach(R => { if (!regs.includes(R) && (R.f - 1)**2 + (R.q - 1)**2 > 1e-5){ R.neu = 0; R.g = R.g; R.fading = true; clicks.push(R); } });
+  [...chips.children].forEach(b => b.setAttribute('aria-pressed', b.dataset.k === k));
+}
+let view = 'art';
+document.querySelectorAll('#view button').forEach(b => b.onclick = () => { view = b.dataset.v; document.querySelectorAll('#view button').forEach(x => x.setAttribute('aria-pressed', x === b)); tx.setTransform(1,0,0,1,0,0); tx.clearRect(0, 0, trail.width, trail.height); });
+let lastClick = -99;
+cv.addEventListener('pointerdown', e => {
+  const u = (e.clientX - B.x)/B.s, v = (e.clientY - B.y)/B.s;
+  if (!inBrain(u, v)) return;
+  const R = mkReg({u, v, g:1, n:''}); R.pulse = 2.5; clicks.push(R); if (clicks.length > 8) clicks.shift(); lastClick = clock;
+});
+
+/* ---------- time-course trace ---------- */
+const tr = document.getElementById('tr'), tc = tr.getContext('2d');
+const HN = 300, HDT = .15; const hB = new Float32Array(HN), hN = new Uint8Array(HN); let hAcc = 0;
+function drawTrace(){
+  const w = tr.clientWidth, h = tr.clientHeight; if (tr.width !== w*DPR){ tr.width = w*DPR; tr.height = h*DPR; }
+  tc.setTransform(DPR,0,0,DPR,0,0); tc.clearRect(0, 0, w, h);
+  const base = h*.68, sc = h*.56/3;   // 3% BOLD at the top
+  tc.fillStyle = '#ffffff12';
+  for (let i = 0; i < HN; i++) if (hN[i]) tc.fillRect(i/HN*w, 0, w/HN + .5, h);
+  tc.strokeStyle = '#ffffff22'; tc.lineWidth = 1; tc.beginPath(); tc.moveTo(0, base); tc.lineTo(w, base); tc.stroke();
+  tc.lineJoin = 'round';
+  for (let pass = 0; pass < 2; pass++){
+    tc.strokeStyle = pass ? '#ffb27a' : '#ff6a3a40'; tc.lineWidth = pass ? 2 : 7; tc.beginPath();
+    for (let i = 0; i < HN; i++){ const x = i/(HN - 1)*w, y = base - hB[i]*100*sc; i ? tc.lineTo(x, y) : tc.moveTo(x, y); }
+    tc.stroke();
+  }
+  tc.font = '500 10.5px "Geist Mono", monospace'; tc.fillStyle = '#b9a9b8';
+  tc.fillText('BOLD', 4, 12); tc.fillText('shaded = task on', w - 104, 12); tc.fillText('45 s ago', 4, h - 4); tc.fillText('now', w - 26, h - 4);
+}
+
+/* ---------- words ---------- */
+const lastW = {};
+function words(){
+  const name = (regs[0] && regs[0].n) || 'that spot';
+  if (clock - lastClick < 9 && task === 'rest'){ const t = clock - lastClick;
+    return t < 1.6 ? 'You woke up neurons there. Nothing has changed in the blood yet.' : t < 4.5 ? 'About 2 seconds later, the arteries widen and <b>oxygen-rich blood</b> rushes in.' : 'It peaks around 5 seconds after the neurons fired, then fades back.'; }
+  if (task === 'rest') return 'At rest, blood trickles everywhere at a steady pace. Pick a task, or click anywhere on the brain.';
+  const t = (clock - tOn) % (ON + OFF);
+  if (t < ON){
+    if (t < 1.8) return `Neurons in the <b>${name}</b> start firing. The blood hasn't caught up yet.`;
+    if (t < 4.5) return 'Nearby arteries widen and <b>fresh, oxygen-rich blood</b> rushes in.';
+    return 'More oxygen arrives than the neurons can use, so the area turns <b>oxygen-rich</b>. That is the spot fMRI lights up.';
+  }
+  const o = t - ON;
+  if (o < 6) return 'Task over. The neurons quiet down and the extra blood flow eases off.';
+  return 'The signal dips a little below baseline (the <b>undershoot</b>) before settling. Next block soon.';
+}
+
+/* ---------- loop ---------- */
+let last = performance.now(), txtT = 0;
+function frame(now){
+  const dt = Math.min(.05, (now - last)/1000); last = now; clock += dt;
+  const on = blockOn();
+  regs.forEach(R => R.neu = on ? 1 : 0);
+  clicks.forEach(R => { R.neu = R.pulse > 0 ? 1 : 0; R.pulse -= dt; });
+  const sub = 6; for (let k = 0; k < sub; k++){ regs.forEach(R => stepReg(R, dt/sub)); clicks.forEach(R => stepReg(R, dt/sub)); }
+  clicks = clicks.filter(R => R.pulse > 0 || Math.abs(R.f - 1) + Math.abs(R.q - 1) + Math.abs(R.vol - 1) > .002);
+
+  const ctxR = regs[0] || clicks[clicks.length - 1];
+  hAcc += dt; while (hAcc >= HDT){ hAcc -= HDT; hB.copyWithin(0, 1); hN.copyWithin(0, 1); hB[HN - 1] = ctxR ? ctxR.bold : 0; hN[HN - 1] = on || (clicks.some(R => R.pulse > 0)) ? 1 : 0; }
+
+  ctx.setTransform(1,0,0,1,0,0); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+  ctx.fillStyle = '#07060d'; ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.drawImage(stat, 0, 0);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  const all = regs.concat(clicks);
+
+  if (view === 'art'){
+    // move blood cells, sort them into colour buckets
+    for (const b of buckets) b.length = 0;
+    for (const p of P){
+      const A = nodes[p.a], Bn = nodes[p.b];
+      const L = Math.hypot(Bn.u - A.u, Bn.v - A.v) || 1e-3;
+      const u0 = A.u + (Bn.u - A.u)*p.t, v0 = A.v + (Bn.v - A.v)*p.t;
+      const [f, q, n] = field(u0, v0);
+      p.t += dt*.085*p.sp*f*f/L;
+      if (p.t >= 1){
+        const ch = Bn.ch;
+        if (!ch.length){ spawn(p, false); continue; }
+        // blood goes where the arteries are widest
+        let tot = 0; const ws = ch.map(c => { const w = Math.pow(field(nodes[c].u, nodes[c].v)[0], 5); tot += w; return w; });
+        let r = rnd()*tot, pick = ch[0]; for (let j = 0; j < ch.length; j++){ r -= ws[j]; if (r <= 0){ pick = ch[j]; break; } }
+        p.a = p.b; p.b = pick; p.t = 0;
+      }
+      const C = nodes[p.a], D = nodes[p.b];
+      const u = C.u + (D.u - C.u)*p.t, v = C.v + (D.v - C.v)*p.t;
+      const x = X(u), y = Y(v);
+      // oxygen: high in the big arteries, used up toward the tips; washout of oxygen-poor blood pushes it up
+      let o = .78 - .62*(D.d/maxDepth) + 3.6*(1 - q) - .12*n;
+      o = Math.max(0, Math.min(1.25, o));
+      if (p.px !== null) buckets[Math.round(o/1.25*(NB - 1))].push(p.px, p.py, x, y);
+      p.px = x; p.py = y;
+    }
+    // trails: fade, then draw
+    tx.setTransform(1,0,0,1,0,0); tx.globalCompositeOperation = 'destination-out'; tx.fillStyle = RM ? '#000' : 'rgba(0,0,0,.13)'; tx.fillRect(0, 0, trail.width, trail.height);
+    tx.setTransform(DPR,0,0,DPR,0,0); tx.globalCompositeOperation = 'lighter'; tx.lineCap = 'round'; tx.lineWidth = 1.4; tx.globalAlpha = .42;
+    for (let k = 0; k < NB; k++){ const b = buckets[k]; if (!b.length) continue; tx.strokeStyle = LUT[k]; tx.beginPath();
+      for (let j = 0; j < b.length; j += 4){ tx.moveTo(b[j], b[j+1]); tx.lineTo(b[j+2], b[j+3]); } tx.stroke(); }
+    // neurons firing: quick white sparks, right away (before the blood arrives)
+    tx.fillStyle = '#e8f4ff'; tx.globalAlpha = .9;
+    all.forEach(R => { if (R.neu <= 0) return; const k = Math.round(10*R.g*(RM ? .3 : 1));
+      for (let j = 0; j < k; j++){ const a = rnd()*6.2832, r = Math.sqrt(-2*Math.log(rnd() + 1e-6))*SIG*.7; const u = R.u + Math.cos(a)*r, v = R.v + Math.sin(a)*r;
+        if (inCerebrum(u, v) || inBrain(u, v)){ tx.beginPath(); tx.arc(X(u), Y(v), .9 + rnd()*1.2, 0, 6.2832); tx.fill(); } } });
+    tx.globalAlpha = 1;
+    ctx.setTransform(1,0,0,1,0,0); ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(trail, 0, 0);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    // a warm bloom where the oxygen-rich blood pools (kept inside the brain)
+    ctx.save(); brainPath(ctx, .015); ctx.clip('nonzero');
+    all.forEach(R => { const a = Math.min(.5, (1 - R.q)*R.g*2.6); if (a < .01) return;
+      const g = ctx.createRadialGradient(X(R.u), Y(R.v), 0, X(R.u), Y(R.v), SIG*2.4*B.s);
+      g.addColorStop(0, `rgba(255,170,90,${a})`); g.addColorStop(.5, `rgba(255,70,80,${a*.35})`); g.addColorStop(1, 'rgba(255,40,90,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X(R.u), Y(R.v), SIG*2.4*B.s, 0, 6.2832); ctx.fill(); });
+    ctx.restore(); ctx.globalCompositeOperation = 'lighter';
+  } else {
+    // scanner view: grey brain, voxels coloured where BOLD rose
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#3a3640'; brainPath(ctx, 0); ctx.fill('nonzero');
+    const vs = Math.max(6, B.s/52), cols = Math.ceil(B.s/vs), rows = Math.ceil(B.s*.8/vs);
+    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++){
+      const u = (i + .5)*vs/B.s, v = (j + .5)*vs/B.s; if (!inBrain(u, v)) continue;
+      const hsh = Math.sin(i*12.9898 + j*78.233)*43758.5453, g = 62 + 26*(hsh - Math.floor(hsh)) + 26*(inCerebrum(u, v) ? 1 : .3);
+      const b = field(u, v)[3]*100;
+      if (b > .6){ const t = Math.min(1, (b - .6)/1.8); ctx.fillStyle = `rgb(255,${Math.round(40 + 200*t)},${Math.round(20 + 80*t*t)})`; }
+      else if (b < -.12){ const t = Math.min(1, (-b - .12)/.5); ctx.fillStyle = `rgb(${Math.round(40 + 20*t)},${Math.round(90 + 80*t)},255)`; }
+      else ctx.fillStyle = `rgb(${g|0},${g|0},${(g + 6)|0})`;
+      ctx.fillRect(X(0) + i*vs, Y(0) + j*vs, vs - .6, vs - .6);
+    }
+    ctx.fillStyle = '#b9a9b8'; ctx.font = '500 11px "Geist Mono", monospace';
+    ctx.fillText('each square is a voxel, a few mm across. warm = BOLD up, blue = undershoot', B.x + B.s*.2, Y(0) - 14);
+  }
+
+  // labels for regions that are lighting up
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.font = '500 11.5px "Geist Mono", monospace'; ctx.textAlign = 'center';
+  regs.forEach(R => { const a = Math.min(1, (R.f - 1)*2.2); if (!R.n || a < .05) return;
+    ctx.globalAlpha = a; ctx.fillStyle = '#fff3e6'; ctx.shadowColor = '#000'; ctx.shadowBlur = 8;
+    ctx.fillText(R.n, X(R.u), Y(R.v) - SIG*B.s*1.15); ctx.shadowBlur = 0; });
+  ctx.globalAlpha = 1; ctx.textAlign = 'left';
+
+  drawTrace();
+  txtT -= dt; if (txtT <= 0){ txtT = .25;
+    const h = words(); if (h !== lastW.h){ stateTxt.innerHTML = h; lastW.h = h; }
+    const R = ctxR;
+    document.getElementById('mf').textContent = (R ? (R.f - 1 >= 0 ? '+' : '') + Math.round((R.f - 1)*100) : '+0') + '%';
+    document.getElementById('mq').textContent = (R ? ((R.q - 1) > 0 ? '+' : '') + Math.round((R.q - 1)*100) : '0') + '%';
+    document.getElementById('mb').textContent = (R ? (R.bold >= 0 ? '+' : '') + (R.bold*100).toFixed(1) : '+0.0') + '%';
+  }
+  requestAnimationFrame(frame);
+}
+setTask('hand');
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
