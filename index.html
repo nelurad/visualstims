@@ -7,7 +7,7 @@
 <meta name="description" content="Visual stimuli grown from the nervous system, by Nelu Radpour: live, moving pictures made from neurons.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&family=Homemade+Apple&display=swap">
 <style>
   /* Layout: live melting-cortex stage behind a lowercase hero; it dissolves into a mauve page with a blinking eye column and a big-type index. */
   :root{
@@ -41,6 +41,8 @@
   .hero::before{content:"";position:absolute;inset:auto 0 0 0;height:60%;background:linear-gradient(to top,#160c12cc,#160c1200);pointer-events:none;z-index:-1}
   .hero h1{margin:0;font-weight:340;font-size:clamp(46px,6.6vw,104px);line-height:.98;letter-spacing:-.035em;font-variation-settings:"opsz" 96,"wdth" 88;text-wrap:balance;max-width:11.5em;text-shadow:0 2px 40px #0005}
   .hero h1 em{font-style:normal;font-weight:200;font-variation-settings:"opsz" 96,"wdth" 75}
+  .hero h1 .script{display:block;font-family:"Homemade Apple","Snell Roundhand","Segoe Script",cursive;font-weight:400;font-variation-settings:normal;letter-spacing:0;font-size:.95em;line-height:1.5;margin-bottom:-.12em;transform:rotate(-3deg);transform-origin:left bottom}
+  .hero h1 .rest{display:block}
   .melt{height:70vh}
 
   .about{position:relative;z-index:6;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:48px;align-items:start;padding-block:4vh 10vh}
@@ -98,7 +100,7 @@
 </header>
 
 <section class="hero gut">
-  <h1>Visual stimuli, <em>grown</em> from the nervous system</h1>
+  <h1><span class="script">Visual stimuli</span><span class="rest"><em>grown</em> from the nervous system</span></h1>
 </section>
 <div class="melt" aria-hidden="true"></div>
 
