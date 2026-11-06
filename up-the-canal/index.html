@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Up the Canal · VisualStims</title>
+<meta name="description" content="Shrink to the size of a cell and ride the cerebrospinal fluid up the spinal cord's central canal, through the brainstem and into the ventricles of the brain.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: fixed 3D ride behind a cockpit frame; scroll (or autopilot) drives the pod; station card bottom-left, route map top-right. */
+  :root{
+    --deep:#12070c;
+    --ink:#f6efe8;
+    --dim:#cdb9bf;
+    --glass:#1a0d14b8;
+    --rule:#ffffff2e;
+    --hot:#ffd3a8;
+    --csf:#9fe3ff;
+    --grot:"Bricolage Grotesque","Helvetica Neue",Arial,system-ui,sans-serif;
+    --mono:"Geist Mono",ui-monospace,Menlo,monospace;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--deep);color:var(--ink)}
+  body{font-family:var(--grot);-webkit-font-smoothing:antialiased}
+  #ride{height:1500vh}
+  #c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
+  .cockpit{position:fixed;inset:0;pointer-events:none;z-index:2;border-radius:34px;box-shadow:inset 0 0 0 12px #0d0509,inset 0 0 0 13px #ffffff14,inset 0 0 140px 30px #000c}
+  #labels{position:fixed;inset:0;pointer-events:none;z-index:3;overflow:hidden}
+  .lbl{position:absolute;left:0;top:0;transform:translate(-50%,-50%);font-family:var(--mono);font-size:12px;letter-spacing:.06em;white-space:nowrap;color:var(--ink);padding:4px 9px;border:1px solid #ffffff55;border-radius:999px;background:#12070c99;backdrop-filter:blur(4px);transition:opacity .4s}
+  .lbl::before{content:"";position:absolute;left:50%;top:100%;width:1px;height:16px;background:#ffffff66}
+
+  header{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:6;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:24px max(30px,env(safe-area-inset-right,0px)) 0 max(30px,env(safe-area-inset-left,0px))}
+  .back{font-size:14px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--ink)}
+  .btns{display:flex;gap:8px;flex-wrap:wrap}
+  .btns button{font:500 13px/1 var(--grot);color:var(--ink);background:var(--glass);border:1px solid var(--rule);border-radius:999px;padding:9px 14px;cursor:pointer;backdrop-filter:blur(6px)}
+  .btns button[aria-pressed="true"]{background:var(--ink);color:var(--deep)}
+  .btns button:focus-visible,.stops button:focus-visible,#go:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+
+  .card{position:fixed;left:max(30px,env(safe-area-inset-left,0px));bottom:max(30px,env(safe-area-inset-bottom,0px));z-index:6;width:min(430px,calc(100vw - 60px));background:var(--glass);border:1px solid var(--rule);border-radius:18px;padding:18px 20px 16px;backdrop-filter:blur(10px)}
+  .card .where{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--csf);margin:0 0 6px}
+  .card h2{margin:0 0 8px;font-weight:380;font-size:clamp(26px,2.6vw,36px);line-height:1;letter-spacing:-.03em;font-variation-settings:"opsz" 72,"wdth" 85}
+  .card p{margin:0;font-size:15.5px;line-height:1.38;color:#eadfdc}
+  .card p b{color:var(--hot);font-weight:600}
+  .stops{display:flex;gap:5px;margin-top:14px}
+  .stops button{flex:1;height:6px;border:0;border-radius:3px;background:#ffffff2a;cursor:pointer;padding:0}
+  .stops button.on{background:var(--csf)}
+
+  .map{position:fixed;right:max(30px,env(safe-area-inset-right,0px));top:84px;z-index:6;width:170px;background:var(--glass);border:1px solid var(--rule);border-radius:16px;padding:10px 10px 6px;backdrop-filter:blur(8px)}
+  .map svg{width:100%;height:auto;display:block}
+  .map .cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--dim);text-align:center;margin:2px 0 4px;text-transform:uppercase}
+
+  .dash{position:fixed;right:max(30px,env(safe-area-inset-right,0px));bottom:max(30px,env(safe-area-inset-bottom,0px));z-index:6;display:grid;grid-template-columns:auto auto;gap:4px 14px;font-family:var(--mono);font-size:11.5px;color:var(--dim);background:var(--glass);border:1px solid var(--rule);border-radius:14px;padding:10px 14px;backdrop-filter:blur(8px)}
+  .dash b{color:var(--ink);font-weight:500;text-align:right}
+
+  #intro{position:fixed;inset:0;z-index:9;display:flex;flex-direction:column;justify-content:flex-end;padding:0 max(30px,env(safe-area-inset-right,0px)) 12vh max(30px,env(safe-area-inset-left,0px));background:radial-gradient(ellipse at 70% 40%,#3a1626 0%,#12070c 70%);transition:opacity .9s ease}
+  #intro.gone{opacity:0;pointer-events:none}
+  #intro .k{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--csf);margin:0 0 14px}
+  #intro h1{margin:0;font-weight:320;font-size:clamp(60px,10vw,160px);line-height:.88;letter-spacing:-.05em;font-variation-settings:"opsz" 96,"wdth" 78}
+  #intro p{margin:20px 0 26px;max-width:34em;font-size:clamp(17px,1.4vw,21px);line-height:1.35;color:#eadfdc}
+  #go{align-self:flex-start;font:500 18px/1 var(--grot);color:var(--deep);background:var(--hot);border:0;border-radius:999px;padding:16px 26px;cursor:pointer}
+  #intro .or{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:14px}
+  #intro svg.pod{position:absolute;right:8vw;top:16vh;width:min(320px,38vw);height:auto;overflow:visible}
+
+  @media (max-width:760px){
+    .map{width:120px;top:72px}
+    .dash{display:none}
+    .card{bottom:16px;left:16px;width:calc(100vw - 32px);padding:14px 16px}
+    .card p{font-size:14px}
+    header{padding:18px 16px 0}
+    #intro svg.pod{top:10vh;right:6vw}
+  }
+  @media (prefers-reduced-motion: reduce){ #intro{transition:none} }
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="3D ride through the central canal and the ventricles of the brain"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div class="cockpit" aria-hidden="true"></div>
+
+<header>
+  <a class="back" href="../">&larr; VisualStims</a>
+  <div class="btns">
+    <button id="auto" aria-pressed="false">Autopilot</button>
+    <button id="restart">Back to the start</button>
+  </div>
+</header>
+
+<aside class="map" aria-label="Route map">
+  <div class="cap">you are here</div>
+  <svg id="map" viewBox="0 0 160 230" role="img" aria-label="Side view of the brain and spinal cord with your position on the route"></svg>
+</aside>
+
+<section class="card" aria-live="polite">
+  <p class="where" id="where">Stop 1 of 8</p>
+  <h2 id="stopName">Lumbar spinal cord</h2>
+  <p id="stopText"></p>
+  <div class="stops" id="stops"></div>
+</section>
+
+<div class="dash" aria-hidden="true">
+  <span>vehicle</span><b>pod, 10 µm</b>
+  <span>fluid</span><b>CSF</b>
+  <span>flow</span><b id="flow">against you</b>
+  <span>route</span><b id="pct">0%</b>
+</div>
+
+<div id="intro">
+  <svg class="pod" viewBox="0 0 200 120" aria-hidden="true">
+    <defs><linearGradient id="pg" x1="0" x2="1"><stop offset="0" stop-color="#ffd3a8"/><stop offset="1" stop-color="#ff9a8a"/></linearGradient></defs>
+    <path d="M20 70 C 20 30, 70 18, 120 22 C 170 26, 188 52, 186 66 C 184 84, 150 96, 100 96 C 50 96, 20 92, 20 70 Z" fill="url(#pg)"/>
+    <path d="M92 30 C 120 26, 160 34, 168 56 L 108 58 Z" fill="#9fe3ff" opacity=".85"/>
+    <circle cx="58" cy="66" r="9" fill="#12070c"/><circle cx="58" cy="66" r="4" fill="#9fe3ff"/>
+    <path d="M20 70 L 2 58 M20 74 L 0 74 M20 78 L 2 90" stroke="#ffd3a8" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="130" cy="100" r="4" fill="#9fe3ff" opacity=".7"/><circle cx="150" cy="108" r="2.5" fill="#9fe3ff" opacity=".5"/><circle cx="112" cy="110" r="2" fill="#9fe3ff" opacity=".5"/>
+  </svg>
+  <p class="k">VisualStims · No. 02</p>
+  <h1>Up the<br>Canal</h1>
+  <p>Shrink to the size of a cell, slip into the tiny tunnel that runs up the middle of the spinal cord, and ride the cerebrospinal fluid all the way into the brain's hidden caves.</p>
+  <button id="go">Shrink &amp; ride</button>
+  <div class="or">or close this and scroll to drive yourself</div>
+</div>
+
+<div id="ride" aria-hidden="true"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const V = (x,y,z) => new THREE.Vector3(x,y,z);
+
+/* ---------- the route: real CSF spaces, in a made-up unit where the brain is ~30 across ---------- */
+// [x, y, z, radius, stop index or -1]   y = up, z = toward the face
+const CP = [
+  [0,-48,0,   .9, 0],
+  [0,-36,.4,  .9,-1],
+  [0,-24,.2,  .9, 1],
+  [0,-12,-.2, .9,-1],
+  [0,-5,-.3,  1.0,2],
+  [0,0,-1.2,  2.2,-1],
+  [0,4,-2.6,  3.2,3],
+  [0,8,-1.6,  2.0,-1],
+  [0,10.5,-.4,.85,4],
+  [0,13.5,1.2,.85,-1],
+  [0,16,3.4,  2.2,5],
+  [0,17.6,6.4,2.0,-1],
+  [1.6,19.2,8.4,.95,6],
+  [4.2,21.6,7.6,2.6,-1],
+  [5.0,24,3.0,3.3,7],
+  [5.0,24.6,-2.6,3.4,-1],
+  [4.6,23,-7.5,3.0,-1]
+];
+const curve = new THREE.CatmullRomCurve3(CP.map(p => V(p[0],p[1],p[2])), false, 'centripetal');
+// find each control point's arc-length position u
+const SAMPLES = 4000, sampled = [];
+for (let i = 0; i <= SAMPLES; i++) sampled.push(curve.getPointAt(i/SAMPLES));
+const cpU = CP.map(p => { let best = 0, bd = 1e9; const q = V(p[0],p[1],p[2]);
+  sampled.forEach((s, i) => { const d = s.distanceToSquared(q); if (d < bd){ bd = d; best = i; } }); return best/SAMPLES; });
+cpU[0] = 0; cpU[cpU.length-1] = 1;
+const smooth = t => t*t*(3-2*t);
+function radiusAt(u){
+  for (let i = 0; i < cpU.length-1; i++) if (u <= cpU[i+1]){ const k = (u - cpU[i])/Math.max(1e-6, cpU[i+1]-cpU[i]); return CP[i][3] + (CP[i+1][3]-CP[i][3])*smooth(Math.min(1,Math.max(0,k))); }
+  return CP[CP.length-1][3];
+}
+
+/* ---------- stops ---------- */
+const STOPS = [
+  {name:'Lumbar spinal cord', where:'Spinal cord · lower back', text:'You\'ve shrunk to the size of a cell and slipped into the <b>central canal</b>, a hair-thin tube of cerebrospinal fluid (CSF) up the middle of the spinal cord. (In adults it\'s pinched shut in places. We\'re cheating a little.)'},
+  {name:'Thoracic & cervical cord', where:'Spinal cord · chest and neck', text:'Each glowing pair outside the wall is a <b>spinal nerve</b>: sensory signals come in through the back (dorsal) roots, motor commands leave through the front (ventral) roots. Up at C3–C5, the roots that run your diaphragm.'},
+  {name:'Medulla', where:'Brainstem · lowest part', text:'The canal opens up at the <b>obex</b>. You\'re in the medulla now: the centers that keep you breathing and set your heart rate are in the walls around you.'},
+  {name:'Fourth ventricle', where:'Brainstem · pons and medulla', text:'A diamond-shaped cave. The <b>floor</b> is the brainstem, bumpy with cranial nerve nuclei. The <b>roof</b> is the cerebellum. CSF escapes from here through small holes to bathe the outside of the brain.'},
+  {name:'Cerebral aqueduct', where:'Midbrain', text:'A narrow pipe through the midbrain. Behind you are the four bumps of the <b>colliculi</b>: superior for visual reflexes, inferior for hearing. If this pipe gets blocked, CSF backs up: <b>hydrocephalus</b>.'},
+  {name:'Third ventricle', where:'Diencephalon · the middle of the brain', text:'A tall, thin slit. The left and right walls are the <b>thalamus</b>, the brain\'s relay station. Below the floor sits the <b>hypothalamus</b>, with the pituitary gland hanging underneath.'},
+  {name:'Interventricular foramen', where:'Doorway', text:'A small doorway, the <b>foramen of Monro</b>, leads from the third ventricle into the right lateral ventricle. There\'s a matching one on the left.'},
+  {name:'Lateral ventricle', where:'Cerebral hemisphere', text:'The biggest cave, C-shaped, one in each hemisphere. Roof: the <b>corpus callosum</b>. Outer wall: the <b>caudate nucleus</b>. The red frilly tissue is <b>choroid plexus</b>, which makes about 500 mL of CSF a day. Fun fact: CSF flows <b>the other way</b>. You swam upstream the whole ride.'}
+];
+const stopU = STOPS.map((_, i) => cpU[CP.findIndex(p => p[4] === i)]);
+
+/* ---------- three.js scene ---------- */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75));
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x12070c);
+scene.fog = new THREE.FogExp2(0x1a0a12, .055);
+const camera = new THREE.PerspectiveCamera(72, 1, .02, 400);
+scene.add(new THREE.AmbientLight(0xffe6ee, .35));
+const head = new THREE.PointLight(0xfff1e6, 1.6, 30, 1.6); scene.add(head);
+const glow = new THREE.PointLight(0x9fe3ff, .9, 16, 2); scene.add(glow);
+
+// wall texture: a mosaic of ependymal cells
+function cellTexture(){
+  const cv = document.createElement('canvas'); cv.width = cv.height = 512; const g = cv.getContext('2d');
+  g.fillStyle = '#efc9cf'; g.fillRect(0,0,512,512);
+  for (let i = 0; i < 260; i++){
+    const x = Math.random()*512, y = Math.random()*512, r = 14 + Math.random()*16;
+    const gr = g.createRadialGradient(x, y, 2, x, y, r);
+    gr.addColorStop(0, 'rgba(255,240,235,.9)'); gr.addColorStop(.55, 'rgba(236,180,190,.55)'); gr.addColorStop(1, 'rgba(150,70,95,.55)');
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 6.2832); g.fill();
+    g.fillStyle = 'rgba(120,40,70,.55)'; g.beginPath(); g.arc(x + (Math.random()-.5)*4, y + (Math.random()-.5)*4, 2.6, 0, 6.2832); g.fill();
+  }
+  for (let i = 0; i < 1400; i++){ g.strokeStyle = 'rgba(255,255,255,.18)'; g.lineWidth = .8; const x = Math.random()*512, y = Math.random()*512;
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x + (Math.random()-.5)*6, y - 4 - Math.random()*5); g.stroke(); }   // cilia
+  const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
+}
+const SEG = 1100, RADS = 28;
+const tube = new THREE.TubeGeometry(curve, SEG, 1, RADS, false);
+{ // reshape the tube radius along the route and colour it by region
+  const pos = tube.attributes.position, col = new Float32Array(pos.count*3);
+  const regionCol = u => { const c = new THREE.Color();
+    if (u < stopU[2]) c.setHSL(.97, .55, .72); else if (u < stopU[4]) c.setHSL(.86, .45, .72);
+    else if (u < stopU[5]) c.setHSL(.78, .45, .72); else if (u < stopU[6]) c.setHSL(.52, .5, .7); else c.setHSL(.09, .65, .72);
+    return c; };
+  for (let i = 0; i <= SEG; i++){
+    const u = i/SEG, ctr = curve.getPointAt(u), r = radiusAt(u);
+    const c0 = regionCol(Math.max(0, u - .02)), c1 = regionCol(u); c0.lerp(c1, .5);
+    for (let j = 0; j <= RADS; j++){
+      const k = i*(RADS+1) + j, v = V(pos.getX(k), pos.getY(k), pos.getZ(k)).sub(ctr);
+      const th = j/RADS*6.2832, wob = 1 + .06*Math.sin(th*3 + i*.21) + .035*Math.sin(th*5 - i*.13) + .04*Math.sin(i*.07);
+      v.multiplyScalar(r*wob).add(ctr); pos.setXYZ(k, v.x, v.y, v.z);
+      col[3*k] = c0.r; col[3*k+1] = c0.g; col[3*k+2] = c0.b;
+    }
+  }
+  tube.setAttribute('color', new THREE.BufferAttribute(col, 3)); tube.computeVertexNormals();
+}
+const tex = cellTexture(); tex.repeat.set(SEG/9, 4);
+const wall = new THREE.Mesh(tube, new THREE.MeshStandardMaterial({map:tex, color:0x8c7a82, vertexColors:true, side:THREE.BackSide, transparent:true, opacity:.64, roughness:.55, metalness:0, emissive:0x1a060e, depthWrite:false}));
+scene.add(wall);
+
+// ---------- what's outside the walls ----------
+const glowMat = (c, e, o) => new THREE.MeshStandardMaterial({color:c, emissive:e, emissiveIntensity:.5, roughness:.5, transparent:true, opacity:Math.min(.7, o*.75), depthWrite:false});
+const blob = (pos, scale, mat) => { const m = new THREE.Mesh(new THREE.SphereGeometry(1, 40, 28), mat); m.position.copy(pos); m.scale.set(...scale); scene.add(m); return m; };
+const LABELS = [];
+const label = (text, pos) => { const el = document.createElement('div'); el.className = 'lbl'; el.textContent = text; document.getElementById('labels').appendChild(el);
+  let best = 0, bd = 1e9; sampled.forEach((q, i) => { const d = q.distanceToSquared(pos); if (d < bd){ bd = d; best = i; } });
+  const un = best/SAMPLES; LABELS.push({el, pos, u0:un - .085, u1:un + .004}); };
+
+// spinal nerve roots: one pair per level, dorsal (back) and ventral (front)
+const rootMat = new THREE.LineBasicMaterial({color:0xffd3a8, transparent:true, opacity:.75});
+const LV = [['C',8],['T',12],['L',5],['S',5]], spineTop = -5, spineBot = -48; let li = 0; const total = 30;
+LV.forEach(([L, n]) => { for (let k = 1; k <= n; k++, li++){
+  const y = spineTop - 1.5 - li*(spineTop - spineBot - 3)/total;
+  [-1, 1].forEach(s => [-1, 1].forEach(f => {
+    const pts = [V(s*1.3, y, f*.7), V(s*3.2, y - .6, f*1.1), V(s*6.5, y - 2.2, f*.6), V(s*9, y - 3.6, 0)];
+    scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(new THREE.CatmullRomCurve3(pts).getPoints(18)), rootMat));
+  }));
+  const gm = blob(V(0, y, 0), [3.6, .9, 2.4], glowMat(0x8a5466, 0x2a0d18, .22)); gm.renderOrder = -1;   // grey-matter ghost at each level
+  if (k === 1 || k === n || (L === 'C' && (k === 3 || k === 5))) label(L + k + (L === 'C' && k >= 3 && k <= 5 ? ' · phrenic' : ''), V(6.5, y - 2.2, .6));
+}});
+function curveUAtY(y){ let best = 0, bd = 1e9; sampled.forEach((s, i) => { const d = Math.abs(s.y - y) + (s.y > 0 ? 100 : 0); if (d < bd){ bd = d; best = i; } }); return best/SAMPLES; }
+
+// brainstem & cerebellum around the fourth ventricle
+const pons = blob(V(0, 3.2, 5.2), [4.4, 3.6, 3.2], glowMat(0xd99aa8, 0x3a1020, .5)); label('pons', V(0, 3.2, 8.6));
+blob(V(0, -2.5, 2.8), [2.4, 4, 2.2], glowMat(0xc98a9a, 0x30101c, .45)); label('medulla', V(0, -3, 5.2));
+const cereb = new THREE.Group(); scene.add(cereb); cereb.position.set(0, 6, -9);
+for (let k = 0; k < 9; k++){ const f = new THREE.Mesh(new THREE.TorusGeometry(5.6 - Math.abs(k-4)*.35, .55, 12, 60), glowMat(0xf2b06a, 0x40200a, .55));
+  f.rotation.y = Math.PI/2; f.position.x = (k - 4)*1.05; f.scale.set(1, .8, 1.15); cereb.add(f); }
+label('cerebellum (the roof)', V(0, 9.5, -8));
+for (let k = 0; k < 7; k++) blob(V((k%2 ? 1 : -1)*(.8 + (k%3)*.5), 1.2 + k*.95, 1.5 + (k%2)*.3), [.32,.32,.32], glowMat(0xfff0d8, 0x6a4a20, .9));   // cranial nerve nuclei
+label('cranial nerve nuclei', V(1.8, 3, 2.2));
+// colliculi behind the aqueduct
+[[-1.3,10.2],[1.3,10.2],[-1.3,12.6],[1.3,12.6]].forEach(([x,y]) => blob(V(x, y, -2.9), [.9,.85,.85], glowMat(0x9fd8c8, 0x14382e, .6)));
+label('superior colliculi · vision', V(0, 13.6, -4.4));
+label('inferior colliculi · hearing', V(0, 9.4, -4.4));
+// thalami, hypothalamus, pituitary
+[-1, 1].forEach(s => blob(V(s*3.7, 17.4, 4.6), [2.4, 2.2, 3.4], glowMat(0xa48ae0, 0x24164a, .6)));
+label('left thalamus', V(-4.4, 19.8, 5)); label('right thalamus', V(4.4, 19.8, 5));
+blob(V(0, 14.2, 7.6), [1.9, 1.3, 2.0], glowMat(0xf28aa0, 0x4a1020, .65)); label('hypothalamus', V(0, 13.6, 9.2));
+blob(V(0, 11.4, 8.8), [.9,.8,.9], glowMat(0xf6c0a0, 0x4a2410, .7)); label('pituitary', V(0, 10.6, 9.6));
+// caudate nucleus along the lateral ventricle's outer wall, corpus callosum arching over the top
+const caudCurve = new THREE.CatmullRomCurve3([V(8.4,20.6,9.4), V(9,23.4,5.5), V(9,24.4,.5), V(8.6,23.4,-4.5), V(7.8,21,-8)]);
+const caud = new THREE.Mesh(new THREE.TubeGeometry(caudCurve, 80, 1, 18, false), glowMat(0x7fc7b4, 0x123c32, .65));
+{ const p = caud.geometry.attributes.position; for (let i = 0; i <= 80; i++){ const c = caudCurve.getPointAt(i/80), r = 2.2 - 1.6*i/80; for (let j = 0; j <= 18; j++){ const k = i*19 + j; const v = V(p.getX(k), p.getY(k), p.getZ(k)).sub(c).multiplyScalar(r).add(c); p.setXYZ(k, v.x, v.y, v.z); } } caud.geometry.computeVertexNormals(); }
+scene.add(caud); label('caudate nucleus', V(10.6, 25, 4));
+const ccCurve = new THREE.CatmullRomCurve3([V(0,25.5,11.5), V(0,29.4,8), V(0,30.9,1), V(0,30.2,-6), V(0,27.6,-10.5)]);
+const cc = new THREE.Mesh(new THREE.TubeGeometry(ccCurve, 90, 1.3, 16, false), glowMat(0xfff4e0, 0x5a4a30, .55)); cc.scale.x = 6; scene.add(cc);
+label('corpus callosum (the roof)', V(4, 31.6, 1));
+// choroid plexus: red frilly tufts inside the ventricles
+const chor = glowMat(0xd8364a, 0x5a0814, .95);
+// each tuft: a short stalk of tiny bumps hugging the wall (roof of the 3rd & 4th ventricles, floor of the lateral ventricle)
+[[stopU[3]-.004, -1], [stopU[3]+.006, -1], [stopU[5]+.012, 1], [stopU[5]+.024, 1], [stopU[7]-.01, -1], [stopU[7]+.02, -1], [stopU[7]+.05, -1], [stopU[7]+.08, -1]].forEach(([uu, side], n) => {
+  const c = curve.getPointAt(Math.min(.9995, uu)), r = radiusAt(uu);
+  const base = V(c.x + (n%2 ? .5 : -.5)*r*.4, c.y + side*r*.86, c.z);
+  for (let k = 0; k < 70; k++){
+    const t = k/70, a = k*2.4;
+    blob(V(base.x + Math.cos(a)*.35*(1 - t) + (Math.random()-.5)*.25, base.y - side*t*.55 + (Math.random()-.5)*.12, base.z + Math.sin(a)*.35*(1 - t) + (t - .5)*1.6),
+      [1,1,1].map(() => .06 + Math.random()*.07), chor);
+  }
+});
+label('choroid plexus · makes CSF', curve.getPointAt(Math.min(.9995, stopU[7] + .05)).add(V(0, -radiusAt(stopU[7] + .05)*.7, 0)));
+label('choroid plexus', curve.getPointAt(stopU[3]).add(V(0, -radiusAt(stopU[3])*.7, 0)));
+
+// CSF particles drifting (downstream, toward you)
+const NP = 1600, pGeo = new THREE.BufferGeometry(), pPos = new Float32Array(NP*3), pU = new Float32Array(NP), pOff = [];
+for (let i = 0; i < NP; i++){ pU[i] = .001 + Math.random()*.997; pOff.push([Math.random()*6.2832, Math.random()*.85]); }
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+const dotTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const r = g.createRadialGradient(32,32,0,32,32,32); r.addColorStop(0,'rgba(255,255,255,1)'); r.addColorStop(.35,'rgba(200,240,255,.6)'); r.addColorStop(1,'rgba(160,220,255,0)'); g.fillStyle = r; g.fillRect(0,0,64,64); return new THREE.CanvasTexture(c); })();
+const parts = new THREE.Points(pGeo, new THREE.PointsMaterial({color:0x9fe3ff, map:dotTex, size:.09, transparent:true, opacity:.75, depthWrite:false, blending:THREE.AdditiveBlending}));
+scene.add(parts);
+const frames = curve.computeFrenetFrames(SEG, false);
+
+/* ---------- route map (side view: z to the right = face, y up) ---------- */
+const mapSvg = document.getElementById('map'), NSV = 'http://www.w3.org/2000/svg';
+const mx = z => 80 + z*4.1, my = y => 70 - y*1.95 + 30;
+const sv = (tag, a) => { const e = document.createElementNS(NSV, tag); for (const k in a) e.setAttribute(k, a[k]); mapSvg.appendChild(e); return e; };
+sv('path', {d:`M${mx(-13)},${my(14)} C ${mx(-14)},${my(30)} ${mx(-4)},${my(36)} ${mx(4)},${my(35)} C ${mx(12)},${my(34)} ${mx(16)},${my(24)} ${mx(14)},${my(15)} C ${mx(13)},${my(10)} ${mx(8)},${my(9)} ${mx(5)},${my(10)} L ${mx(2.6)},${my(-2)} L ${mx(-2.6)},${my(-2)} L ${mx(-4)},${my(2)} C ${mx(-12)},${my(1)} ${mx(-14)},${my(8)} ${mx(-13)},${my(14)} Z`, fill:'#ffffff12', stroke:'#ffffff55', 'stroke-width':1});
+sv('rect', {x:mx(-1.6), y:my(-2), width:mx(1.6)-mx(-1.6), height:my(-60)-my(-2), rx:3, fill:'#ffffff12', stroke:'#ffffff55', 'stroke-width':1});
+sv('text', {x:mx(-12), y:my(-50), 'font-size':9, fill:'#cdb9bf', 'font-family':'Geist Mono, monospace'}).textContent = 'spinal cord';
+sv('text', {x:mx(5), y:my(-4), 'font-size':9, fill:'#cdb9bf', 'font-family':'Geist Mono, monospace'}).textContent = 'face →';
+let dRoute = ''; for (let i = 0; i <= 200; i++){ const p = curve.getPointAt(Math.min(.9995, i/200)); if (p.y < -58) continue; dRoute += (dRoute ? 'L' : 'M') + mx(p.z).toFixed(1) + ',' + my(p.y).toFixed(1); }
+sv('path', {d:dRoute, fill:'none', stroke:'#9fe3ff', 'stroke-width':2, 'stroke-linecap':'round', opacity:.8});
+const dot = sv('circle', {r:4.5, fill:'#ffd3a8', stroke:'#12070c', 'stroke-width':1.5});
+
+/* ---------- stops UI ---------- */
+const stopsBox = document.getElementById('stops');
+const stopBtns = STOPS.map((s, i) => { const b = document.createElement('button'); b.setAttribute('aria-label', 'Go to stop ' + (i+1) + ': ' + s.name);
+  b.addEventListener('click', () => { autopilot(false); scrollToU(stopU[i] + (i ? .004 : 0)); }); stopsBox.appendChild(b); return b; });
+let curStop = -1;
+function setStop(i){ if (i === curStop) return; curStop = i; const s = STOPS[i];
+  document.getElementById('where').textContent = 'Stop ' + (i+1) + ' of ' + STOPS.length + ' · ' + s.where;
+  document.getElementById('stopName').textContent = s.name; document.getElementById('stopText').innerHTML = s.text;
+  stopBtns.forEach((b, k) => b.classList.toggle('on', k <= i)); }
+
+/* ---------- driving: scroll position = progress along the route ---------- */
+const maxScroll = () => Math.max(1, document.documentElement.scrollHeight - innerHeight);
+const U_END = .975;
+let target = 0, u = 0, auto = false, ptrX = 0, ptrY = 0, lookX = 0, lookY = 0;
+addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; ptrX = (e.clientX/innerWidth - .5)*2; ptrY = (e.clientY/innerHeight - .5)*2; }, {passive:true});
+function scrollToU(x){ scrollTo({top:(x/U_END)*maxScroll(), behavior:RM ? 'auto' : 'smooth'}); }
+addEventListener('scroll', () => { target = Math.min(1, scrollY/maxScroll())*U_END; }, {passive:true});
+function autopilot(on){ auto = on; document.getElementById('auto').setAttribute('aria-pressed', on); }
+document.getElementById('auto').addEventListener('click', () => autopilot(!auto));
+document.getElementById('restart').addEventListener('click', () => { autopilot(false); scrollTo({top:0}); });
+['wheel','touchstart','keydown'].forEach(ev => addEventListener(ev, e => { if (ev === 'keydown' && !['ArrowDown','ArrowUp','PageDown','PageUp',' '].includes(e.key)) return; if (auto) autopilot(false); }, {passive:true}));
+document.getElementById('go').addEventListener('click', () => { document.getElementById('intro').classList.add('gone'); autopilot(true); });
+document.getElementById('intro').addEventListener('click', e => { if (e.target.id === 'intro') document.getElementById('intro').classList.add('gone'); });
+addEventListener('wheel', () => document.getElementById('intro').classList.add('gone'), {passive:true, once:true});
+addEventListener('touchmove', () => document.getElementById('intro').classList.add('gone'), {passive:true, once:true});
+
+function resize(){ const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w/h; camera.fov = w < 700 ? 82 : 72; camera.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+
+const tmp = V(0,0,0), tmp2 = V(0,0,0);
+let last = performance.now();
+function frame(now){
+  const dt = Math.min(.05, (now - last)/1000); last = now;
+  if (auto){ const speed = .012 * (RM ? .6 : 1) * (radiusAt(u) < 1.2 ? 1.3 : .8); scrollTo(0, Math.min(maxScroll(), scrollY + speed*dt*maxScroll()/U_END)); if (scrollY >= maxScroll() - 2) autopilot(false); }
+  u += (target - u)*(1 - Math.pow(.02, dt));
+  const pu = Math.max(0, Math.min(U_END, u));
+  const p = curve.getPointAt(pu), ahead = curve.getPointAt(Math.min(.9995, pu + .01));
+  const fi = Math.min(SEG, Math.round(pu*SEG)), nrm = frames.normals[fi], bin = frames.binormals[fi];
+  const bob = RM ? 0 : .08*radiusAt(pu);
+  const t = now/1000;
+  camera.position.copy(p).addScaledVector(nrm, Math.sin(t*.9)*bob).addScaledVector(bin, Math.cos(t*.7)*bob);
+  camera.up.copy(bin); camera.lookAt(ahead);
+  lookX += (ptrX - lookX)*.06; lookY += (ptrY - lookY)*.06;
+  const reach = 1.2 + radiusAt(pu)*.9;
+  tmp.copy(ahead).addScaledVector(bin, -lookX*reach).addScaledVector(nrm, lookY*reach); camera.lookAt(tmp);
+  head.position.copy(camera.position); glow.position.copy(ahead);
+  // particles
+  for (let i = 0; i < NP; i++){
+    pU[i] -= dt*(.006 + (i%7)*.0008); if (pU[i] < .0005) pU[i] += .998;
+    const uu = pU[i], c = curve.getPointAt(uu), k = Math.min(SEG, Math.round(uu*SEG)), r = radiusAt(uu)*pOff[i][1], a = pOff[i][0] + t*.2;
+    tmp.copy(c).addScaledVector(frames.normals[k], Math.cos(a)*r).addScaledVector(frames.binormals[k], Math.sin(a)*r);
+    pPos[3*i] = tmp.x; pPos[3*i+1] = tmp.y; pPos[3*i+2] = tmp.z;
+  }
+  pGeo.attributes.position.needsUpdate = true;
+  // labels
+  const w = innerWidth, h = innerHeight;
+  for (const L of LABELS){
+    const on = pu >= L.u0 && pu <= L.u1;
+    tmp2.copy(L.pos).project(camera);
+    const vis = on && tmp2.z < 1 && Math.abs(tmp2.x) < 1.1 && Math.abs(tmp2.y) < 1.1;
+    L.el.style.opacity = vis ? 1 : 0;
+    if (vis) L.el.style.transform = `translate(${(tmp2.x*.5+.5)*w}px, ${(-tmp2.y*.5+.5)*h - 22}px) translate(-50%,-50%)`;
+  }
+  // stop + HUD
+  let s = 0; for (let i = 0; i < STOPS.length; i++) if (pu >= stopU[i] - .012) s = i; setStop(s);
+  document.getElementById('pct').textContent = Math.round(pu/U_END*100) + '%';
+  dot.setAttribute('cx', mx(p.z)); dot.setAttribute('cy', Math.min(228, my(Math.max(-62, p.y))));
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+setStop(0);
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
