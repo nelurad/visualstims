@@ -15,3 +15,11 @@ Each stim is a folder with an `index.html` and a 900×600 `thumb.jpg`, listed on
 | 04 | [Blood Rush](blood-rush/) | fMRI as art: pick a task and oxygen-rich blood rushes through branching vessels to the regions doing the work (balloon model of the BOLD response, real-time timing); scanner view shows the voxel map. |
 | 05 | [Wire Together](wire-together/) | Memory consolidation as light: explore and place cells that fire together wire together; sleep and sharp-wave ripples replay the path ~20× faster, copying it out to a cortical ring of string-art chords. Bars show the memory shifting from hippocampus to cortex. |
 | 06 | [Hold That Thought](hold-that-thought/) | Working memory, psychedelic: a rainbow brain of colour-cycling bands over an op-art sunburst whose frontal lobe holds a ring attractor of 72 PFC neurons. A cue leaves a bump of activity that persists through the delay; distractor waves melt through the bands from visual cortex and are gated out or leak in and drag the bump. Rested, stressed, tired and age-14 conditions; live spike raster. |
+
+## Things to touch
+
+Not brain science, just hands and eyes.
+
+| | Piece | What it is |
+|---|---|---|
+| a | [Lump](lump/) | A ball of clay to play with in 3D: drag to press it in, hold then drag to pull it out, smooth it, spin it on a pottery wheel, pick a clay colour. Built with three.js. |
