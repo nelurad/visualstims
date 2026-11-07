@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wire Together · VisualStims</title>
+<meta name="description" content="Memory consolidation as light: place cells that fire together wire together while you explore, then the sleeping hippocampus replays the path and hands it to the cortex.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&family=Homemade+Apple&display=swap">
+<style>
+  /* Layout: one full-bleed canvas (place-cell field inside a cortical ring); title bottom-left, controls bottom-right. */
+  :root{
+    --bg:#0b0710;
+    --ink:#f5eee9;
+    --dim:#b9a9b8;
+    --glass:#140c18c4;
+    --rule:#ffffff26;
+    --hot:#ffc79e;
+    --cool:#9fd8ff;
+    --grot:"Bricolage Grotesque","Helvetica Neue",Arial,system-ui,sans-serif;
+    --mono:"Geist Mono",ui-monospace,Menlo,monospace;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hidden}
+  body{font-family:var(--grot);-webkit-font-smoothing:antialiased}
+  #c{position:fixed;inset:0;width:100vw;height:100vh;display:block;cursor:none;touch-action:none}
+  header{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:22px max(28px,env(safe-area-inset-right,0px)) 0 max(28px,env(safe-area-inset-left,0px));pointer-events:none}
+  header a{pointer-events:auto;font-size:14px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--ink)}
+  header span{font-family:var(--mono);font-size:12px;color:var(--dim)}
+  .title{position:fixed;left:max(28px,env(safe-area-inset-left,0px));bottom:max(26px,env(safe-area-inset-bottom,0px));z-index:5;max-width:min(470px,calc(100vw - 56px));pointer-events:none}
+  .title h1{margin:0;line-height:1}
+  .title .script{display:block;font-family:"Homemade Apple","Snell Roundhand",cursive;font-weight:400;font-size:clamp(34px,4vw,58px);line-height:1.5;transform:rotate(-3deg);transform-origin:left bottom}
+  .title .sub{display:block;font-weight:330;font-size:clamp(20px,1.8vw,26px);letter-spacing:-.02em;font-variation-settings:"opsz" 40,"wdth" 85;color:var(--dim);margin-top:2px}
+  .title p{margin:12px 0 0;font-size:15px;line-height:1.38;color:#e4d8df;text-shadow:0 1px 14px #000}
+  .title p b{color:var(--hot);font-weight:600}
+  .title p i{color:var(--cool);font-style:normal;font-weight:600}
+  .panel{position:fixed;right:max(28px,env(safe-area-inset-right,0px));bottom:max(26px,env(safe-area-inset-bottom,0px));z-index:5;width:min(390px,calc(100vw - 56px));background:var(--glass);border:1px solid var(--rule);border-radius:18px;padding:14px 16px 14px;backdrop-filter:blur(10px)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chips button{font:500 13px/1 var(--grot);color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:999px;padding:8px 12px;cursor:pointer}
+  .chips button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .chips button:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .state{margin:12px 0 10px;font-size:14.5px;line-height:1.35;color:#eadfe6;min-height:3.9em}
+  .state b{color:var(--hot);font-weight:600}
+  .state i{color:var(--cool);font-style:normal;font-weight:600}
+  .bars{display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;align-items:center;font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+  .bar{height:6px;border-radius:3px;background:#ffffff14;overflow:hidden}
+  .bar span{display:block;height:100%;width:0;border-radius:3px;transition:width .3s}
+  #bh span{background:linear-gradient(90deg,#ff8fb8,var(--hot))}
+  #bc span{background:linear-gradient(90deg,#b79cff,var(--cool))}
+  .bars b{color:var(--ink);font-weight:500;min-width:3.2em;text-align:right}
+  body.thumb header,body.thumb .title,body.thumb .panel{display:none}
+  @media (max-width:860px){
+    .title p{display:none}
+    .panel{left:16px;right:16px;width:auto;bottom:16px}
+    .title{bottom:auto;top:58px;left:16px}
+    .state{min-height:0}
+  }
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="A field of glowing place cells inside a ring of cortex. Move the pointer to explore; cells that fire together get linked."></canvas>
+<header>
+  <a href="../">&larr; VisualStims</a>
+  <span id="clock">awake · real time</span>
+</header>
+
+<div class="title">
+  <h1><span class="script">Wire Together</span><span class="sub">No. 05 · memory consolidation</span></h1>
+  <p>Each light is a <b>place cell</b> in the hippocampus. It fires when you are in its spot. Move around and cells that fire together <b>wire together</b>, leaving a glowing thread of your path. Then sleep: the hippocampus replays that path in fast forward, over and over, and each replay copies it out to the <i>cortex</i>, the outer ring, where it settles into a lasting shape.</p>
+</div>
+
+<section class="panel" aria-label="Day and night">
+  <div class="chips" id="chips" role="group" aria-label="Brain state">
+    <button data-k="awake" aria-pressed="true">Awake</button>
+    <button data-k="asleep" aria-pressed="false">Asleep</button>
+    <button data-k="auto" aria-pressed="true">Auto day &amp; night</button>
+    <button data-k="forget" aria-pressed="false">Forget</button>
+  </div>
+  <p class="state" id="stateTxt" aria-live="polite"></p>
+  <div class="bars">
+    <span>hippocampus</span><div class="bar" id="bh"><span></span></div><b id="vh">0%</b>
+    <span>cortex</span><div class="bar" id="bc"><span></span></div><b id="vc">0%</b>
+  </div>
+</section>
+
+<script>
+(function(){
+'use strict';
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const THUMB = new URLSearchParams(location.search).has('thumb');
+if (THUMB) document.body.classList.add('thumb');
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const TAU = Math.PI*2;
+let W = 0, H = 0, DPR = 1, cx = 0, cy = 0, FX = 0, FY = 0, RX = 0, RY = 0, R = 80;
+let T = 0;                                         // simulation clock, seconds
+
+/* ---------- glow sprites, one per hue ---------- */
+const HUES = 36, SPR = [];
+for (let k = 0; k < HUES; k++){
+  const s = document.createElement('canvas'); s.width = s.height = 64; const g = s.getContext('2d');
+  const h = k*360/HUES, gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, `hsla(${h},100%,92%,1)`); gr.addColorStop(.18, `hsla(${h},100%,68%,.75)`);
+  gr.addColorStop(.5, `hsla(${h},100%,55%,.16)`); gr.addColorStop(1, `hsla(${h},100%,50%,0)`);
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64); SPR.push(s);
+}
+const sprite = h => SPR[(Math.round(((h % 360) + 360) % 360/(360/HUES))) % HUES];
+
+/* ---------- place cells, scattered over an ellipse (each sits at the centre of its place field) ---------- */
+const cells = [];
+function seedCells(){
+  const n = Math.round(Math.max(170, Math.min(460, innerWidth*innerHeight/2700)));
+  const asp = innerWidth/Math.max(1, innerHeight);
+  for (let s = 0; s < n; s++){
+    let best = null, bd = -1;
+    for (let k = 0; k < 14; k++){
+      const r = Math.sqrt(Math.random()), a = Math.random()*TAU, u = r*Math.cos(a), v = r*Math.sin(a);
+      let md = 1e9;
+      for (const c of cells){ const dx = (u - c.u)*asp, dy = v - c.v; const d = dx*dx + dy*dy; if (d < md) md = d; }
+      if (md > bd){ bd = md; best = {u, v}; }
+    }
+    const ang = Math.atan2(best.v, best.u), rn = Math.hypot(best.u, best.v);
+    cells.push({u:best.u, v:best.v, x:0, y:0, ang, rn,
+      hue:(ang/TAU*360 + 560) % 360, k: rn < .42 ? 2 : rn < .76 ? 3 : 5,
+      a:0, last:-9, ph:Math.random()*TAU, adj:[]});
+  }
+}
+seedCells();
+
+function layout(){
+  DPR = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+  cv.width = W*DPR; cv.height = H*DPR;
+  cx = W/2; cy = H*.5;
+  RX = W*.47; RY = H*.45;                          // cortical ring
+  FX = W*.4; FY = H*.38;                           // place-cell field
+  R = Math.max(55, Math.min(110, Math.min(W, H)*.11));
+}
+addEventListener('resize', layout); layout();
+const bloom = document.createElement('canvas'), bx = bloom.getContext('2d');
+function sizeBloom(){ bloom.width = Math.max(1, Math.round(W/6)); bloom.height = Math.max(1, Math.round(H/6)); }
+addEventListener('resize', sizeBloom); sizeBloom();
+const ring = (t, s = 1) => [cx + RX*s*Math.cos(t), cy + RY*s*Math.sin(t)];
+
+/* ---------- synapses ---------- */
+const links = new Map(), linkArr = [];
+function link(i, j){
+  if (i > j){ const t = i; i = j; j = t; }
+  const key = i*4096 + j; let L = links.get(key);
+  if (!L){
+    const A = cells[i], B = cells[j];
+    const th = Math.atan2(Math.sin(A.ang) + Math.sin(B.ang), Math.cos(A.ang) + Math.cos(B.ang));
+    L = {i, j, w:0, cw:0, fl:0, bend:(Math.random() - .5)*.5, t1:th, t2:th*A.k, hue:(A.hue + B.hue)/2 + (Math.abs(A.hue - B.hue) > 180 ? 180 : 0)};
+    links.set(key, L); linkArr.push(L); A.adj.push(L); B.adj.push(L);
+  }
+  return L;
+}
+
+/* ---------- state ---------- */
+let mode = 'awake', modeSince = 0, auto = true, sleepMix = 0, replays = 0;
+let px = W*.5, py = H*.5, lastUser = -99;          // pointer
+let wx = W*.5, wy = H*.5, wvx = 0, wvy = 0;        // the walker (you, or the autopilot)
+const trail = [], recent = [], ripples = [], replay = [], dialog = [];
+const ringGlow = new Float32Array(240);
+let nextRipple = 0;
+
+function fire(i, s){
+  const c = cells[i]; c.a = Math.max(c.a, s); c.last = T;
+  if (mode !== 'awake') return;
+  for (const r of recent){
+    if (r.i === i) continue;
+    const dt = T - r.t; if (dt > .5) continue;
+    const L = link(r.i, i);
+    L.w = Math.min(1, L.w + .34*Math.exp(-dt/.24)*(1 - L.w));
+    L.fl = Math.max(L.fl, .7);
+  }
+  recent.push({i, t:T});
+}
+
+/* autopilot: a smooth, wandering animal */
+function autopilot(dt){
+  const t = T*.34;
+  const tx = cx + FX*.92*(Math.sin(t*1.3 + 1.1)*.6 + Math.sin(t*2.9)*.3 + Math.sin(t*.47 + 4)*.25);
+  const ty = cy + FY*.92*(Math.cos(t*1.7)*.55 + Math.sin(t*2.3 + 2)*.3 + Math.cos(t*.61 + 1)*.2);
+  return [tx, ty];
+}
+
+/* ---------- replay: a sharp-wave ripple walks the strongest threads ---------- */
+function walk(start, vis){
+  const out = []; let cur = start;
+  for (let s = 0; s < 34; s++){
+    let best = -1, bs = 0;
+    for (const L of cells[cur].adj){
+      const o = L.i === cur ? L.j : L.i; if (vis.has(o)) continue;
+      const sc = (L.w + .35*L.cw)*(.65 + .35*Math.random());
+      if (sc > bs){ bs = sc; best = o; }
+    }
+    if (best < 0 || bs < .05) break;
+    vis.add(best); out.push(best); cur = best;
+  }
+  return out;
+}
+function buildPath(){
+  let tot = 0; for (const L of linkArr) if (L.w > .06) tot += L.w;
+  if (tot < .3) return null;
+  let r = Math.random()*tot, pick = null;
+  for (const L of linkArr){ if (L.w <= .06) continue; r -= L.w; if (r <= 0){ pick = L; break; } }
+  if (!pick) return null;
+  const start = Math.random() < .5 ? pick.i : pick.j, vis = new Set([start]);
+  const fwd = walk(start, vis), back = walk(start, vis);
+  let path = back.reverse().concat([start], fwd);
+  if (path.length < 4) return null;
+  if (Math.random() < .35) path.reverse();        // some replays run backwards
+  return path;
+}
+function startRipple(){
+  const path = buildPath(); if (!path) return false;
+  const c = cells[path[0]];
+  ripples.push({x:c.x, y:c.y, t:T, hue:c.hue});
+  replay.push({path, k:0, next:T, done:-1});
+  replays++;
+  return true;
+}
+function stepReplay(ev){
+  const STEP = RM ? .1 : .042;                     // ~20x faster than walking it
+  while (ev.k < ev.path.length && T >= ev.next){
+    const i = ev.path[ev.k], c = cells[i];
+    fire(i, 1);
+    dialog.push({i, t:T});
+    ringGlow[Math.floor(((c.ang % TAU) + TAU) % TAU/TAU*240) % 240] = 1;
+    if (ev.k > 0){
+      const L = link(ev.path[ev.k - 1], i);
+      L.fl = 1;
+      L.cw = Math.min(1, L.cw + .16*L.w + .02);   // the cortex learns a little
+      L.w *= .955;                                 // the hippocampus lets go a little
+      const t2 = ((L.t2 % TAU) + TAU) % TAU;
+      ringGlow[Math.floor(t2/TAU*240) % 240] = 1;
+    }
+    ev.k++; ev.next += STEP;
+  }
+  if (ev.k >= ev.path.length && ev.done < 0) ev.done = T;
+}
+
+/* ---------- modes ---------- */
+const TXT = {
+  awake:'<b>Awake.</b> Move through the space. Each place cell fires when you pass its spot, and cells that fire within a moment of each other <b>wire together</b>.',
+  asleep:'<b>Asleep.</b> Sharp-wave ripples: bursts where the hippocampus replays your path about 20× faster, sometimes backwards. Each replay copies the memory out to the <i>cortex</i>. Click to trigger one.',
+  empty:'<b>Asleep</b>, but there is nothing to replay yet. Wake up and explore first.'
+};
+const stateTxt = document.getElementById('stateTxt');
+function setMode(m){
+  mode = m; modeSince = T; recent.length = 0;
+  if (m === 'awake') replay.length = 0;
+  stateTxt.innerHTML = TXT[m];
+  document.getElementById('clock').textContent = m === 'awake' ? 'awake · real time' : 'asleep · replay ×20';
+  syncChips();
+}
+function syncChips(){
+  document.querySelectorAll('#chips button').forEach(b => {
+    const k = b.dataset.k;
+    b.setAttribute('aria-pressed', k === 'auto' ? auto : k === mode);
+  });
+}
+document.getElementById('chips').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const k = b.dataset.k;
+  if (k === 'auto'){ auto = !auto; syncChips(); return; }
+  if (k === 'forget'){
+    links.clear(); linkArr.length = 0; cells.forEach(c => { c.adj = []; c.a = 0; });
+    replay.length = 0; ripples.length = 0; ringGlow.fill(0); replays = 0; setMode('awake'); return;
+  }
+  auto = false; setMode(k);
+});
+addEventListener('keydown', e => {
+  if (e.code === 'Space' && e.target === document.body){ e.preventDefault(); auto = false; setMode(mode === 'awake' ? 'asleep' : 'awake'); }
+});
+cv.addEventListener('pointermove', e => { px = e.clientX; py = e.clientY; lastUser = T; });
+cv.addEventListener('pointerdown', e => {
+  px = e.clientX; py = e.clientY; lastUser = T;
+  if (mode === 'asleep') startRipple();
+});
+
+/* ---------- simulation step ---------- */
+function step(dt){
+  T += dt;
+  sleepMix += ((mode === 'asleep' ? 1 : 0) - sleepMix)*Math.min(1, dt*1.4);
+
+  // auto day & night
+  if (auto){
+    let hs = 0; for (const L of linkArr) hs += L.w;
+    if (mode === 'awake' && T - modeSince > 15 && T - lastUser > 2 && hs > 4) setMode('asleep');
+    else if (mode === 'asleep' && T - modeSince > 13) setMode('awake');
+  }
+
+  // cells drift gently
+  const breathe = 1 + .012*Math.sin(T*.5)*sleepMix;
+  for (const c of cells){
+    const d = RM ? 0 : 3.5;
+    c.x = cx + c.u*FX*breathe + d*Math.sin(T*.37 + c.ph);
+    c.y = cy + c.v*FY*breathe + d*Math.cos(T*.31 + c.ph*1.7);
+    c.a *= Math.exp(-dt*3);
+  }
+
+  if (mode === 'awake'){
+    const user = T - lastUser < 3;
+    const [tx, ty] = user ? [px, py] : autopilot(dt);
+    // the walker follows its target with a little inertia
+    const k = user ? 14 : 6;
+    wvx += ((tx - wx)*k - wvx)*Math.min(1, dt*8); wvy += ((ty - wy)*k - wvy)*Math.min(1, dt*8);
+    wx += wvx*dt; wy += wvy*dt;
+    trail.push({x:wx, y:wy, t:T});
+    // place fields: firing chance falls off with distance
+    for (let i = 0; i < cells.length; i++){
+      const c = cells[i]; if (T - c.last < .32) continue;
+      const d = Math.hypot(c.x - wx, c.y - wy); if (d > R) continue;
+      const f = 1 - d/R;
+      if (Math.random() < f*f*dt*24) fire(i, .55 + .45*f);
+    }
+    while (recent.length && T - recent[0].t > .6) recent.shift();
+    for (const L of linkArr) L.w = Math.max(0, L.w - dt*.0025);   // slow forgetting
+  } else {
+    if (T >= nextRipple && replay.length < 2){
+      startRipple();
+      nextRipple = T + (RM ? 2 : .8 + Math.random()*1.3);
+    }
+    for (const ev of replay) stepReplay(ev);
+    for (let n = replay.length - 1; n >= 0; n--) if (replay[n].done > 0 && T - replay[n].done > .6) replay.splice(n, 1);
+    if (Math.random() < dt*6){ fire(Math.floor(Math.random()*cells.length), .25); }  // quiet spontaneous flickers
+    const empty = !linkArr.some(L => L.w > .06);
+    const want = empty && !replay.length ? TXT.empty : TXT.asleep;
+    if (stateTxt.innerHTML !== want && T - modeSince > .5) stateTxt.innerHTML = want;
+  }
+  while (trail.length && T - trail[0].t > 1.4) trail.shift();
+  for (const L of linkArr) L.fl *= Math.exp(-dt*2.2);
+  for (let n = 0; n < 240; n++) ringGlow[n] *= Math.exp(-dt*1.2);
+  while (dialog.length && T - dialog[0].t > .9) dialog.shift();
+  while (ripples.length && T - ripples[0].t > 1.6) ripples.shift();
+}
+
+/* ---------- drawing ---------- */
+function draw(){
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+  const s = sleepMix;
+  ctx.fillStyle = `rgb(${11 - 7*s|0},${7 - 2*s|0},${16 + 12*s|0})`; ctx.fillRect(0, 0, W, H);
+  // a slow nebula behind everything
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H)*.6);
+  g.addColorStop(0, `hsla(${290 - 60*s},70%,${14 + 4*Math.sin(T*.4)}%,.55)`); g.addColorStop(1, 'hsla(260,60%,4%,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+  ctx.globalCompositeOperation = 'lighter';
+
+  // cortex: chords across the ring (string art that grows as memories consolidate)
+  ctx.lineWidth = .8;
+  for (const L of linkArr){
+    if (L.cw < .01) continue;
+    const [x1, y1] = ring(L.t1), [x2, y2] = ring(L.t2);
+    ctx.strokeStyle = `hsla(${L.hue + 30},75%,72%,${Math.min(.9, L.cw*(.38 + .3*s) + L.fl*L.cw*.7)})`;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  }
+  // cortex ring ticks
+  for (let n = 0; n < 240; n++){
+    const t = n/240*TAU, [x, y] = ring(t), gl = ringGlow[n];
+    ctx.fillStyle = `hsla(${200 + 60*Math.sin(t)},80%,75%,${.12 + .1*s + gl*.8})`;
+    ctx.fillRect(x - .9, y - .9, 1.8 + gl*2, 1.8 + gl*2);
+    if (gl > .05) ctx.drawImage(sprite(200 + 60*Math.sin(t)), x - 14*gl - 6, y - 14*gl - 6, 28*gl + 12, 28*gl + 12);
+  }
+
+  // dialogue: hippocampus talking to cortex during replay
+  for (const d of dialog){
+    const c = cells[d.i], f = 1 - (T - d.t)/.9, [x, y] = ring(c.ang);
+    ctx.strokeStyle = `hsla(${c.hue},90%,75%,${f*.28})`; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(x, y); ctx.stroke();
+  }
+
+  // hippocampal threads: silk curves between cells that fired together
+  for (const L of linkArr){
+    const al = L.w*(.7 - .3*s) + L.fl*.55;
+    if (al < .015) continue;
+    const A = cells[L.i], B = cells[L.j];
+    const mx = (A.x + B.x)/2, my = (A.y + B.y)/2, dx = B.x - A.x, dy = B.y - A.y;
+    const sway = L.bend + (RM ? 0 : .12*Math.sin(T*1.1 + L.i));
+    ctx.strokeStyle = `hsla(${L.hue},95%,${62 + 20*L.fl}%,${Math.min(1, al)})`;
+    ctx.lineWidth = .4 + 1.2*L.w + 1.4*L.fl;
+    ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.quadraticCurveTo(mx - dy*sway, my + dx*sway, B.x, B.y); ctx.stroke();
+  }
+
+  // ripples: high-frequency wobbly rings where a replay begins
+  for (const r of ripples){
+    const age = (T - r.t)/1.6, rad = 10 + age*R*2.2;
+    ctx.strokeStyle = `hsla(${r.hue},100%,80%,${(1 - age)*.7})`; ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    for (let n = 0; n <= 120; n++){
+      const t = n/120*TAU, rr = rad*(1 + .06*Math.sin(t*18 + T*40)*(1 - age));
+      n ? ctx.lineTo(r.x + rr*Math.cos(t), r.y + rr*Math.sin(t)) : ctx.moveTo(r.x + rr, r.y);
+    }
+    ctx.stroke();
+  }
+
+  // replay comets
+  for (const ev of replay){
+    const end = Math.min(ev.k, ev.path.length);
+    for (let n = Math.max(1, end - 9); n < end; n++){
+      const A = cells[ev.path[n - 1]], B = cells[ev.path[n]], f = 1 - (end - n)/9;
+      ctx.strokeStyle = `hsla(${B.hue},100%,${70 + 18*f}%,${f*.85})`; ctx.lineWidth = 1 + f*3.5;
+      ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.stroke();
+    }
+  }
+
+  // cells
+  for (const c of cells){
+    const base = .22 + .1*Math.sin(T*2 + c.ph);
+    ctx.fillStyle = `hsla(${c.hue},80%,78%,${base + c.a*.6})`;
+    ctx.beginPath(); ctx.arc(c.x, c.y, 1.3 + c.a*1.5, 0, TAU); ctx.fill();
+    if (c.a > .04){ const z = 14 + 70*c.a; ctx.drawImage(sprite(c.hue), c.x - z/2, c.y - z/2, z, z); }
+  }
+
+  // the walker and its trail, pulsing with a (slowed) theta rhythm
+  if (s < .99){
+    const al = 1 - s;
+    if (trail.length > 1){
+      ctx.lineCap = 'round';
+      for (let n = 1; n < trail.length; n++){
+        const f = 1 - (T - trail[n].t)/1.4;
+        ctx.strokeStyle = `rgba(255,236,220,${f*.35*al})`; ctx.lineWidth = f*3;
+        ctx.beginPath(); ctx.moveTo(trail[n - 1].x, trail[n - 1].y); ctx.lineTo(trail[n].x, trail[n].y); ctx.stroke();
+      }
+    }
+    const th = .5 + .5*Math.sin(T*TAU*1.6);
+    ctx.globalAlpha = al*(.2 + .15*th);
+    const z = R*2.4; ctx.drawImage(sprite(30), wx - z/2, wy - z/2, z, z);
+    ctx.globalAlpha = al;
+    ctx.strokeStyle = `rgba(255,220,190,${.25 + .2*th})`; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(wx, wy, R*(.92 + .08*th), 0, TAU); ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+  // bloom: a blurred, shrunken copy of the frame added back on top
+  bx.globalCompositeOperation = 'copy'; bx.drawImage(cv, 0, 0, bloom.width, bloom.height);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .55 + .2*s;
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(bloom, 0, 0, cv.width, cv.height);
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+}
+
+/* ---------- HUD ---------- */
+let hudT = 0;
+function hud(){
+  let h = 0, c = 0; for (const L of linkArr){ h += L.w; c += L.cw; }
+  const tot = h + c, ph = tot ? h/tot : 0, pc = tot ? c/tot : 0;
+  document.querySelector('#bh span').style.width = (ph*100).toFixed(1) + '%';
+  document.querySelector('#bc span').style.width = (pc*100).toFixed(1) + '%';
+  document.getElementById('vh').textContent = Math.round(ph*100) + '%';
+  document.getElementById('vc').textContent = Math.round(pc*100) + '%';
+}
+
+/* ---------- loop ---------- */
+setMode('awake');
+if (THUMB){
+  // fast-forward a day and a night, then catch a fresh morning
+  setTimeout(() => { layout(); sizeBloom(); wx = cx; wy = cy;
+  for (let n = 0; n < 60*16; n++) step(1/60);
+  auto = false; setMode('asleep');
+  for (let n = 0; n < 60*18; n++) step(1/60);
+  setMode('awake');
+  for (let n = 0; n < 60*7; n++) step(1/60);
+  draw(); }, 300);
+} else {
+  let last = performance.now();
+  function frame(now){
+    const dt = Math.min(.05, (now - last)/1000); last = now;
+    step(dt); draw();
+    if (T - hudT > .25){ hudT = T; hud(); }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+})();
+</script>
+</body>
+</html>
