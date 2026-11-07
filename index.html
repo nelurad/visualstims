@@ -59,13 +59,15 @@
 
   .index{position:relative;z-index:6;padding-block:2vh 16vh}
   .index .lab{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 6px}
-  .row{display:grid;grid-template-columns:4.2em minmax(0,1fr) auto;align-items:baseline;gap:16px;border-top:1px solid var(--rule);padding-block:18px 22px;text-decoration:none;position:relative}
+  .row{display:grid;grid-template-columns:4.6em minmax(0,1fr);align-items:center;gap:16px;border-top:1px solid var(--rule);padding-block:18px 22px;text-decoration:none;position:relative}
   .row:last-child{border-bottom:1px solid var(--rule)}
-  .row .n{font-family:var(--mono);font-size:13px;color:var(--dim)}
-  .row .t{font-family:"Permanent Marker","Marker Felt","Comic Sans MS",cursive;font-weight:400;font-size:clamp(40px,7vw,112px);line-height:1.08;letter-spacing:.01em;display:inline-block;transform-origin:left center;transition:transform .45s cubic-bezier(.3,1.6,.5,1),color .3s}
-  .row:nth-child(odd) .t{transform:rotate(-1.5deg)} .row:nth-child(even) .t{transform:rotate(1deg)}
-  .row .tags{font-family:var(--mono);font-size:12px;color:var(--dim);text-align:right;max-width:16em}
-  a.row:hover .t,a.row:focus-visible .t{transform:rotate(-3deg) scale(1.04);color:var(--hot)}
+  .row .n{justify-self:start;font-family:"Homemade Apple","Snell Roundhand",cursive;font-size:clamp(15px,1.5vw,21px);line-height:1;color:var(--hot);padding:.55em .5em .3em;border:1.5px solid #ffd3a88c;border-radius:58% 42% 51% 49%/46% 55% 45% 54%;transform:rotate(var(--nr,-8deg));animation:nwob 7s ease-in-out infinite;animation-delay:var(--nd,0s)}
+  .row .n::before{content:"n\00BA";font-size:.62em;margin-right:.18em;opacity:.8}
+  @keyframes nwob{0%,100%{border-radius:58% 42% 51% 49%/46% 55% 45% 54%;transform:rotate(var(--nr,-8deg))}50%{border-radius:44% 56% 47% 53%/56% 44% 57% 43%;transform:rotate(calc(var(--nr,-8deg) * -1))}}
+  .row:nth-child(3n) .n{--nr:7deg;--nd:-2s} .row:nth-child(3n+1) .n{--nr:-11deg;--nd:-4.5s} .row:nth-child(4n) .n{--nr:4deg}
+  .row .t{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:300;font-variation-settings:"opsz" 144,"SOFT" 100,"WONK" 1;font-size:clamp(40px,7vw,112px);line-height:1.12;letter-spacing:.01em;white-space:nowrap;display:inline-block;transform-origin:left center;transition:transform .45s cubic-bezier(.3,1.6,.5,1),color .3s}
+  .row .t .c{display:inline-block;will-change:transform}
+  a.row:hover .t,a.row:focus-visible .t{transform:translateX(.12em);color:var(--hot)}
   a.row:focus-visible{outline:none}
   .row.soon .t{color:#ffffff59;font-weight:200}
   .row .mobile-pic{display:none}
@@ -79,9 +81,9 @@
     .about{grid-template-columns:1fr}
     .eyes{flex-direction:row;flex-wrap:wrap;justify-content:center}
     .eyes svg{width:28vw}
-    .row{grid-template-columns:2.6em minmax(0,1fr)}
-    .row .tags{grid-column:2;text-align:left}
-    .row .mobile-pic{display:block;grid-column:2;width:100%;max-width:420px;aspect-ratio:3/2;object-fit:cover;border-radius:4px;margin-top:8px}
+    .row{grid-template-columns:3.6em minmax(0,1fr)}
+    .row .t{white-space:normal}
+    .row .mobile-pic{display:block;grid-column:2;width:100%;max-width:420px;height:auto;aspect-ratio:3/2;object-fit:cover;border-radius:4px;margin-top:8px}
     nav.links{gap:18px;font-size:15px}
   }
   @media (prefers-reduced-motion: reduce){ .row .t{transition:none} #peek{transition:none} }
@@ -121,46 +123,39 @@
 
 <section class="index gut" aria-labelledby="ix">
   <p class="lab" id="ix">The stims</p>
-  <a class="row" href="melting-cortex/" data-peek="melting-cortex/thumb.jpg">
+  <a class="row" data-fx="melt" href="melting-cortex/" data-peek="melting-cortex/thumb.jpg">
     <span class="n">01</span>
     <span class="t">Melting Cortex</span>
-    <span class="tags">pyramidal neurons · webgl · marching squares</span>
     <img class="mobile-pic" src="melting-cortex/thumb.jpg" alt="False-coloured pyramidal neurons" width="900" height="600" loading="lazy">
   </a>
-  <a class="row" href="up-the-canal/" data-peek="up-the-canal/thumb.jpg">
+  <a class="row" data-fx="rise" href="up-the-canal/" data-peek="up-the-canal/thumb.jpg">
     <span class="n">02</span>
     <span class="t">Up the Canal</span>
-    <span class="tags">a 3D ride · spinal cord to ventricles · three.js</span>
     <img class="mobile-pic" src="up-the-canal/thumb.jpg" alt="Inside the fourth ventricle, looking up toward the thalamus" width="900" height="600" loading="lazy">
   </a>
-  <a class="row" href="in-sync/" data-peek="in-sync/thumb.jpg">
+  <a class="row" data-fx="sync" href="in-sync/" data-peek="in-sync/thumb.jpg">
     <span class="n">03</span>
     <span class="t">In Sync</span>
-    <span class="tags">brainwaves · eeg · coupled oscillators</span>
     <img class="mobile-pic" src="in-sync/thumb.jpg" alt="Glowing waves of activity sweeping across a brain, beside four EEG traces" width="900" height="600" loading="lazy">
   </a>
-  <a class="row" href="blood-rush/" data-peek="blood-rush/thumb.jpg">
+  <a class="row" data-fx="pulse" href="blood-rush/" data-peek="blood-rush/thumb.jpg">
     <span class="n">04</span>
     <span class="t">Blood Rush</span>
-    <span class="tags">fmri · the bold signal · oxygen-rich blood</span>
     <img class="mobile-pic" src="blood-rush/thumb.jpg" alt="Glowing blood vessels across a brain, warm where oxygen-rich blood floods the language areas" width="900" height="600" loading="lazy">
   </a>
-  <a class="row" href="wire-together/" data-peek="wire-together/thumb.jpg">
+  <a class="row" data-fx="fire" href="wire-together/" data-peek="wire-together/thumb.jpg">
     <span class="n">05</span>
     <span class="t">Wire Together</span>
-    <span class="tags">hippocampus · replay · memory consolidation</span>
     <img class="mobile-pic" src="wire-together/thumb.jpg" alt="A rainbow web of glowing threads between place cells, inside a ring of string-art chords" width="900" height="600" loading="lazy">
   </a>
-  <a class="row" href="hold-that-thought/" data-peek="hold-that-thought/thumb.jpg">
+  <a class="row" data-fx="hold" href="hold-that-thought/" data-peek="hold-that-thought/thumb.jpg">
     <span class="n">06</span>
     <span class="t">Hold That Thought</span>
-    <span class="tags">prefrontal cortex · working memory · ring attractor</span>
     <img class="mobile-pic" src="hold-that-thought/thumb.jpg" alt="A psychedelic rainbow brain of rippling colour bands, with a kaleidoscopic ring of prefrontal neurons holding a bump of activity" width="900" height="600" loading="lazy">
   </a>
-  <div class="row soon">
+  <div class="row soon" data-fx="soon">
     <span class="n">07</span>
     <span class="t">soon…</span>
-    <span class="tags">growing</span>
   </div>
 </section>
 
@@ -550,6 +545,53 @@ addEventListener('pointermove', e => { peek.style.left = (e.clientX + 170) + 'px
   };
   [...rest.childNodes].forEach(wrap);
   rest.setAttribute('aria-label', rest.textContent);
+})();
+</script>
+<script>
+/* ---- each stim name moves in its own way, a quiet echo of what the stim does ---- */
+(function(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const rows = [...document.querySelectorAll('.row[data-fx]')].map(row => {
+    const t = row.querySelector('.t'); const txt = t.textContent; t.textContent = '';
+    const cs = [...txt].map((ch, i) => { const s = document.createElement('span'); s.className = 'c'; s.textContent = ch === ' ' ? ' ' : ch; t.appendChild(s);
+      return {el:s, i, ph:Math.random()*6.283, w:1.4 + Math.random()*.9, fire:0}; });
+    return {fx:row.dataset.fx, cs, row, on:true};
+  });
+  const io = new IntersectionObserver(es => es.forEach(e => { const r = rows.find(r => r.row === e.target); if (r) r.on = e.isIntersecting; }));
+  rows.forEach(r => io.observe(r.row));
+  let last = performance.now();
+  function frame(now){
+    const dt = Math.min(.05, (now - last)/1000), t = now/1000; last = now;
+    for (const r of rows){
+      if (!r.on) continue;
+      const n = r.cs.length;
+      if (r.fx === 'sync'){                         // little oscillators that drift in and out of step
+        const K = 2.4*Math.max(0, Math.sin(t*.35));
+        let sx = 0, sy = 0; r.cs.forEach(c => { sx += Math.cos(c.ph); sy += Math.sin(c.ph); });
+        const mean = Math.atan2(sy, sx);
+        r.cs.forEach(c => { c.ph += dt*(c.w + K*Math.sin(mean - c.ph)); });
+      }
+      if (r.fx === 'fire'){                         // letters fire, and their neighbours tend to fire with them
+        r.cs.forEach((c, i) => { c.fire *= Math.exp(-dt*3.5);
+          if (Math.random() < dt*.25){ c.fire = 1; const j = i + (Math.random() < .5 ? 1 : -1); if (r.cs[j]) setTimeout(() => r.cs[j].fire = 1, 90); } });
+      }
+      r.cs.forEach((c, i) => {
+        let tf = '', col = '', sh = '';
+        switch (r.fx){
+          case 'melt': { const d = Math.max(0, Math.sin(t*.7 + i*.8)); tf = `translateY(${(d*d*.06).toFixed(3)}em) scaleY(${(1 + d*d*.14).toFixed(3)}) skewX(${(-d*4).toFixed(2)}deg)`; c.el.style.transformOrigin = '50% 0'; break; }
+          case 'rise': { const y = -Math.pow(Math.max(0, Math.sin(t*1.5 - i*.32)), 3)*.11; tf = `translateY(${y.toFixed(3)}em)`; break; }
+          case 'sync': tf = `translateY(${(Math.sin(c.ph)*.06).toFixed(3)}em)`; break;
+          case 'pulse': { const head = (t*7) % (n + 8) - 2, p = Math.exp(-((i - head)**2)/3); tf = `scale(${(1 + p*.07).toFixed(3)})`; col = `color-mix(in oklab, currentColor, #ff6a6a ${(p*85).toFixed(0)}%)`; break; }
+          case 'fire': col = `color-mix(in oklab, currentColor, #ffe3b8 ${(c.fire*100).toFixed(0)}%)`; sh = c.fire > .05 ? `0 0 ${(c.fire*18).toFixed(1)}px #ffd3a8` : ''; break;
+          case 'hold': { const d = Math.pow(Math.max(0, Math.sin(t*.45)), 6)*.14; tf = `translate(${(Math.sin(c.ph + t*.8)*d).toFixed(3)}em, ${(Math.cos(c.ph*1.3 + t*.6)*d*.6).toFixed(3)}em) rotate(${(Math.sin(c.ph)*d*40).toFixed(2)}deg)`; break; }
+          case 'soon': c.el.style.opacity = (.35 + .65*Math.max(0, Math.sin(t*1.2 - i*.6))).toFixed(2); break;
+        }
+        c.el.style.transform = tf; c.el.style.color = col; c.el.style.textShadow = sh;
+      });
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 </body>
