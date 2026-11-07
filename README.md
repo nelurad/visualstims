@@ -1,6 +1,6 @@
 # VisualStims
 
-Visual stimuli made from the nervous system, by Nelu Radpour (Florida State University).
+The brain, made visible: visual stimuli by Nelu Radpour (Florida State University).
 A sister site to [NeuroSims](https://nelurad.github.io/neurosims/): NeuroSims explains neuroscience, VisualStims is for looking at it.
 
 Live at https://nelurad.github.io/visualstims/
