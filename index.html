@@ -7,7 +7,7 @@
 <meta name="description" content="The brain, made visible: live, moving visual stimuli from neuroscience by Nelu Radpour.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&family=Homemade+Apple&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&family=Fraunces:ital,opsz,wght,SOFT,WONK@1,9..144,100..900,0..100,0..1&family=Homemade+Apple&family=Permanent+Marker&display=swap">
 <style>
   /* Layout: live melting-cortex stage behind a lowercase hero; it dissolves into a mauve page with a blinking eye column and a big-type index. */
   :root{
@@ -42,7 +42,8 @@
   .hero h1{margin:0;font-weight:340;font-size:clamp(46px,6.6vw,104px);line-height:.98;letter-spacing:-.035em;font-variation-settings:"opsz" 96,"wdth" 88;text-wrap:balance;max-width:11.5em;text-shadow:0 2px 40px #0005}
   .hero h1 em{font-style:normal;font-weight:200;font-variation-settings:"opsz" 96,"wdth" 75}
   .hero h1 .script{display:block;font-family:"Homemade Apple","Snell Roundhand","Segoe Script",cursive;font-weight:400;font-variation-settings:normal;letter-spacing:0;font-size:.95em;line-height:1.5;margin-bottom:-.12em;transform:rotate(-3deg);transform-origin:left bottom}
-  .hero h1 .rest{display:block}
+  .hero h1 .rest{display:block;font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:300;font-size:1.32em;line-height:1.05;letter-spacing:.015em;font-variation-settings:"opsz" 144,"SOFT" 100,"WONK" 1;margin-left:.55em;white-space:nowrap}
+  .hero h1 .rest .ch{color:color-mix(in oklab,var(--ink),var(--hot) calc(var(--i)*9%))}
   .hero h1 .rest .w{white-space:nowrap}
   .hero h1 .rest .ch{display:inline-block;transform:translateY(var(--y,0));animation:wave 2.8s ease-in-out infinite;animation-delay:calc(var(--i) * -.19s)}
   @keyframes wave{0%,100%{transform:translateY(.17em) rotate(4deg)}50%{transform:translateY(-.19em) rotate(-5deg)}}
@@ -105,7 +106,7 @@
 </header>
 
 <section class="hero gut">
-  <h1><span class="script">The brain,</span><span class="rest"><em>made</em> visible</span></h1>
+  <h1><span class="script">The brain,</span><span class="rest">made visible</span></h1>
 </section>
 <div class="melt" aria-hidden="true"></div>
 
