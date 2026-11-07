@@ -61,11 +61,10 @@
   .index .lab{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 6px}
   .row{display:grid;grid-template-columns:4.6em minmax(0,1fr);align-items:center;gap:16px;border-top:1px solid var(--rule);padding-block:18px 22px;text-decoration:none;position:relative}
   .row:last-child{border-bottom:1px solid var(--rule)}
-  .row .n{justify-self:start;font-family:"Homemade Apple","Snell Roundhand",cursive;font-size:clamp(15px,1.5vw,21px);line-height:1;color:var(--hot);padding:.55em .5em .3em;border:1.5px solid #ffd3a88c;border-radius:58% 42% 51% 49%/46% 55% 45% 54%;transform:rotate(var(--nr,-8deg));animation:nwob 7s ease-in-out infinite;animation-delay:var(--nd,0s)}
-  .row .n::before{content:"n\00BA";font-size:.62em;margin-right:.18em;opacity:.8}
+  .row .n{justify-self:start;font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:400;font-variation-settings:"opsz" 72,"SOFT" 100,"WONK" 1;font-size:clamp(20px,2vw,28px);line-height:1;color:var(--hot);width:1.9em;height:1.9em;display:grid;place-items:center;padding:0 .06em 0 0;border:1.5px solid #ffd3a88c;border-radius:58% 42% 51% 49%/46% 55% 45% 54%;transform:rotate(var(--nr,-8deg));animation:nwob 7s ease-in-out infinite;animation-delay:var(--nd,0s)}
   @keyframes nwob{0%,100%{border-radius:58% 42% 51% 49%/46% 55% 45% 54%;transform:rotate(var(--nr,-8deg))}50%{border-radius:44% 56% 47% 53%/56% 44% 57% 43%;transform:rotate(calc(var(--nr,-8deg) * -1))}}
   .row:nth-child(3n) .n{--nr:7deg;--nd:-2s} .row:nth-child(3n+1) .n{--nr:-11deg;--nd:-4.5s} .row:nth-child(4n) .n{--nr:4deg}
-  .row .t{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:300;font-variation-settings:"opsz" 144,"SOFT" 100,"WONK" 1;font-size:clamp(40px,7vw,112px);line-height:1.12;letter-spacing:.01em;white-space:nowrap;display:inline-block;transform-origin:left center;transition:transform .45s cubic-bezier(.3,1.6,.5,1),color .3s}
+  .row .t{color:color-mix(in oklab,var(--ink) 62%,var(--page));font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:300;font-variation-settings:"opsz" 144,"SOFT" 100,"WONK" 1;font-size:clamp(40px,7vw,112px);line-height:1.12;letter-spacing:.01em;white-space:nowrap;display:inline-block;transform-origin:left center;transition:transform .45s cubic-bezier(.3,1.6,.5,1),color .3s}
   .row .t .c{display:inline-block;will-change:transform}
   a.row:hover .t,a.row:focus-visible .t{transform:translateX(.12em);color:var(--hot)}
   a.row:focus-visible{outline:none}
@@ -124,44 +123,43 @@
 <section class="index gut" aria-labelledby="ix">
   <p class="lab" id="ix">The stims</p>
   <a class="row" data-fx="melt" href="melting-cortex/" data-peek="melting-cortex/thumb.jpg">
-    <span class="n">01</span>
+    <span class="n">1</span>
     <span class="t">Melting Cortex</span>
     <img class="mobile-pic" src="melting-cortex/thumb.jpg" alt="False-coloured pyramidal neurons" width="900" height="600" loading="lazy">
   </a>
   <a class="row" data-fx="rise" href="up-the-canal/" data-peek="up-the-canal/thumb.jpg">
-    <span class="n">02</span>
+    <span class="n">2</span>
     <span class="t">Up the Canal</span>
     <img class="mobile-pic" src="up-the-canal/thumb.jpg" alt="Inside the fourth ventricle, looking up toward the thalamus" width="900" height="600" loading="lazy">
   </a>
   <a class="row" data-fx="sync" href="in-sync/" data-peek="in-sync/thumb.jpg">
-    <span class="n">03</span>
+    <span class="n">3</span>
     <span class="t">In Sync</span>
     <img class="mobile-pic" src="in-sync/thumb.jpg" alt="Glowing waves of activity sweeping across a brain, beside four EEG traces" width="900" height="600" loading="lazy">
   </a>
   <a class="row" data-fx="pulse" href="blood-rush/" data-peek="blood-rush/thumb.jpg">
-    <span class="n">04</span>
+    <span class="n">4</span>
     <span class="t">Blood Rush</span>
     <img class="mobile-pic" src="blood-rush/thumb.jpg" alt="Glowing blood vessels across a brain, warm where oxygen-rich blood floods the language areas" width="900" height="600" loading="lazy">
   </a>
   <a class="row" data-fx="fire" href="wire-together/" data-peek="wire-together/thumb.jpg">
-    <span class="n">05</span>
+    <span class="n">5</span>
     <span class="t">Wire Together</span>
     <img class="mobile-pic" src="wire-together/thumb.jpg" alt="A rainbow web of glowing threads between place cells, inside a ring of string-art chords" width="900" height="600" loading="lazy">
   </a>
   <a class="row" data-fx="hold" href="hold-that-thought/" data-peek="hold-that-thought/thumb.jpg">
-    <span class="n">06</span>
+    <span class="n">6</span>
     <span class="t">Hold That Thought</span>
     <img class="mobile-pic" src="hold-that-thought/thumb.jpg" alt="A psychedelic rainbow brain of rippling colour bands, with a kaleidoscopic ring of prefrontal neurons holding a bump of activity" width="900" height="600" loading="lazy">
   </a>
   <div class="row soon" data-fx="soon">
-    <span class="n">07</span>
+    <span class="n">7</span>
     <span class="t">soon…</span>
   </div>
 </section>
 
 <footer class="gut">
   <span>made by nelu radpour · florida state university</span>
-  <span>free to look at, share &amp; teach with</span>
 </footer>
 
 <div id="peek" aria-hidden="true"><img alt=""></div>
