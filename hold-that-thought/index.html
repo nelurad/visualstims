@@ -4,83 +4,86 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hold That Thought · VisualStims</title>
-<meta name="description" content="The prefrontal cortex as a riso-printed doodle: a loop of neurons keeps one thought alive while everything else in your head throws distractions at it.">
+<meta name="description" content="Working memory in the prefrontal cortex: a ring of PFC neurons holds a remembered location as a bump of activity while signals from the rest of the brain try to knock it off.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Homemade+Apple&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&family=Homemade+Apple&display=swap">
 <style>
-  /* Layout: full-bleed paper canvas; a taped-on note (bottom-right) holds the controls, the title is written bottom-left. */
+  /* Layout: full-bleed plate (pen-plotted brain with a PFC ring attractor); title bottom-left, figure panel with live raster bottom-right. */
   :root{
-    --paper:#f3ecdc;
-    --ink:#24201c;
-    --soft:#5a5048;
-    --pink:#ff4fa3;
-    --blue:#2f5fd0;
-    --yellow:#ffd400;
+    --paper:#ebe6db;
+    --ink:#1b1a17;
+    --graphite:#4a463f;
+    --dim:#7a7368;
+    --red:#e2401c;
+    --cobalt:#2546c8;
     --grot:"Bricolage Grotesque","Helvetica Neue",Arial,system-ui,sans-serif;
-    --hand:"Homemade Apple","Snell Roundhand",cursive;
-    --marker:"Permanent Marker","Marker Felt",cursive;
+    --mono:"Geist Mono",ui-monospace,Menlo,monospace;
     color-scheme:light;
   }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;background:var(--paper);color:var(--ink);overflow:hidden}
   body{font-family:var(--grot);-webkit-font-smoothing:antialiased}
-  #c{position:fixed;inset:0;width:100vw;height:100vh;display:block;touch-action:none;cursor:pointer}
+  #c{position:fixed;inset:0;width:100vw;height:100vh;display:block;touch-action:none;cursor:crosshair}
   header{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:22px max(28px,env(safe-area-inset-right,0px)) 0 max(28px,env(safe-area-inset-left,0px));pointer-events:none}
   header a{pointer-events:auto;font-size:14px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--ink)}
+  header span{font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.04em}
   .title{position:fixed;left:max(28px,env(safe-area-inset-left,0px));bottom:max(26px,env(safe-area-inset-bottom,0px));z-index:5;max-width:min(430px,calc(100vw - 56px));pointer-events:none}
   .title h1{margin:0;line-height:1;font-weight:400}
-  .title .script{display:block;font-family:var(--hand);font-size:clamp(32px,3.6vw,52px);line-height:1.5;transform:rotate(-4deg);transform-origin:left bottom}
-  .title .sub{display:block;font-family:var(--marker);font-size:clamp(15px,1.3vw,18px);letter-spacing:.02em;color:var(--pink);margin-top:4px;mix-blend-mode:multiply}
-  .title p{margin:12px 0 0;font-size:15px;line-height:1.42;color:var(--soft);background:#f3ecdce0;box-shadow:0 0 16px 12px #f3ecdce0;border-radius:8px}
+  .title .script{display:block;font-family:"Homemade Apple","Snell Roundhand",cursive;font-size:clamp(32px,3.6vw,52px);line-height:1.5;transform:rotate(-3deg);transform-origin:left bottom}
+  .title .sub{display:block;font-weight:330;font-size:clamp(19px,1.7vw,24px);letter-spacing:-.02em;font-variation-settings:"opsz" 40,"wdth" 85;color:var(--graphite);margin-top:2px}
+  .title p{margin:12px 0 0;font-size:14.5px;line-height:1.42;color:var(--graphite);background:#ebe6dbe6;box-shadow:0 0 14px 10px #ebe6dbe6}
+  .title p em{font-style:normal;color:var(--red)}
+  .title p strong{font-weight:500;color:var(--cobalt)}
 
-  .note{position:fixed;right:max(32px,env(safe-area-inset-right,0px));bottom:max(30px,env(safe-area-inset-bottom,0px));z-index:5;width:min(340px,calc(100vw - 64px));background:#fffaf0;padding:22px 20px 16px;transform:rotate(1.6deg);box-shadow:0 1px 0 #0000000d,0 10px 24px -14px #4a3a2a66}
-  .note::before{content:"";position:absolute;top:-13px;left:50%;width:110px;height:26px;margin-left:-55px;background:#ffe9707a;transform:rotate(-3deg);box-shadow:0 0 0 1px #00000008}
-  .note label{display:block;font-family:var(--hand);font-size:13px;color:var(--soft)}
-  .note input{width:100%;margin:2px 0 14px;font:22px/1.3 var(--marker);color:var(--ink);background:transparent;border:0;border-bottom:2px solid var(--ink);padding:2px 0 3px;outline:none;border-radius:0}
-  .note input:focus{border-bottom-color:var(--pink)}
-  .chips{display:flex;flex-wrap:wrap;gap:7px}
-  .chips button{font:500 13.5px/1 var(--grot);color:var(--ink);background:transparent;border:1.8px solid var(--ink);padding:7px 11px 8px;cursor:pointer;border-radius:255px 15px 225px 15px/15px 225px 15px 255px}
-  .chips button:nth-child(2n){border-radius:15px 225px 15px 255px/255px 15px 225px 15px}
-  .chips button[aria-pressed="true"]{background:var(--pink);border-color:var(--ink)}
-  .chips button:focus-visible{outline:2px dashed var(--blue);outline-offset:3px}
-  .why{margin:12px 0 10px;font-size:14px;line-height:1.38;color:var(--soft);min-height:3.9em}
-  .stats{display:flex;justify-content:space-between;gap:8px;font-family:var(--marker);font-size:14px;color:var(--ink);border-top:1.5px dashed #24201c55;padding-top:9px}
-  .stats span{white-space:nowrap}
-  .stats b{font-weight:400;color:var(--blue)}
+  .fig{position:fixed;right:max(28px,env(safe-area-inset-right,0px));bottom:max(26px,env(safe-area-inset-bottom,0px));z-index:5;width:min(380px,calc(100vw - 56px));background:#f4f0e8;border:1px solid var(--ink);padding:12px 14px 12px}
+  .fig .cap{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin:0 0 8px}
+  .seg{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--ink)}
+  .seg button{font:500 12px/1 var(--mono);color:var(--ink);background:transparent;border:0;border-left:1px solid var(--ink);padding:8px 0;cursor:pointer}
+  .seg button:first-child{border-left:0}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:#f4f0e8}
+  .seg button:focus-visible{outline:2px solid var(--cobalt);outline-offset:2px}
+  .why{margin:10px 0 10px;font-size:13.5px;line-height:1.38;color:var(--graphite);min-height:3.8em}
+  .read{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--ink);border-top:1px solid #1b1a1733;padding-top:8px}
+  .read b{font-weight:500}
+  .read .err{color:var(--red)}
+  #raster{display:block;width:100%;height:96px;margin-top:10px;background:#fbf8f2;border:1px solid #1b1a1733}
+  .fig .hint{margin:8px 0 0;font-family:var(--mono);font-size:10.5px;color:var(--dim)}
 
-  body.thumb header,body.thumb .title,body.thumb .note{display:none}
+  body.thumb header,body.thumb .title,body.thumb .fig{display:none}
   @media (max-width:860px){
     .title p{display:none}
     .title{bottom:auto;top:54px;left:18px}
-    .note{left:20px;right:20px;width:auto;bottom:18px;transform:rotate(.8deg);padding:18px 16px 12px}
-    .why{min-height:0;font-size:13px}
-    .note input{font-size:19px;margin-bottom:10px}
+    .fig{left:16px;right:16px;width:auto;bottom:16px;padding:10px 12px}
+    .why{min-height:0;font-size:12.5px;margin:8px 0}
+    #raster{height:64px}
   }
 </style>
 </head>
 <body>
-<canvas id="c" aria-label="A hand-drawn loop of neurons holding a thought in the middle of the page, with doodled distractions drifting in from the edges. Press and hold to focus; tap a distraction to cross it out."></canvas>
+<canvas id="c" aria-label="A brain drawn in fine contour lines. In the prefrontal cortex, a ring of neurons holds a remembered direction as a bump of activity; waves from visual cortex travel forward and are blocked or leak through. Click the ring to give it a new location to remember; press and hold elsewhere to focus."></canvas>
 <header>
   <a href="../">&larr; VisualStims</a>
+  <span id="phase">delay</span>
 </header>
 
 <div class="title">
   <h1><span class="script">Hold That Thought</span><span class="sub">No. 06 · prefrontal cortex</span></h1>
-  <p>Your prefrontal cortex keeps a thought alive by passing it around a loop of neurons, again and again, long after you've stopped looking at it. Meanwhile the rest of your head keeps pitching distractions. Press and hold to focus: the loop tightens and the PFC crosses them out. Let go and see how long the thought survives on its own.</p>
+  <p>A cue flashes and disappears, yet a ring of prefrontal neurons keeps firing for that spot: a <em>bump of activity</em> that holds the memory through the delay. Signals from the rest of the brain keep arriving. The PFC <strong>gates</strong> most of them out, but noise and the ones that slip through slowly push the bump off target. Click the ring to give it something to hold; press and hold anywhere else to focus.</p>
 </div>
 
-<section class="note" aria-label="What you're holding in mind">
-  <label for="thought">holding in mind:</label>
-  <input id="thought" maxlength="24" autocomplete="off" spellcheck="false" value="buy oat milk">
-  <div class="chips" id="chips" role="group" aria-label="How your brain is doing">
+<section class="fig" aria-label="Brain state and recorded activity">
+  <p class="cap"><span>Condition</span><span id="clock">t = 0.0 s</span></p>
+  <div class="seg" id="seg" role="group" aria-label="Condition">
     <button data-k="rested" aria-pressed="true">rested</button>
     <button data-k="stressed" aria-pressed="false">stressed</button>
     <button data-k="tired" aria-pressed="false">tired</button>
     <button data-k="teen" aria-pressed="false">age 14</button>
   </div>
   <p class="why" id="why" aria-live="polite"></p>
-  <div class="stats"><span>held <b id="held">0:00</b></span><span>crossed out <b id="crossed">0</b></span><span>lost it <b id="lost">0</b>×</span></div>
+  <div class="read"><span>cue <b id="rc">—</b></span><span>held <b id="rh">—</b></span><span class="err">error <b id="re">—</b></span></div>
+  <canvas id="raster" aria-label="Spike raster of 36 PFC neurons over the last 8 seconds"></canvas>
+  <p class="hint">Fig. B · spikes, 36 PFC neurons sorted by preferred direction, last 8 s</p>
 </section>
 
 <script>
@@ -90,426 +93,364 @@ const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const THUMB = new URLSearchParams(location.search).has('thumb');
 if (THUMB) document.body.classList.add('thumb');
 const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const rc = document.getElementById('raster'), rx = rc.getContext('2d');
 const TAU = Math.PI*2;
-let W = 0, H = 0, DPR = 1, cx = 0, cy = 0;
-let T = 0, BOIL = 0;
+const C = {paper:'#ebe6db', ink:'#1b1a17', graphite:'#4a463f', dim:'#7a7368', red:'#e2401c', cobalt:'#2546c8'};
+const MONO = '"Geist Mono", ui-monospace, Menlo, monospace';
+let W = 0, H = 0, DPR = 1, T = 0;
+const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(TAU*v); };
+const wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
+const deg = a => Math.round(((a*180/Math.PI) % 360 + 360) % 360);
 
-/* ---------- a cheap, repeatable hash so every line can wobble the same way within one drawing ---------- */
-function rnd(a, b, c){
-  let h = Math.imul(a|0, 374761393) ^ Math.imul(b|0, 668265263) ^ Math.imul(c|0, 2246822519);
-  h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16;
-  return (h >>> 0)/4294967296;
-}
-const J = (id, i, a) => (rnd(BOIL, id, i) - .5)*2*a;
-
-/* ---------- risograph inks: flat colour with speckled dropouts, printed a bit out of register ---------- */
-const INKS = {black:'#24201c', pink:'#ff4fa3', blue:'#2f5fd0', yellow:'#ffd400', teal:'#00a29a'};
-const OFF = {black:[0,0], pink:[1.7,-1.2], blue:[-1.3,1.4], yellow:[1.1,1.9], teal:[-1.6,-.8]};
-const PAT = {};
-for (const k in INKS){
-  const s = document.createElement('canvas'); s.width = s.height = 180; const g = s.getContext('2d');
-  g.fillStyle = INKS[k]; g.fillRect(0, 0, 180, 180);
-  g.globalCompositeOperation = 'destination-out';
-  for (let n = 0; n < 2600; n++){ g.globalAlpha = Math.random()*.55; const r = Math.random()*1.3 + .3; g.fillRect(Math.random()*180, Math.random()*180, r, r); }
-  PAT[k] = ctx.createPattern(s, 'repeat');
-}
-function ink(col, fn){
-  ctx.save(); ctx.translate(OFF[col][0], OFF[col][1]);
-  ctx.globalCompositeOperation = 'multiply';
-  ctx.strokeStyle = ctx.fillStyle = PAT[col];
-  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  fn(); ctx.restore();
-}
-
-/* ---------- the pen ---------- */
-function path(pts, id, a){
-  const p = pts.map((q, i) => [q[0] + J(id, i*2, a), q[1] + J(id, i*2 + 1, a)]);
-  ctx.beginPath(); ctx.moveTo(p[0][0], p[0][1]);
-  for (let i = 1; i < p.length - 1; i++){ ctx.quadraticCurveTo(p[i][0], p[i][1], (p[i][0] + p[i+1][0])/2, (p[i][1] + p[i+1][1])/2); }
-  const l = p[p.length - 1]; ctx.lineTo(l[0], l[1]);
-}
-const pen = (pts, id, a) => { path(pts, id, a); ctx.stroke(); };
-function seg(x1, y1, x2, y2, id, a = 1.2){
-  const n = Math.max(2, Math.ceil(Math.hypot(x2 - x1, y2 - y1)/24)), pts = [];
-  const ox = (x2 - x1)*.04*rnd(BOIL, id, 77), oy = (y2 - y1)*.04*rnd(BOIL, id, 78);  // a little overshoot, like a real stroke
-  for (let i = 0; i <= n; i++){ const t = i/n; pts.push([x1 - ox + (x2 - x1 + 2*ox)*t, y1 - oy + (y2 - y1 + 2*oy)*t]); }
-  pen(pts, id, a);
-}
-function ovalPts(x, y, rx, ry, id, over = .3, t0 = null, t1 = null){
-  const a0 = t0 === null ? rnd(BOIL, id, 99)*TAU : t0, span = t1 === null ? TAU + over : t1 - t0;
-  const h1 = rnd(BOIL, id, 97)*TAU, h2 = rnd(BOIL, id, 96)*TAU, n = Math.max(8, Math.ceil(Math.abs(span)*(rx + ry)/14)), pts = [];
-  for (let i = 0; i <= n; i++){
-    const t = a0 + span*i/n, k = 1 + .045*Math.sin(2*t + h1) + .03*Math.sin(3*t + h2) + (t1 === null ? (i/n)*.06 : 0);
-    pts.push([x + rx*k*Math.cos(t), y + ry*k*Math.sin(t)]);
+/* ---------- anatomy: a left hemisphere, front to the left (normalised to brain width) ---------- */
+const CEREBRUM = [[.06,.46],[.04,.34],[.08,.22],[.17,.12],[.29,.05],[.43,.02],[.57,.03],[.70,.07],[.81,.14],[.90,.24],[.95,.36],[.94,.47],[.88,.55],[.78,.58],[.68,.57],[.60,.62],[.52,.66],[.43,.645],[.36,.585],[.28,.575],[.20,.6],[.12,.56]];
+function catmull(pts, n){
+  const out = [], m = pts.length;
+  for (let k = 0; k < n; k++){
+    const f = k/n*m, i = Math.floor(f), t = f - i;
+    const p0 = pts[(i - 1 + m) % m], p1 = pts[i % m], p2 = pts[(i + 1) % m], p3 = pts[(i + 2) % m];
+    const t2 = t*t, t3 = t2*t;
+    out.push([0, 1].map(d => .5*((2*p1[d]) + (-p0[d] + p2[d])*t + (2*p0[d] - 5*p1[d] + 4*p2[d] - p3[d])*t2 + (-p0[d] + 3*p1[d] - 3*p2[d] + p3[d])*t3)));
   }
-  return pts;
+  return out;
 }
-const oval = (x, y, rx, ry, id, a = .8, over) => pen(ovalPts(x, y, rx, ry, id, over), id, a);
-function blob(x, y, rx, ry, id){ path(ovalPts(x, y, rx, ry, id, 0), id, rx*.08); ctx.fill(); }
-function words(txt, x, y, size, font, rot, id, align = 'center'){
-  ctx.save(); ctx.translate(x + J(id, 1, .7), y + J(id, 2, .7)); ctx.rotate(rot + J(id, 3, .012));
-  ctx.font = `${size}px ${font}`; ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.fillText(txt, 0, 0); ctx.restore();
-}
-const MARK = '"Permanent Marker", "Marker Felt", cursive', HAND = '"Homemade Apple", "Snell Roundhand", cursive';
+const OUT = catmull(CEREBRUM, 260);
+const CEN = [.5, .34];
+const RING_N = [.215, .315];             // the PFC ring sits in the frontal lobe
+const OCC = [.93, .4];                   // occipital pole: where visual input enters
+let B = {x:0, y:0, w:0}, ring = {x:0, y:0, R:0}, occ = {x:0, y:0};
+const P = (n) => [B.x + n[0]*B.w, B.y + n[1]*B.w];
 
 /* ---------- paper ---------- */
-const paper = document.createElement('canvas'), px2 = paper.getContext('2d');
+const paper = document.createElement('canvas'), pg = paper.getContext('2d');
 function makePaper(){
   paper.width = cv.width; paper.height = cv.height;
-  px2.fillStyle = '#f3ecdc'; px2.fillRect(0, 0, paper.width, paper.height);
-  const img = px2.getImageData(0, 0, paper.width, paper.height), d = img.data;
-  for (let i = 0; i < d.length; i += 4){ const n = (Math.random() - .5)*16; d[i] += n; d[i+1] += n; d[i+2] += n*1.1; }
-  px2.putImageData(img, 0, 0);
-  px2.globalAlpha = .06; px2.strokeStyle = '#6b5a44';
-  for (let n = 0; n < 160; n++){ const x = Math.random()*paper.width, y = Math.random()*paper.height, a = Math.random()*TAU, l = 6 + Math.random()*26;
-    px2.lineWidth = .6 + Math.random(); px2.beginPath(); px2.moveTo(x, y); px2.quadraticCurveTo(x + Math.cos(a)*l*.5 + 4, y + Math.sin(a)*l*.5, x + Math.cos(a)*l, y + Math.sin(a)*l); px2.stroke(); }
-  px2.globalAlpha = 1;
-  const g = px2.createRadialGradient(paper.width/2, paper.height/2, paper.height*.3, paper.width/2, paper.height/2, Math.max(paper.width, paper.height)*.75);
-  g.addColorStop(0, '#00000000'); g.addColorStop(1, '#5a40201f');
-  px2.fillStyle = g; px2.fillRect(0, 0, paper.width, paper.height);
+  pg.fillStyle = C.paper; pg.fillRect(0, 0, paper.width, paper.height);
+  const img = pg.getImageData(0, 0, paper.width, paper.height), d = img.data;
+  for (let i = 0; i < d.length; i += 4){ const n = (Math.random() - .5)*10; d[i] += n; d[i+1] += n; d[i+2] += n; }
+  pg.putImageData(img, 0, 0);
 }
 function layout(){
   DPR = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
   cv.width = W*DPR; cv.height = H*DPR;
-  cx = W*.5; cy = W < 860 ? H*.42 : H*.44;
-  makePaper(); dirty = true;
+  const narrow = W < 860;
+  if (narrow){ const w = Math.min(W*.96, H*.5/.86); B = {w, x:(W - w)/2, y:H*.2}; }
+  else { const w = Math.min(W*.74, H*.8/.86); B = {w, x:Math.max(24, (W - w)/2 - W*.07), y:H*.09}; }
+  const [x, y] = P(RING_N); ring = {x, y, R:B.w*.068};
+  const [ox, oy] = P(OCC); occ = {x:ox, y:oy};
+  const r = rc.getBoundingClientRect(); rc.width = Math.max(1, r.width*DPR); rc.height = Math.max(1, r.height*DPR);
+  makePaper();
 }
-let dirty = true;
 addEventListener('resize', layout); layout();
 
-/* ---------- how your brain is doing today ---------- */
+/* ---------- conditions ---------- */
 const MODES = {
-  rested:  {sMax:1,   decay:.028, cd:.45, range:.5,  rate:.9, speed:1,    dmg:.2,  noise:0,
-            why:"Rested. The loop is strong and the PFC catches most distractions long before they reach the thought."},
-  stressed:{sMax:.8,  decay:.05,  cd:1,   range:.3,  rate:1.8, speed:1.45, dmg:.28, noise:.25,
-            why:"Stressed. Stress chemicals loosen the PFC's grip and turn up the alarm systems underneath it, so more urges get through, and faster."},
-  tired:   {sMax:.7,  decay:.1,   cd:.7,  range:.42, rate:.7,  speed:.8,   dmg:.24, noise:0,
-            why:"Tired. Fewer distractions, but the loop leaks. The thought fades even when nothing touches it."},
-  teen:    {sMax:.9,  decay:.045, cd:1.1, range:.32, rate:1.2, speed:1.15, dmg:.22, noise:.05,
-            why:"Age 14. The PFC is still wiring itself up (it keeps maturing into your mid-20s), so it blocks fewer urges, and later."}
+  rested:  {base:.6,  gate:.92, sus:1,   D:.012, rate:.32, why:'Rested. Strong recurrent loops keep the bump tall and still, and the PFC gates out almost everything that arrives.'},
+  stressed:{base:.3,  gate:.55, sus:.8,  D:.05,  rate:.7,  why:'Stressed. Stress chemicals weaken the connections the loop runs on, so the bump wobbles and more input leaks through.'},
+  tired:   {base:.35, gate:.78, sus:.6,  D:.035, rate:.28, why:'Tired. Fewer distractions get through, but the loop cannot sustain itself: the bump shrinks and can collapse on its own.'},
+  teen:    {base:.42, gate:.62, sus:.85, D:.03,  rate:.48, why:'Age 14. The PFC is still maturing (into the mid-20s), so gating is weaker and the memory drifts more.'}
 };
 let M = MODES.rested;
-const why = document.getElementById('why');
 function setMode(k){
-  M = MODES[k]; why.textContent = M.why;
-  document.querySelectorAll('#chips button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === k));
+  M = MODES[k]; document.getElementById('why').textContent = M.why;
+  document.querySelectorAll('#seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === k));
 }
-document.getElementById('chips').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setMode(b.dataset.k); });
+document.getElementById('seg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setMode(b.dataset.k); });
 setMode('rested');
 
-/* ---------- the thought ---------- */
-const DEFAULTS = ['buy oat milk', 'call mom back', 'gate B14', '7 2 9 4 1', 'parked on level 3', 'water the plant', "Sam's birthday"];
-const input = document.getElementById('thought');
-let thought = input.value, typed = false;
-let s = .85, lost = false, lostT = 0, heldStart = 0, nLost = 0, nCross = 0, scatter = [];
-input.addEventListener('input', () => { typed = input.value.trim().length > 0; thought = input.value.trim() || DEFAULTS[0]; reset(); });
-function reset(){ s = Math.max(s, .8); lost = false; heldStart = T; scatter = []; dirty = true; }
+/* ---------- the ring attractor ---------- */
+const N = 72, TH = Float32Array.from({length:N}, (_, i) => i/N*TAU);
+const rate = new Float32Array(N), trans = new Float32Array(N), lastSpike = new Float32Array(N).fill(-9);
+let mu = 0, A = 0, cue = null, cueT = -9, F = .6;
+const spikes = [];                        // {i, t}
+const marks = [];                         // raster markers {t, kind}
+const waves = [];                         // {d, rho, t, state, g, tEnd}
+const flashes = [];                       // arrivals / blocks on the ring {a, t, kind}
 
-/* ---------- urges ---------- */
-const KINDS = [
-  ['phone', 'check phone'], ['donut', 'snack?'], ['mail', 'that email'], ['zzz', 'nap'],
-  ['heart', 'crush'], ['note', 'song stuck in head'], ['star', 'shiny thing'], ['bubble', 'text back'],
-  ['bolt', 'what was that noise'], ['phone', 'one more video'], ['bubble', 'reply all?'], ['donut', 'fries']
-];
-const NOPE = ['nope', 'later', 'not now', 'no.', 'shh'];
-const urges = [], splats = [], strikes = [];
-let uid = 1;
-function spawn(f = 1){
-  const a = Math.random()*TAU, k = KINDS[Math.floor(Math.random()*KINDS.length)];
-  const x = cx + Math.cos(a)*W*.6*f, y = cy + Math.sin(a)*H*.64*f;
-  const tx = cx + (Math.random() - .5)*120, ty = cy + (Math.random() - .5)*60, d = Math.hypot(tx - x, ty - y);
-  urges.push({id:uid++, kind:k[0], label:k[1], x, y, dx:(tx - x)/d, dy:(ty - y)/d, ph:Math.random()*TAU,
-    col:['yellow', 'yellow', 'pink', 'teal'][Math.floor(Math.random()*4)], rot:(Math.random() - .5)*.35,
-    cross:-1, nope:Math.random() < .4 ? NOPE[Math.floor(Math.random()*NOPE.length)] : null, speed:30 + Math.random()*22});
+function newCue(a){
+  cue = a; cueT = T; mu = a; A = 1;
+  for (let i = 0; i < N; i++) trans[i] += 1.1*Math.exp(8*(Math.cos(TH[i] - a) - 1));
+  marks.push({t:T, kind:'cue'});
 }
-
-/* the loop of neurons around the thought */
-const NN = 11;
-let LRX = 200, LRY = 80, phi = 0;
-function measure(){
-  ctx.font = `${textSize()}px ${MARK}`;
-  LRX = Math.min(W*.44, ctx.measureText(thought).width/2 + 64); LRY = Math.max(70, textSize()*1.35);
-}
-const textSize = () => Math.max(30, Math.min(60, W*.045));
-const nodeXY = k => { const t = k/NN*TAU - Math.PI/2; return [cx + LRX*Math.cos(t), cy + LRY*Math.sin(t)]; };
-const inLoop = (x, y, pad = 1.08) => ((x - cx)/(LRX*pad))**2 + ((y - cy)/(LRY*pad))**2 < 1;
 
 /* ---------- input ---------- */
-let holding = false, lastUser = -99, touched = false;
+let holding = false, lastUser = -99;
 cv.addEventListener('pointerdown', e => {
-  touched = true; lastUser = T; holding = true; cv.setPointerCapture(e.pointerId);
-  for (const u of urges) if (u.cross < 0 && Math.hypot(u.x - e.clientX, u.y - e.clientY) < 42){ strike(u, null); break; }
+  lastUser = T;
+  const dx = e.clientX - ring.x, dy = e.clientY - ring.y;
+  if (Math.hypot(dx, dy) < ring.R*2.1) newCue(Math.atan2(dy, dx));
+  else { holding = true; cv.setPointerCapture(e.pointerId); }
 });
 const up = () => { holding = false; lastUser = T; };
 cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
-addEventListener('keydown', e => { if (e.code === 'Space' && e.target.tagName !== 'INPUT'){ e.preventDefault(); holding = true; touched = true; lastUser = T; } });
+addEventListener('keydown', e => { if (e.code === 'Space'){ e.preventDefault(); holding = true; lastUser = T; } });
 addEventListener('keyup', e => { if (e.code === 'Space') up(); });
 
-function strike(u, fromNode){
-  u.cross = T; nCross++;
-  if (fromNode !== null) strikes.push({k:fromNode, u, t:T});
-}
-
 /* ---------- simulation ---------- */
-let cd = 0;
 function step(dt){
   T += dt;
-  measure();
-  const idle = T - lastUser > 8 && !holding;
-  const focus = holding || (idle && (Math.sin(T*.9) + Math.sin(T*.37 + 1)) > .3);
+  const idle = T - lastUser > 7;
+  const focus = holding || (idle && Math.sin(T*.45) > .55);
+  F += ((focus ? 1 : M.base) - F)*Math.min(1, dt*2.2);
 
-  if (!lost){
-    if (focus) s = Math.min(M.sMax, s + dt*.45);
-    else s = Math.max(0, s - dt*M.decay);
-    if (M.noise && Math.random() < dt*M.noise) s -= .06;           // stress makes the loop stutter
-    if (s < .1){ lost = true; lostT = T; nLost++;
-      scatter = [...thought].map(() => ({vx:(Math.random() - .5)*90, vy:20 + Math.random()*80, vr:(Math.random() - .5)*2.4})); }
-  } else if (T - lostT > 5.2){
-    if (!typed){ thought = DEFAULTS[(DEFAULTS.indexOf(thought) + 1) % DEFAULTS.length]; input.value = thought; }
-    s = .8; lost = false; heldStart = T; scatter = [];
+  // automatic trials when nobody is driving
+  if (idle && (cue === null || T - cueT > 11)) newCue(Math.random()*TAU);
+
+  // bump: self-sustaining when tall enough, diffusing with noise
+  if (A > .18){ A += (M.sus*(.55 + .45*F) - A)*dt*.6; }
+  else A = Math.max(0, A - dt*.35);
+  if (A > 0) mu = wrap(mu + gauss()*Math.sqrt(2*M.D*(1.35 - A)*dt));
+
+  for (let i = 0; i < N; i++){
+    trans[i] *= Math.exp(-dt*4);
+    rate[i] = Math.min(1.3, A*Math.exp(7*(Math.cos(TH[i] - mu) - 1)) + trans[i]);
+    if (Math.random() < (1.5 + 48*rate[i])*dt){ spikes.push({i, t:T}); lastSpike[i] = T; }
   }
-  phi += dt*(lost ? .2 : .55 + .55*s);
+  while (spikes.length && T - spikes[0].t > 8) spikes.shift();
+  while (marks.length && T - marks[0].t > 8) marks.shift();
 
-  // urges drift in
-  if (Math.random() < M.rate*dt && urges.filter(u => u.cross < 0).length < 15) spawn();
-  for (let n = urges.length - 1; n >= 0; n--){
-    const u = urges[n];
-    if (u.cross >= 0){ if (T - u.cross > 1.6) urges.splice(n, 1); continue; }
-    const v = u.speed*M.speed*(RM ? .6 : 1), wob = Math.sin(T*1.3 + u.ph)*18;
-    u.x += (u.dx*v - u.dy*wob)*dt; u.y += (u.dy*v + u.dx*wob)*dt;
-    if (!lost && inLoop(u.x, u.y)){
-      s = Math.max(0, s - M.dmg);
-      splats.push({x:u.x, y:u.y, t:T, id:u.id});
-      urges.splice(n, 1); continue;
-    }
-    if (Math.hypot(u.x - cx, u.y - cy) > Math.max(W, H)) urges.splice(n, 1);
+  // incoming signals from visual cortex
+  if (Math.random() < M.rate*dt) waves.push({d:Math.random()*TAU, rho:0, t:T, state:'travel', g:0, tEnd:0});
+  const dist = Math.hypot(ring.x - occ.x, ring.y - occ.y), gateR = dist - ring.R*1.95, v = dist/(RM ? 2.6 : 1.5);
+  for (let n = waves.length - 1; n >= 0; n--){
+    const w = waves[n];
+    if (w.state === 'travel'){
+      w.rho += v*dt;
+      if (w.rho >= gateR){
+        const gate = Math.min(1, F*M.gate + .04*gauss());
+        w.g = Math.max(0, 1 - gate);
+        if (w.g < .22){ w.state = 'blocked'; w.tEnd = T; w.rho = gateR; flashes.push({a:w.d, t:T, kind:'block'}); }
+        else w.state = 'leak';
+      }
+    } else if (w.state === 'leak'){
+      w.rho += v*dt;
+      if (w.rho >= dist){
+        // the leaked signal lands on the ring
+        for (let i = 0; i < N; i++) trans[i] += w.g*.9*Math.exp(8*(Math.cos(TH[i] - w.d) - 1));
+        if (w.g > A*.85 + .12){ mu = w.d; A = Math.max(A, w.g*.9); }
+        else { mu = wrap(mu + w.g*.9*Math.sin(w.d - mu)*Math.exp(1.5*(Math.cos(w.d - mu) - 1))); A = Math.max(0, A - w.g*.12); }
+        flashes.push({a:w.d, t:T, kind:'leak'}); marks.push({t:T, kind:'leak'});
+        waves.splice(n, 1); continue;
+      }
+    } else if (T - w.tEnd > 1.1){ waves.splice(n, 1); continue; }
   }
-
-  // the PFC crosses things out, when it has the strength to
-  cd -= dt;
-  if (!lost && cd <= 0 && (focus || s > .55)){
-    const range = M.range*Math.min(W, H)*.5 + LRX*.6;
-    let best = null, bd = 1e9;
-    for (const u of urges){ if (u.cross >= 0) continue; const d = Math.hypot(u.x - cx, u.y - cy); if (d < range && d < bd){ bd = d; best = u; } }
-    if (best){
-      let bk = 0, bkd = 1e9;
-      for (let k = 0; k < NN; k++){ const [x, y] = nodeXY(k), d = Math.hypot(best.x - x, best.y - y); if (d < bkd){ bkd = d; bk = k; } }
-      strike(best, bk);
-      cd = M.cd*(focus ? 1 : 2.2);
-    }
-  }
-  while (strikes.length && T - strikes[0].t > .5) strikes.shift();
-  while (splats.length && T - splats[0].t > 4) splats.shift();
-}
-
-/* ---------- doodles ---------- */
-function doodle(u, x, y, q){
-  const id = u.id*31;
-  // a flat spot of colour first, printed slightly off
-  ink(u.col, () => blob(x + 4, y + 3, q*1.05, q*.95, id + 5));
-  ink('black', () => {
-    ctx.lineWidth = 2.1;
-    switch (u.kind){
-      case 'phone':
-        seg(x - q*.45, y - q*.8, x + q*.45, y - q*.8, id); seg(x + q*.45, y - q*.8, x + q*.45, y + q*.8, id + 1);
-        seg(x + q*.45, y + q*.8, x - q*.45, y + q*.8, id + 2); seg(x - q*.45, y + q*.8, x - q*.45, y - q*.8, id + 3);
-        oval(x, y + q*.58, q*.1, q*.1, id + 4, .4);
-        seg(x - q*.8, y - q*.3, x - q*.65, y - q*.1, id + 6); seg(x + q*.8, y - q*.3, x + q*.65, y - q*.1, id + 7);
-        seg(x - q*.85, y + q*.05, x - q*.68, y + q*.25, id + 8); seg(x + q*.85, y + q*.05, x + q*.68, y + q*.25, id + 9); break;
-      case 'donut':
-        oval(x, y, q, q*.85, id); oval(x, y, q*.33, q*.28, id + 1);
-        ink('pink', () => { ctx.lineWidth = 2.4; for (let k = 0; k < 7; k++){ const t = k/7*TAU + .3, r = q*.64;
-          seg(x + Math.cos(t)*r, y + Math.sin(t)*r*.85, x + Math.cos(t)*r + 5*Math.cos(t*3), y + Math.sin(t)*r*.85 + 5*Math.sin(t*3), id + 10 + k, .5); } }); break;
-      case 'mail':
-        seg(x - q, y - q*.62, x + q, y - q*.62, id); seg(x + q, y - q*.62, x + q, y + q*.62, id + 1);
-        seg(x + q, y + q*.62, x - q, y + q*.62, id + 2); seg(x - q, y + q*.62, x - q, y - q*.62, id + 3);
-        pen([[x - q, y - q*.62], [x, y + q*.12], [x + q, y - q*.62]], id + 4, 1); break;
-      case 'zzz':
-        words('z', x - q*.5, y + q*.4, q*.8, MARK, -.2, id); words('z', x, y, q*1.05, MARK, -.1, id + 1); words('Z', x + q*.6, y - q*.55, q*1.4, MARK, .1, id + 2); break;
-      case 'heart': {
-        const pts = []; for (let k = 0; k <= 28; k++){ const t = k/28*TAU + .2;
-          pts.push([x + q*Math.pow(Math.sin(t), 3), y - q/16*(13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t)) - q*.1]); }
-        pen(pts, id, 1.1); break; }
-      case 'note':
-        blob(x - q*.35, y + q*.55, q*.32, q*.24, id); seg(x - q*.06, y + q*.5, x - q*.06, y - q*.8, id + 1);
-        pen([[x - q*.06, y - q*.8], [x + q*.4, y - q*.55], [x + q*.5, y - q*.15]], id + 2, 1); break;
-      case 'star': {
-        const pts = []; for (let k = 0; k <= 10; k++){ const t = k/10*TAU - Math.PI/2, r = k % 2 ? q*.45 : q*1.05; pts.push([x + Math.cos(t)*r, y + Math.sin(t)*r]); }
-        pen(pts, id, 1.2); break; }
-      case 'bubble':
-        oval(x, y - q*.1, q*1.05, q*.7, id, .9, .05);
-        pen([[x - q*.5, y + q*.48], [x - q*.75, y + q*.95], [x - q*.1, y + q*.58]], id + 1, .8);
-        for (let k = -1; k <= 1; k++) blob(x + k*q*.38, y - q*.1, 2.6, 2.6, id + 5 + k); break;
-      case 'bolt':
-        pen([[x + q*.3, y - q], [x - q*.35, y + q*.05], [x + q*.15, y + q*.05], [x - q*.3, y + q]], id, 1); break;
-    }
-  });
+  while (flashes.length && T - flashes[0].t > 1.2) flashes.shift();
 }
 
 /* ---------- drawing ---------- */
-function draw(){
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-  ctx.drawImage(paper, 0, 0);
-  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  const q = Math.max(18, Math.min(32, W*.022));
-
-  // margin sketch: where the PFC is
-  if (W > 900){
-    const bx = W - 250, by = 74, bw = 190, bh = 140;
-    const B = [[.12,.42],[.09,.3],[.15,.17],[.27,.08],[.43,.03],[.6,.04],[.74,.09],[.86,.19],[.93,.32],[.91,.46],[.82,.55],[.7,.58],[.6,.62],[.5,.6],[.4,.62],[.3,.6],[.19,.54],[.12,.42]];
-    ink('pink', () => blob(bx + .2*bw, by + .29*bh, .1*bw, .15*bh, 901));
-    ink('black', () => {
-      ctx.lineWidth = 1.7;
-      pen(B.map(p => [bx + p[0]*bw, by + p[1]*bh]), 902, 1.4);
-      oval(bx + .77*bw, by + .63*bh, .11*bw, .07*bh, 903, .7, .1);
-      seg(bx + .61*bw, by + .61*bh, bx + .65*bw, by + .85*bh, 904);
-      pen([[bx + .5*bw, by + .05*bh], [bx + .47*bw, by + .2*bh], [bx + .44*bw, by + .38*bh]], 905, .8);
-      pen([[bx + .3*bw, by + .46*bh], [bx + .45*bw, by + .42*bh], [bx + .6*bw, by + .38*bh]], 906, .8);
-      ctx.lineWidth = 1.1;
-      pen([[bx + .62*bw, by + .12*bh], [bx + .66*bw, by + .24*bh], [bx + .6*bw, by + .3*bh]], 912, .8);
-      pen([[bx + .74*bw, by + .2*bh], [bx + .78*bw, by + .34*bh], [bx + .72*bw, by + .44*bh]], 913, .8);
-      pen([[bx + .3*bw, by + .12*bh], [bx + .34*bw, by + .24*bh], [bx + .3*bw, by + .36*bh]], 914, .8);
-      ctx.lineWidth = 1.3;
-      pen([[bx - 6, by + bh + 22], [bx + .06*bw, by + .8*bh], [bx + .15*bw, by + .48*bh]], 907, 1);
-      seg(bx + .15*bw, by + .48*bh, bx + .1*bw, by + .55*bh, 908, .5); seg(bx + .15*bw, by + .48*bh, bx + .2*bw, by + .56*bh, 909, .5);
-      ctx.fillStyle = PAT.black;
-      words('the PFC, right behind', bx - 70, by + bh + 34, 12, HAND, -.04, 910, 'left');
-      words('your forehead', bx - 50, by + bh + 56, 12, HAND, -.04, 911, 'left');
-    });
-  }
-
-  // splats where a distraction landed
-  for (const p of splats){
-    const f = 1 - (T - p.t)/4;
-    ctx.globalAlpha = Math.min(1, f*1.6);
-    ink('black', () => { const id = p.id*7 + 3000; BOIL += 0; blob(p.x, p.y, 9, 8, id);
-      for (let k = 0; k < 7; k++){ const a = rnd(p.id, k, 1)*TAU, r = 14 + rnd(p.id, k, 2)*16, z = 1.2 + rnd(p.id, k, 3)*3; blob(p.x + Math.cos(a)*r, p.y + Math.sin(a)*r, z, z, id + k + 1); } });
-    ctx.globalAlpha = 1;
-  }
-
-  // focus lines, like a comic panel, when the loop is strong
-  if (!lost && s > .5){
-    ink('blue', () => {
-      ctx.lineWidth = 1.4; ctx.globalAlpha = (s - .5)*1.6;
-      for (let k = 0; k < 26; k++){
-        const t = k/26*TAU + rnd(BOIL, 5, k)*.12, r0 = 1.25 + rnd(BOIL, 6, k)*.15, r1 = r0 + .2 + rnd(BOIL, 7, k)*.25;
-        seg(cx + Math.cos(t)*LRX*r0, cy + Math.sin(t)*LRY*r0, cx + Math.cos(t)*LRX*r1, cy + Math.sin(t)*LRY*r1, 400 + k, .4);
+function contours(){
+  const K = 24, exR = ring.R*2.15;
+  const [cx0, cy0] = P(CEN);
+  ctx.lineWidth = .75; ctx.lineJoin = 'round';
+  const live = waves.filter(w => w.state !== 'blocked' || T - w.tEnd < 1.1);
+  const red = [];                                         // segments lit by a passing wave
+  for (let k = 0; k < K; k++){
+    const s = 1 - k/K*.82;
+    ctx.strokeStyle = `rgba(27,26,23,${.55 - k*.012})`;
+    ctx.beginPath(); let pen = false, prev = null;
+    for (let j = 0; j <= OUT.length; j++){
+      const o = OUT[j % OUT.length];
+      let x = B.x + (CEN[0] + (o[0] - CEN[0])*s)*B.w, y = B.y + (CEN[1] + (o[1] - CEN[1])*s)*B.w;
+      const nx = x - cx0, ny = y - cy0, nl = Math.hypot(nx, ny) || 1;
+      let off = 1.4*Math.sin(j*.23 + k*1.3) + 1.1*Math.sin(j*.061 - k*.7 + (RM ? 0 : T*.25));
+      let lit = 0;
+      for (const w of live){
+        const dd = Math.hypot(x - occ.x, y - occ.y) - w.rho, fade = w.state === 'blocked' ? 1 - (T - w.tEnd)/1.1 : 1;
+        const e = Math.exp(-(dd*dd)/(2*14*14))*fade;
+        off += 7*e; lit = Math.max(lit, e);
       }
-    });
-  }
-
-  // the loop: a ring of neurons passing the thought around
-  ink('pink', () => {
-    ctx.lineWidth = 1.2 + 3.4*s;
-    const brk = Math.floor(T*4);
-    for (let k = 0; k < NN; k++){
-      if (lost && rnd(brk, k, 11) > .25) continue;
-      if (!lost && s < .75 && rnd(brk, k, 12) > s*1.25 + .1) continue;        // a weak loop drops out in places
-      const t0 = k/NN*TAU - Math.PI/2 + .1, t1 = (k + 1)/NN*TAU - Math.PI/2 - .1;
-      pen(ovalPts(cx, cy, LRX, LRY, 500 + k, 0, t0, t1), 500 + k, 1.1);
+      x += nx/nl*off; y += ny/nl*off;
+      if (Math.hypot(x - ring.x, y - ring.y) < exR){ pen = false; prev = null; continue; }
+      pen ? ctx.lineTo(x, y) : ctx.moveTo(x, y); pen = true;
+      if (lit > .35 && prev) red.push(prev[0], prev[1], x, y, lit);
+      prev = [x, y];
     }
-  });
-  const nsp = lost ? 0 : 1 + Math.round(s*2);
-  for (let k = 0; k < NN; k++){
-    const [x, y] = nodeXY(k), t = k/NN;
-    let lit = 0;
-    for (let j = 0; j < nsp; j++){ let d = Math.abs(((phi + j/nsp - t) % 1 + 1) % 1); d = Math.min(d, 1 - d); lit = Math.max(lit, 1 - d*NN/1.4); }
-    if (lit > 0) ink('pink', () => { blob(x, y, 7 + 5*lit, 7 + 5*lit, 600 + k);
-      if (lit > .6){ ctx.lineWidth = 1.6; for (let r = 0; r < 4; r++){ const a = r/4*TAU + k; seg(x + Math.cos(a)*15, y + Math.sin(a)*15, x + Math.cos(a)*23, y + Math.sin(a)*23, 650 + k*4 + r, .4); } } });
-    ink('black', () => { ctx.lineWidth = 1.8; oval(x, y, 7, 7, 700 + k, .5, .4); });
+    ctx.stroke();
   }
-
-  // strike lines from a neuron to the urge it is blocking
-  for (const st of strikes){
-    const [x, y] = nodeXY(st.k), f = Math.min(1, (T - st.t)/.18);
-    ink('blue', () => { ctx.lineWidth = 2.4; ctx.globalAlpha = 1 - (T - st.t)/.5; seg(x, y, x + (st.u.x - x)*f, y + (st.u.y - y)*f, 800 + st.u.id, 1.5); });
+  ctx.strokeStyle = C.red; ctx.lineWidth = 1.5;
+  for (let n = 0; n < red.length; n += 5){ ctx.globalAlpha = red[n + 4]; ctx.beginPath(); ctx.moveTo(red[n], red[n + 1]); ctx.lineTo(red[n + 2], red[n + 3]); ctx.stroke(); }
+  ctx.globalAlpha = 1;
+}
+function cerebellum(){
+  const [x, y] = P([.785, .655]);
+  ctx.strokeStyle = 'rgba(27,26,23,.5)'; ctx.lineWidth = .7;
+  for (let k = 0; k < 11; k++){
+    const s = 1 - k*.085;
+    ctx.beginPath(); ctx.ellipse(x, y, B.w*.115*s, B.w*.065*s, -.12, Math.PI*1.05, Math.PI*2.95); ctx.stroke();
   }
+  ctx.strokeStyle = 'rgba(27,26,23,.45)';
+  for (let k = 0; k < 4; k++){
+    const [a, b] = P([.6 + k*.014, .62]), [c, d] = P([.635 + k*.012, .86]);
+    ctx.beginPath(); ctx.moveTo(a, b); ctx.quadraticCurveTo(a + B.w*.02, (b + d)/2, c, d); ctx.stroke();
+  }
+}
+function label(txt, x, y, lx, ly, align = 'left', col = C.ink){
+  ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = .7;
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(lx, ly); ctx.stroke();
+  ctx.beginPath(); ctx.arc(x, y, 1.8, 0, TAU); ctx.fill();
+  ctx.font = `500 10.5px ${MONO}`; ctx.textAlign = align; ctx.textBaseline = 'middle';
+  ctx.fillText(txt.toUpperCase(), lx + (align === 'left' ? 6 : -6), ly);
+}
+function drawRing(){
+  const {x, y, R} = ring;
+  // gate: a cobalt boundary that thickens with top-down control
+  const gate = F*M.gate;
+  ctx.strokeStyle = C.cobalt; ctx.lineWidth = .6 + 2.4*gate; ctx.setLineDash([3, 5]);
+  ctx.beginPath(); ctx.arc(x, y, R*1.95, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
 
-  // urges
-  for (const u of urges){
-    const x = u.x, y = u.y;
-    ctx.save(); ctx.translate(x, y); ctx.rotate(u.rot + .06*Math.sin(T*1.1 + u.ph)); ctx.translate(-x, -y);
-    if (u.cross >= 0) ctx.globalAlpha = Math.max(0, 1 - Math.max(0, T - u.cross - .7)/.9);
-    doodle(u, x, y, q);
-    ink('black', () => words(u.label, x, y + q*1.8, Math.max(13, q*.68), MARK, 0, u.id*31 + 20));
-    if (u.cross >= 0){
-      const p = Math.min(1, (T - u.cross)/.35), n = 7, pts = [];
-      for (let k = 0; k <= Math.ceil(n*p); k++){ const yy = y - q*1.1 + (q*3.1)*k/n; pts.push([x + (k % 2 ? q*1.35 : -q*1.35), yy]); }
-      ink('blue', () => { ctx.lineWidth = 2.8; if (pts.length > 1) pen(pts, u.id*31 + 40, 3); if (p >= 1) seg(x - q*1.6, y + q*2, x + q*1.6, y - q*1.3, u.id*31 + 60, 2);
-        if (p >= 1 && u.nope){ ctx.fillStyle = PAT.blue; words(u.nope, x + q*2.1, y - q*1.1, 15, HAND, -.18, u.id*31 + 70, 'left'); } });
+  // the polar tuning curve of the population (the bump)
+  ctx.beginPath();
+  for (let i = 0; i <= N; i++){ const k = i % N, r = R*(1.06 + .62*Math.min(1.2, rate[k])); const px = x + Math.cos(TH[k])*r, py = y + Math.sin(TH[k])*r; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+  ctx.closePath();
+  ctx.strokeStyle = C.red; ctx.lineWidth = 1.3; ctx.stroke();
+  ctx.moveTo(x + R, y); ctx.arc(x, y, R, 0, TAU, true);
+  ctx.fillStyle = 'rgba(226,64,28,.16)'; ctx.fill('evenodd');
+
+  // recurrent connections among the active neurons
+  ctx.lineWidth = .6;
+  for (let i = 0; i < N; i++){
+    if (rate[i] < .25) continue;
+    for (const o of [2, 4, 7]){
+      const j = (i + o) % N, w = rate[i]*rate[j]; if (w < .08) continue;
+      ctx.strokeStyle = `rgba(226,64,28,${Math.min(.7, w*.8)})`;
+      ctx.beginPath(); ctx.moveTo(x + Math.cos(TH[i])*R, y + Math.sin(TH[i])*R);
+      const mid = TH[i] + wrap(TH[j] - TH[i])/2;
+      ctx.quadraticCurveTo(x + Math.cos(mid)*R*.55, y + Math.sin(mid)*R*.55, x + Math.cos(TH[j])*R, y + Math.sin(TH[j])*R); ctx.stroke();
     }
-    ctx.restore();
   }
 
-  // the thought itself
-  ink('black', () => {
-    const sz = textSize();
-    if (!lost){
-      ctx.globalAlpha = Math.min(1, .25 + s*1.1);
-      words(thought, cx, cy + 2, sz, MARK, -.02, 1000);
+  // neurons: radial ticks sized by firing, dots that flash on each spike
+  ctx.strokeStyle = C.ink; ctx.lineWidth = .8;
+  ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.stroke();
+  for (let i = 0; i < N; i++){
+    const c = Math.cos(TH[i]), s = Math.sin(TH[i]), L = 3 + R*.32*Math.min(1, rate[i]);
+    ctx.strokeStyle = C.ink; ctx.lineWidth = .9;
+    ctx.beginPath(); ctx.moveTo(x + c*(R - L*.4), y + s*(R - L*.4)); ctx.lineTo(x + c*(R + L*.6), y + s*(R + L*.6)); ctx.stroke();
+    const f = Math.max(0, 1 - (T - lastSpike[i])/.12);
+    ctx.fillStyle = f > 0 ? C.red : C.ink;
+    ctx.beginPath(); ctx.arc(x + c*R, y + s*R, 1.6 + f*2.2, 0, TAU); ctx.fill();
+  }
+
+  // dial: degrees
+  ctx.fillStyle = C.dim; ctx.font = `10px ${MONO}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (let a = 0; a < 360; a += 90){ const t = a*Math.PI/180; ctx.fillText(a + '°', x + Math.cos(t)*R*2.25, y + Math.sin(t)*R*2.25); }
+  ctx.strokeStyle = C.dim; ctx.lineWidth = .6;
+  for (let a = 0; a < 360; a += 15){ const t = a*Math.PI/180, l = a % 45 ? 3 : 6; ctx.beginPath(); ctx.moveTo(x + Math.cos(t)*R*2.08, y + Math.sin(t)*R*2.08); ctx.lineTo(x + Math.cos(t)*(R*2.08 - l), y + Math.sin(t)*(R*2.08 - l)); ctx.stroke(); }
+
+  // cue and readout
+  if (cue !== null){
+    const cx2 = x + Math.cos(cue)*R*1.8, cy2 = y + Math.sin(cue)*R*1.8;
+    ctx.strokeStyle = C.ink; ctx.setLineDash([2, 3]); ctx.lineWidth = .8;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(cx2, cy2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = C.ink; ctx.save(); ctx.translate(cx2, cy2); ctx.rotate(cue);
+    ctx.beginPath(); ctx.moveTo(7, 0); ctx.lineTo(-4, -5); ctx.lineTo(-4, 5); ctx.closePath(); ctx.fill(); ctx.restore();
+    if (A > .18){
+      const d = wrap(mu - cue);
+      ctx.fillStyle = 'rgba(226,64,28,.18)';
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.arc(x, y, R*.7, cue, cue + d, d < 0); ctx.closePath(); ctx.fill();
+    }
+    const ft = Math.max(0, 1 - (T - cueT)/.6);
+    if (ft > 0){ ctx.strokeStyle = `rgba(27,26,23,${ft})`; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(cx2, cy2, 8 + 20*(1 - ft), 0, TAU); ctx.stroke(); }
+  }
+  if (A > .18){
+    ctx.strokeStyle = C.red; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(mu)*R*.85, y + Math.sin(mu)*R*.85); ctx.stroke();
+  }
+  ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(x, y, 2.2, 0, TAU); ctx.fill();
+
+  // arrivals: blocked at the gate (cobalt bar) or leaked onto the ring (red burst)
+  const ang = Math.atan2(occ.y - y, occ.x - x);
+  for (const f of flashes){
+    const k = 1 - (T - f.t)/1.2;
+    if (f.kind === 'block'){
+      const px = x + Math.cos(ang)*R*1.95, py = y + Math.sin(ang)*R*1.95, t = ang + Math.PI/2;
+      ctx.strokeStyle = `rgba(37,70,200,${k})`; ctx.lineWidth = 2.4;
+      ctx.beginPath(); ctx.moveTo(px - Math.cos(t)*14, py - Math.sin(t)*14); ctx.lineTo(px + Math.cos(t)*14, py + Math.sin(t)*14); ctx.stroke();
     } else {
-      const a = T - lostT; ctx.font = `${sz}px ${MARK}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      const chars = [...thought], full = ctx.measureText(thought).width; let xx = cx - full/2;
-      chars.forEach((ch, i) => {
-        const sc = scatter[i] || {vx:0, vy:0, vr:0}, w = ctx.measureText(ch).width;
-        ctx.save(); ctx.globalAlpha = Math.max(0, 1 - a/2.4);
-        ctx.translate(xx + w/2 + sc.vx*a, cy + sc.vy*a + 40*a*a); ctx.rotate(sc.vr*a); ctx.fillText(ch, -w/2, 0); ctx.restore();
-        xx += w;
-      });
+      ctx.strokeStyle = `rgba(226,64,28,${k})`; ctx.lineWidth = 1.2;
+      const px = x + Math.cos(f.a)*R, py = y + Math.sin(f.a)*R;
+      ctx.beginPath(); ctx.arc(px, py, 4 + 22*(1 - k), 0, TAU); ctx.stroke();
     }
-  });
-  if (lost && T - lostT > 1.8){
-    ink('pink', () => { ctx.globalAlpha = Math.min(1, (T - lostT - 1.8)*1.5); ctx.fillStyle = PAT.pink;
-      words('...wait, what was I doing?', cx, cy - 6, Math.max(20, Math.min(34, W*.026)), HAND, -.05, 1100); });
   }
+}
+function drawOcc(){
+  // a tiny visual field at the occipital pole showing where each distractor appeared
+  const r = Math.max(12, B.w*.022);
+  ctx.strokeStyle = C.ink; ctx.lineWidth = .7;
+  ctx.fillStyle = '#ebe6dbee'; ctx.beginPath(); ctx.arc(occ.x, occ.y, r, 0, TAU); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(occ.x - r, occ.y); ctx.lineTo(occ.x + r, occ.y); ctx.moveTo(occ.x, occ.y - r); ctx.lineTo(occ.x, occ.y + r); ctx.stroke();
+  for (const w of waves){
+    const k = Math.max(0, 1 - (T - w.t)/1);
+    if (k <= 0) continue;
+    ctx.fillStyle = `rgba(226,64,28,${k})`;
+    ctx.beginPath(); ctx.arc(occ.x + Math.cos(w.d)*r*.65, occ.y + Math.sin(w.d)*r*.65, 3, 0, TAU); ctx.fill();
+  }
+}
+function draw(){
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(paper, 0, 0);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  contours(); cerebellum(); drawRing(); drawOcc();
 
-  // first-time hint
-  if (!touched && !THUMB){
-    ink('blue', () => {
-      ctx.fillStyle = PAT.blue; ctx.lineWidth = 1.6;
-      const hx = cx + LRX*.35, hy = cy + LRY + 70;
-      words(matchMedia('(pointer: coarse)').matches ? 'touch & hold to focus' : 'press & hold to focus', hx + 10, hy + 6, 15, HAND, -.05, 1200, 'left');
-      pen([[hx, hy - 4], [hx - 18, hy - 22], [hx - 24, hy - 46]], 1201, 1);
-      seg(hx - 24, hy - 46, hx - 32, hy - 36, 1202, .4); seg(hx - 24, hy - 46, hx - 15, hy - 39, 1203, .4);
-    });
+  // figure labels
+  if (W >= 860){
+    ctx.fillStyle = C.ink; ctx.font = `500 13px ${MONO}`; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText('A', B.x, B.y - 6);
+    label('prefrontal cortex · ring of 72 neurons', ring.x - ring.R*1.45, ring.y - ring.R*1.45, ring.x - ring.R*1.9, B.y - 4, 'left');
+    label('visual cortex · distractors enter', occ.x + B.w*.01, occ.y - B.w*.04, Math.min(W - 40, occ.x + B.w*.04), occ.y - B.w*.14, 'right');
+    label('top-down gate', ring.x + Math.cos(-.5)*ring.R*1.95, ring.y + Math.sin(-.5)*ring.R*1.95, ring.x + ring.R*3.1, ring.y - ring.R*1.75, 'left', C.cobalt);
+  }
+}
+function drawRaster(){
+  const w = rc.width, h = rc.height;
+  rx.setTransform(1, 0, 0, 1, 0, 0); rx.fillStyle = '#fbf8f2'; rx.fillRect(0, 0, w, h);
+  const rows = 36, rh = h/rows, X = t => w - (T - t)/8*w;
+  // rows sorted by preferred direction relative to the cue, so a held memory reads as a band across the middle
+  const ref = cue === null ? 0 : cue;
+  for (const m of marks){ rx.fillStyle = m.kind === 'cue' ? C.ink : C.red; rx.fillRect(X(m.t), 0, DPR, h); }
+  for (const s of spikes){
+    if (s.i % 2) continue;
+    const rel = ((TH[s.i] - ref + Math.PI) % TAU + TAU) % TAU;
+    const row = Math.min(rows - 1, Math.floor(rel/TAU*rows));
+    rx.fillStyle = C.ink;
+    rx.fillRect(X(s.t), row*rh + rh*.15, Math.max(1, DPR*.9), rh*.7);
   }
 }
 
-/* ---------- loop: the drawing is redrawn about 12 times a second, like hand animation on twos ---------- */
+/* ---------- loop ---------- */
 const $ = id => document.getElementById(id);
 let hud = 0;
-function stats(){
-  const held = lost ? 0 : T - heldStart;
-  $('held').textContent = Math.floor(held/60) + ':' + String(Math.floor(held % 60)).padStart(2, '0');
-  $('crossed').textContent = nCross; $('lost').textContent = nLost;
+function readout(){
+  $('clock').textContent = 't = ' + T.toFixed(1) + ' s';
+  $('phase').textContent = cue === null ? 'waiting for a cue' : T - cueT < .6 ? 'cue' : A > .18 ? 'delay · holding' : 'delay · memory lost';
+  if (cue === null){ $('rc').textContent = $('rh').textContent = $('re').textContent = '—'; return; }
+  $('rc').textContent = deg(cue) + '°';
+  if (A > .18){ $('rh').textContent = deg(mu) + '°'; $('re').textContent = Math.abs(Math.round(wrap(mu - cue)*180/Math.PI)) + '°'; }
+  else { $('rh').textContent = 'lost'; $('re').textContent = '—'; }
 }
-function start(){
-  measure();
-  for (let n = 0; n < 6; n++) spawn(.45 + Math.random()*.45);
+function run(){
+  newCue(Math.PI*1.25);
   if (THUMB){
     setTimeout(() => {
-      layout(); lastUser = -99;
-      for (let n = 0; n < 60*6; n++) step(1/60);
-      for (let n = 0; n < 5; n++) spawn(.4 + Math.random()*.3);
-      holding = true; for (let n = 0; n < 60*.9; n++) step(1/60);
-      // make sure the picture shows the fight: an urge being crossed out and a couple still coming
-      BOIL = 3; draw();
+      layout(); newCue(Math.PI*1.25); lastUser = 0;
+      for (let n = 0; n < 60*5; n++) step(1/60);
+      const dd = Math.hypot(ring.x - occ.x, ring.y - occ.y);
+      waves.push({d:.6, rho:dd*.45, t:T, state:'travel', g:0, tEnd:0});
+      waves.push({d:2.4, rho:dd*.15, t:T, state:'travel', g:0, tEnd:0});
+      for (let n = 0; n < 12; n++) step(1/60);
+      draw(); /*thumb*/
     }, 300);
     return;
   }
   let last = performance.now();
   function frame(now){
     const dt = Math.min(.05, (now - last)/1000); last = now;
-    step(dt);
-    const b = Math.floor(T*(RM ? 4 : 12));
-    if (b !== BOIL || dirty){ BOIL = b; dirty = false; draw(); }
-    if (T - hud > .25){ hud = T; stats(); }
+    step(dt); draw(); drawRaster();
+    if (T - hud > .2){ hud = T; readout(); }
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 }
-document.fonts.load(`40px "Permanent Marker"`).then(() => document.fonts.load(`20px "Homemade Apple"`)).finally(start);
+document.fonts.load(`10px "Geist Mono"`).finally(run);
 })();
 </script>
 </body>
