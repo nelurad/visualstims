@@ -7,72 +7,82 @@
 <meta name="description" content="Shrink to the size of a cell and ride the cerebrospinal fluid up the spinal cord's central canal, through the brainstem and into the ventricles of the brain.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..800,0..100,0..1;1,9..144,300..800,0..100,0..1&family=Patrick+Hand&display=swap">
 <style>
-  /* Layout: fixed 3D ride behind a cockpit frame; scroll (or autopilot) drives the pod; station card bottom-left, route map top-right. */
+  /* Layout: fixed 3D ride behind a hand-drawn frame; scroll (or autopilot) drives the pod; station card bottom-left, route map top-right.
+     Look: picture-book cartoon. Cream paper, flat cel shading, ink outlines, sticker labels. */
   :root{
-    --deep:#12070c;
-    --ink:#f6efe8;
-    --dim:#cdb9bf;
-    --glass:#1a0d14b8;
-    --rule:#ffffff2e;
-    --hot:#ffd3a8;
-    --csf:#9fe3ff;
-    --grot:"Bricolage Grotesque","Helvetica Neue",Arial,system-ui,sans-serif;
-    --mono:"Geist Mono",ui-monospace,Menlo,monospace;
-    color-scheme:dark;
+    --paper:#fff3e2;
+    --paper2:#ffe4cf;
+    --ink:#2e1d33;
+    --dim:#6e5870;
+    --card:#fffaf2;
+    --pop:#ff8f7a;
+    --sun:#ffd166;
+    --csf:#5ec8e8;
+    --serif:"Fraunces",Georgia,serif;
+    --hand:"Patrick Hand","Comic Sans MS","Chalkboard SE",system-ui,sans-serif;
+    color-scheme:light;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;background:var(--deep);color:var(--ink)}
-  body{font-family:var(--grot);-webkit-font-smoothing:antialiased}
+  html,body{margin:0;background:var(--paper);color:var(--ink)}
+  body{font-family:var(--hand);-webkit-font-smoothing:antialiased}
   #ride{height:1500vh}
   #c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
-  .cockpit{position:fixed;inset:0;pointer-events:none;z-index:2;border-radius:34px;box-shadow:inset 0 0 0 12px #0d0509,inset 0 0 0 13px #ffffff14,inset 0 0 140px 30px #000c}
+  .cockpit{position:fixed;inset:0;pointer-events:none;z-index:2;border-radius:38px;box-shadow:inset 0 0 0 10px var(--paper),inset 0 0 0 13px var(--ink),inset 0 0 90px 10px #fff3e299}
   #labels{position:fixed;inset:0;pointer-events:none;z-index:3;overflow:hidden}
-  .lbl{position:absolute;left:0;top:0;transform:translate(-50%,-50%);font-family:var(--mono);font-size:12px;letter-spacing:.06em;white-space:nowrap;color:var(--ink);padding:4px 9px;border:1px solid #ffffff55;border-radius:999px;background:#12070c99;backdrop-filter:blur(4px);transition:opacity .4s}
-  .lbl::before{content:"";position:absolute;left:50%;top:100%;width:1px;height:16px;background:#ffffff66}
+  .lbl{position:absolute;left:0;top:0;transform:translate(-50%,-50%);font-family:var(--hand);font-size:17px;line-height:1;white-space:nowrap;color:var(--ink);padding:6px 12px 5px;border:2px solid var(--ink);border-radius:14px 16px 13px 17px;background:var(--card);box-shadow:3px 3px 0 var(--ink);transition:opacity .4s}
+  .lbl::before{content:"";position:absolute;left:50%;top:calc(100% + 2px);width:2px;height:14px;background:var(--ink);border-radius:2px}
 
-  header{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:6;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:24px max(30px,env(safe-area-inset-right,0px)) 0 max(30px,env(safe-area-inset-left,0px))}
-  .back{font-size:14px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--ink)}
-  .btns{display:flex;gap:8px;flex-wrap:wrap}
-  .btns button{font:500 13px/1 var(--grot);color:var(--ink);background:var(--glass);border:1px solid var(--rule);border-radius:999px;padding:9px 14px;cursor:pointer;backdrop-filter:blur(6px)}
-  .btns button[aria-pressed="true"]{background:var(--ink);color:var(--deep)}
-  .btns button:focus-visible,.stops button:focus-visible,#go:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  header{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:6;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:26px max(32px,env(safe-area-inset-right,0px)) 0 max(32px,env(safe-area-inset-left,0px))}
+  .back{font:20px/1 var(--hand);text-decoration:none;color:var(--ink);background:var(--card);border:2px solid var(--ink);border-radius:999px;padding:8px 14px 7px;box-shadow:3px 3px 0 var(--ink)}
+  .btns{display:flex;gap:10px;flex-wrap:wrap}
+  .btns button{font:19px/1 var(--hand);color:var(--ink);background:var(--card);border:2px solid var(--ink);border-radius:999px;padding:8px 15px 7px;cursor:pointer;box-shadow:3px 3px 0 var(--ink);transition:transform .12s,box-shadow .12s}
+  .btns button:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+  .btns button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+  .btns button[aria-pressed="true"]{background:var(--sun)}
+  .btns button:focus-visible,.stops button:focus-visible,#go:focus-visible,.back:focus-visible{outline:3px dashed var(--pop);outline-offset:3px}
 
-  .card{position:fixed;left:max(30px,env(safe-area-inset-left,0px));bottom:max(30px,env(safe-area-inset-bottom,0px));z-index:6;width:min(430px,calc(100vw - 60px));background:var(--glass);border:1px solid var(--rule);border-radius:18px;padding:18px 20px 16px;backdrop-filter:blur(10px)}
-  .card .where{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--csf);margin:0 0 6px}
-  .card h2{margin:0 0 8px;font-weight:380;font-size:clamp(26px,2.6vw,36px);line-height:1;letter-spacing:-.03em;font-variation-settings:"opsz" 72,"wdth" 85}
-  .card p{margin:0;font-size:15.5px;line-height:1.38;color:#eadfdc}
-  .card p b{color:var(--hot);font-weight:600}
-  .stops{display:flex;gap:5px;margin-top:14px}
-  .stops button{flex:1;height:6px;border:0;border-radius:3px;background:#ffffff2a;cursor:pointer;padding:0}
+  .card{position:fixed;left:max(32px,env(safe-area-inset-left,0px));bottom:max(32px,env(safe-area-inset-bottom,0px));z-index:6;width:min(440px,calc(100vw - 64px));background:var(--card);border:2.5px solid var(--ink);border-radius:22px 26px 20px 24px;padding:16px 20px 16px;box-shadow:5px 5px 0 var(--ink);transform:rotate(-.6deg)}
+  .card .where{font-size:16px;color:var(--dim);margin:0 0 4px}
+  .card h2{margin:0 0 8px;font-family:var(--serif);font-weight:600;font-style:italic;font-size:clamp(28px,2.7vw,38px);line-height:1;letter-spacing:-.01em;font-variation-settings:"SOFT" 100,"WONK" 1;color:var(--ink)}
+  .card p{margin:0;font-size:18.5px;line-height:1.28;color:#3d2c42}
+  .card p b{font-weight:400;background:linear-gradient(transparent 55%,#ffd16699 55%);padding:0 2px}
+  .stops{display:flex;gap:6px;margin-top:14px}
+  .stops button{flex:1;height:14px;border:2px solid var(--ink);border-radius:999px;background:var(--card);cursor:pointer;padding:0}
   .stops button.on{background:var(--csf)}
 
-  .map{position:fixed;right:max(30px,env(safe-area-inset-right,0px));top:84px;z-index:6;width:170px;background:var(--glass);border:1px solid var(--rule);border-radius:16px;padding:10px 10px 6px;backdrop-filter:blur(8px)}
+  .map{position:fixed;right:max(32px,env(safe-area-inset-right,0px));top:92px;z-index:6;width:172px;background:var(--card);border:2.5px solid var(--ink);border-radius:20px 18px 22px 18px;padding:8px 10px 6px;box-shadow:4px 4px 0 var(--ink);transform:rotate(1deg)}
   .map svg{width:100%;height:auto;display:block}
-  .map .cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--dim);text-align:center;margin:2px 0 4px;text-transform:uppercase}
+  .map .cap{font-size:17px;color:var(--ink);text-align:center;margin:0 0 2px}
 
-  .dash{position:fixed;right:max(30px,env(safe-area-inset-right,0px));bottom:max(30px,env(safe-area-inset-bottom,0px));z-index:6;display:grid;grid-template-columns:auto auto;gap:4px 14px;font-family:var(--mono);font-size:11.5px;color:var(--dim);background:var(--glass);border:1px solid var(--rule);border-radius:14px;padding:10px 14px;backdrop-filter:blur(8px)}
-  .dash b{color:var(--ink);font-weight:500;text-align:right}
+  .dash{position:fixed;right:max(32px,env(safe-area-inset-right,0px));bottom:max(32px,env(safe-area-inset-bottom,0px));z-index:6;display:grid;grid-template-columns:auto auto;gap:2px 14px;font-size:16px;color:var(--dim);background:var(--card);border:2.5px solid var(--ink);border-radius:18px 16px 20px 15px;padding:9px 15px;box-shadow:4px 4px 0 var(--ink);transform:rotate(.8deg)}
+  .dash b{color:var(--ink);font-weight:400;text-align:right}
 
-  #intro{position:fixed;inset:0;z-index:9;display:flex;flex-direction:column;justify-content:flex-end;padding:0 max(30px,env(safe-area-inset-right,0px)) 12vh max(30px,env(safe-area-inset-left,0px));background:radial-gradient(ellipse at 70% 40%,#3a1626 0%,#12070c 70%);transition:opacity .9s ease}
+  #intro{position:fixed;inset:0;z-index:9;display:flex;flex-direction:column;justify-content:flex-end;padding:0 max(32px,env(safe-area-inset-right,0px)) 12vh max(32px,env(safe-area-inset-left,0px));background:radial-gradient(circle at 74% 34%,#ffd9c2 0 12%,transparent 12.2%),radial-gradient(circle at 12% 18%,#c9ecf5 0 6%,transparent 6.2%),radial-gradient(circle at 88% 86%,#ffe9a8 0 9%,transparent 9.2%),var(--paper);transition:opacity .9s ease;overflow:hidden}
   #intro.gone{opacity:0;pointer-events:none}
-  #intro .k{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--csf);margin:0 0 14px}
-  #intro h1{margin:0;font-weight:320;font-size:clamp(60px,10vw,160px);line-height:.88;letter-spacing:-.05em;font-variation-settings:"opsz" 96,"wdth" 78}
-  #intro p{margin:20px 0 26px;max-width:34em;font-size:clamp(17px,1.4vw,21px);line-height:1.35;color:#eadfdc}
-  #go{align-self:flex-start;font:500 18px/1 var(--grot);color:var(--deep);background:var(--hot);border:0;border-radius:999px;padding:16px 26px;cursor:pointer}
-  #intro .or{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:14px}
-  #intro svg.pod{position:absolute;right:8vw;top:16vh;width:min(320px,38vw);height:auto;overflow:visible}
+  #intro .k{font-size:19px;color:var(--dim);margin:0 0 8px}
+  #intro h1{margin:0;font-family:var(--serif);font-weight:700;font-style:italic;font-size:clamp(64px,11vw,170px);line-height:.86;letter-spacing:-.025em;font-variation-settings:"SOFT" 100,"WONK" 1;color:var(--ink)}
+  #intro h1 span{color:var(--pop);-webkit-text-stroke:3px var(--ink);paint-order:stroke fill}
+  #intro p{margin:20px 0 26px;max-width:30em;font-size:clamp(20px,1.6vw,24px);line-height:1.28;color:#3d2c42}
+  #go{align-self:flex-start;font:24px/1 var(--hand);color:var(--ink);background:var(--sun);border:2.5px solid var(--ink);border-radius:999px;padding:14px 26px 12px;cursor:pointer;box-shadow:5px 5px 0 var(--ink);transition:transform .12s,box-shadow .12s}
+  #go:hover{transform:translate(-2px,-2px) rotate(-1deg);box-shadow:7px 7px 0 var(--ink)}
+  #intro .or{font-size:17px;color:var(--dim);margin-top:16px}
+  #intro svg.pod{position:absolute;right:8vw;top:14vh;width:min(340px,40vw);height:auto;overflow:visible;animation:bob 3.2s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(-12px) rotate(-3deg)}}
 
   @media (max-width:760px){
-    .map{width:120px;top:72px}
+    .map{width:118px;top:78px}
+    .map .cap{font-size:14px}
     .dash{display:none}
-    .card{bottom:16px;left:16px;width:calc(100vw - 32px);padding:14px 16px}
-    .card p{font-size:14px}
-    header{padding:18px 16px 0}
-    #intro svg.pod{top:10vh;right:6vw}
+    .card{bottom:18px;left:18px;width:calc(100vw - 36px);padding:13px 16px}
+    .card p{font-size:16.5px}
+    header{padding:18px 18px 0}
+    .back,.btns button{font-size:16px}
+    #intro svg.pod{top:9vh;right:6vw}
+    .lbl{font-size:15px}
   }
-  @media (prefers-reduced-motion: reduce){ #intro{transition:none} }
+  @media (prefers-reduced-motion: reduce){ #intro{transition:none} #intro svg.pod{animation:none} }
 </style>
 </head>
 <body>
@@ -108,16 +118,19 @@
 </div>
 
 <div id="intro">
-  <svg class="pod" viewBox="0 0 200 120" aria-hidden="true">
-    <defs><linearGradient id="pg" x1="0" x2="1"><stop offset="0" stop-color="#ffd3a8"/><stop offset="1" stop-color="#ff9a8a"/></linearGradient></defs>
-    <path d="M20 70 C 20 30, 70 18, 120 22 C 170 26, 188 52, 186 66 C 184 84, 150 96, 100 96 C 50 96, 20 92, 20 70 Z" fill="url(#pg)"/>
-    <path d="M92 30 C 120 26, 160 34, 168 56 L 108 58 Z" fill="#9fe3ff" opacity=".85"/>
-    <circle cx="58" cy="66" r="9" fill="#12070c"/><circle cx="58" cy="66" r="4" fill="#9fe3ff"/>
-    <path d="M20 70 L 2 58 M20 74 L 0 74 M20 78 L 2 90" stroke="#ffd3a8" stroke-width="3" stroke-linecap="round"/>
-    <circle cx="130" cy="100" r="4" fill="#9fe3ff" opacity=".7"/><circle cx="150" cy="108" r="2.5" fill="#9fe3ff" opacity=".5"/><circle cx="112" cy="110" r="2" fill="#9fe3ff" opacity=".5"/>
+  <svg class="pod" viewBox="0 0 200 130" aria-hidden="true">
+    <g stroke="#2e1d33" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 72 L 5 58 M22 77 L 2 79 M22 82 L 6 98" fill="none"/>
+      <path d="M22 72 C 18 32, 72 18, 122 22 C 172 26, 190 52, 187 68 C 184 88, 150 98, 102 98 C 52 98, 24 96, 22 72 Z" fill="#ff8f7a"/>
+      <path d="M96 33 C 124 28, 158 36, 167 57 L 110 59 Z" fill="#c9ecf5"/>
+      <circle cx="60" cy="68" r="12" fill="#fffaf2"/><circle cx="63" cy="68" r="5" fill="#2e1d33" stroke="none"/>
+      <circle cx="132" cy="114" r="7" fill="#c9ecf5"/><circle cx="156" cy="120" r="4.5" fill="#c9ecf5"/><circle cx="112" cy="122" r="3.5" fill="#c9ecf5"/>
+    </g>
+    <path d="M112 38 C 124 35, 140 37, 148 44" stroke="#fffaf2" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <path d="M70 84 C 90 90, 130 90, 160 80" stroke="#ffd9c2" stroke-width="4" stroke-linecap="round" fill="none"/>
   </svg>
-  <p class="k">VisualStims · No. 02</p>
-  <h1>Up the<br>Canal</h1>
+  <p class="k">VisualStims, no. 2</p>
+  <h1>Up the<br><span>Canal</span></h1>
   <p>Shrink to the size of a cell, slip into the tiny tunnel that runs up the middle of the spinal cord, and ride the cerebrospinal fluid all the way into the brain's hidden caves.</p>
   <button id="go">Shrink &amp; ride</button>
   <div class="or">or close this and scroll to drive yourself</div>
@@ -179,126 +192,152 @@ const STOPS = [
 ];
 const stopU = STOPS.map((_, i) => cpU[CP.findIndex(p => p[4] === i)]);
 
-/* ---------- three.js scene ---------- */
+/* ---------- three.js scene: picture-book cartoon (cel shading + ink outlines on cream paper) ---------- */
+const INK = 0x2e1d33, PAPER = 0xfff3e2;
 const canvas = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75));
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x12070c);
-scene.fog = new THREE.FogExp2(0x1a0a12, .055);
+scene.background = new THREE.Color(PAPER);
+scene.fog = new THREE.FogExp2(PAPER, .022);
 const camera = new THREE.PerspectiveCamera(72, 1, .02, 400);
-scene.add(new THREE.AmbientLight(0xffe6ee, .35));
-const head = new THREE.PointLight(0xfff1e6, 1.6, 30, 1.6); scene.add(head);
-const glow = new THREE.PointLight(0x9fe3ff, .9, 16, 2); scene.add(glow);
+scene.add(new THREE.AmbientLight(0xffffff, .5));
+const head = new THREE.PointLight(0xffffff, .5, 0, 0); scene.add(head);
+const glow = new THREE.PointLight(0xfff0d0, .12, 0, 0); scene.add(glow);
 
-// wall texture: a mosaic of ependymal cells
+// three flat tones, no smooth gradients
+const TONES = (() => { const d = new Uint8Array([120,120,120,255, 200,200,200,255, 255,255,255,255]);
+  const t = new THREE.DataTexture(d, 3, 1, THREE.RGBAFormat); t.minFilter = t.magFilter = THREE.NearestFilter; t.needsUpdate = true; return t; })();
+const toon = (c, extra) => new THREE.MeshToonMaterial(Object.assign({color:c, gradientMap:TONES}, extra || {}));
+const inkMat = new THREE.MeshBasicMaterial({color:INK, side:THREE.BackSide});
+// ink outline: a copy of the shape, puffed out along its normals, drawn inside-out in ink
+function outline(mesh, w){
+  const g = mesh.geometry.clone(); if (!g.attributes.normal) g.computeVertexNormals();
+  const p = g.attributes.position, n = g.attributes.normal;
+  for (let i = 0; i < p.count; i++) p.setXYZ(i, p.getX(i) + n.getX(i)*w, p.getY(i) + n.getY(i)*w, p.getZ(i) + n.getZ(i)*w);
+  const o = new THREE.Mesh(g, inkMat); mesh.add(o); return o;
+}
+
+// wall texture: big hand-drawn ependymal cells, each with a wobbly ink edge, a nucleus and a little shine
 function cellTexture(){
-  const cv = document.createElement('canvas'); cv.width = cv.height = 512; const g = cv.getContext('2d');
-  g.fillStyle = '#efc9cf'; g.fillRect(0,0,512,512);
-  for (let i = 0; i < 260; i++){
-    const x = Math.random()*512, y = Math.random()*512, r = 14 + Math.random()*16;
-    const gr = g.createRadialGradient(x, y, 2, x, y, r);
-    gr.addColorStop(0, 'rgba(255,240,235,.9)'); gr.addColorStop(.55, 'rgba(236,180,190,.55)'); gr.addColorStop(1, 'rgba(150,70,95,.55)');
-    g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 6.2832); g.fill();
-    g.fillStyle = 'rgba(120,40,70,.55)'; g.beginPath(); g.arc(x + (Math.random()-.5)*4, y + (Math.random()-.5)*4, 2.6, 0, 6.2832); g.fill();
+  const S = 512, cv = document.createElement('canvas'); cv.width = cv.height = S; const g = cv.getContext('2d');
+  g.fillStyle = '#ffffff'; g.fillRect(0,0,S,S);
+  const blobPath = (x, y, r, seed) => { g.beginPath(); for (let k = 0; k <= 24; k++){ const a = k/24*6.2832, rr = r*(1 + .1*Math.sin(a*3 + seed) + .06*Math.sin(a*5 + seed*2)); const px = x + Math.cos(a)*rr, py = y + Math.sin(a)*rr*.86; k ? g.lineTo(px, py) : g.moveTo(px, py); } g.closePath(); };
+  const tints = ['#ffffff','#fff4f6','#fffbe8','#f6f3ff'];
+  for (let i = 0; i < 34; i++){
+    const x = Math.random()*S, y = Math.random()*S, r = 40 + Math.random()*22, seed = Math.random()*9;
+    for (const [dx, dy] of [[0,0],[S,0],[-S,0],[0,S],[0,-S]]){   // draw wrapped copies so the texture tiles
+      const X = x + dx, Y = y + dy; if (X < -60 || X > S + 60 || Y < -60 || Y > S + 60) continue;
+      blobPath(X, Y, r, seed); g.fillStyle = tints[i%4]; g.fill(); g.lineWidth = 5; g.strokeStyle = '#8a5c86'; g.stroke();
+      g.fillStyle = '#e88aa0'; g.beginPath(); g.ellipse(X + r*.12, Y + r*.1, r*.26, r*.2, seed, 0, 6.2832); g.fill(); g.lineWidth = 3; g.stroke();
+      g.strokeStyle = '#ffffff'; g.lineWidth = 4; g.lineCap = 'round'; g.beginPath(); g.arc(X - r*.25, Y - r*.25, r*.35, 3.6, 4.5); g.stroke();
+      g.strokeStyle = '#8a5c86'; g.lineWidth = 2.6;   // a few cilia, drawn as loose squiggles
+      for (let c = 0; c < 3; c++){ const cx = X - r*.4 + c*r*.4, cy = Y + r*.55; g.beginPath(); g.moveTo(cx, cy); g.quadraticCurveTo(cx + 5, cy + 7, cx, cy + 12); g.stroke(); }
+    }
   }
-  for (let i = 0; i < 1400; i++){ g.strokeStyle = 'rgba(255,255,255,.18)'; g.lineWidth = .8; const x = Math.random()*512, y = Math.random()*512;
-    g.beginPath(); g.moveTo(x, y); g.lineTo(x + (Math.random()-.5)*6, y - 4 - Math.random()*5); g.stroke(); }   // cilia
-  const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
+  const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 4; return t;
 }
 const SEG = 1100, RADS = 28;
 const tube = new THREE.TubeGeometry(curve, SEG, 1, RADS, false);
-{ // reshape the tube radius along the route and colour it by region
+{ // reshape the tube radius along the route and colour it by region (soft candy colours)
   const pos = tube.attributes.position, col = new Float32Array(pos.count*3);
   const regionCol = u => { const c = new THREE.Color();
-    if (u < stopU[2]) c.setHSL(.97, .55, .72); else if (u < stopU[4]) c.setHSL(.86, .45, .72);
-    else if (u < stopU[5]) c.setHSL(.78, .45, .72); else if (u < stopU[6]) c.setHSL(.52, .5, .7); else c.setHSL(.09, .65, .72);
+    if (u < stopU[2]) c.setHSL(.98, .9, .8); else if (u < stopU[4]) c.setHSL(.85, .7, .8);
+    else if (u < stopU[5]) c.setHSL(.72, .75, .82); else if (u < stopU[6]) c.setHSL(.5, .7, .76); else c.setHSL(.1, .95, .78);
     return c; };
   for (let i = 0; i <= SEG; i++){
     const u = i/SEG, ctr = curve.getPointAt(u), r = radiusAt(u);
     const c0 = regionCol(Math.max(0, u - .02)), c1 = regionCol(u); c0.lerp(c1, .5);
     for (let j = 0; j <= RADS; j++){
       const k = i*(RADS+1) + j, v = V(pos.getX(k), pos.getY(k), pos.getZ(k)).sub(ctr);
-      const th = j/RADS*6.2832, wob = 1 + .06*Math.sin(th*3 + i*.21) + .035*Math.sin(th*5 - i*.13) + .04*Math.sin(i*.07);
+      const th = j/RADS*6.2832, wob = 1 + .08*Math.sin(th*2 + i*.05) + .05*Math.sin(th*3 - i*.09) + .05*Math.sin(i*.04);
       v.multiplyScalar(r*wob).add(ctr); pos.setXYZ(k, v.x, v.y, v.z);
       col[3*k] = c0.r; col[3*k+1] = c0.g; col[3*k+2] = c0.b;
     }
   }
   tube.setAttribute('color', new THREE.BufferAttribute(col, 3)); tube.computeVertexNormals();
 }
-const tex = cellTexture(); tex.repeat.set(SEG/9, 4);
-const wall = new THREE.Mesh(tube, new THREE.MeshStandardMaterial({map:tex, color:0x8c7a82, vertexColors:true, side:THREE.BackSide, transparent:true, opacity:.64, roughness:.55, metalness:0, emissive:0x1a060e, depthWrite:false}));
+const tex = cellTexture(); tex.repeat.set(SEG/26, 2);
+const wall = new THREE.Mesh(tube, toon(0xffffff, {map:tex, vertexColors:true, side:THREE.BackSide, transparent:true, opacity:.5, depthWrite:false}));
 scene.add(wall);
 
 // ---------- what's outside the walls ----------
-const glowMat = (c, e, o) => new THREE.MeshStandardMaterial({color:c, emissive:e, emissiveIntensity:.5, roughness:.5, transparent:true, opacity:Math.min(.7, o*.75), depthWrite:false});
-const blob = (pos, scale, mat) => { const m = new THREE.Mesh(new THREE.SphereGeometry(1, 40, 28), mat); m.position.copy(pos); m.scale.set(...scale); scene.add(m); return m; };
+const sphereG = new THREE.SphereGeometry(1, 36, 24);
+const blob = (pos, scale, mat, ink) => { const m = new THREE.Mesh(sphereG, mat); m.position.copy(pos); m.scale.set(...scale); if (ink) outline(m, ink); scene.add(m); return m; };
 const LABELS = [];
 const label = (text, pos) => { const el = document.createElement('div'); el.className = 'lbl'; el.textContent = text; document.getElementById('labels').appendChild(el);
   let best = 0, bd = 1e9; sampled.forEach((q, i) => { const d = q.distanceToSquared(pos); if (d < bd){ bd = d; best = i; } });
   const un = best/SAMPLES; LABELS.push({el, pos, u0:un - .085, u1:un + .004}); };
 
-// spinal nerve roots: one pair per level, dorsal (back) and ventral (front)
-const rootMat = new THREE.LineBasicMaterial({color:0xffd3a8, transparent:true, opacity:.75});
+// spinal nerve roots: one pair per level, dorsal (back) and ventral (front); chunky noodles
+const rootMat = toon(0xffc46b);
 const LV = [['C',8],['T',12],['L',5],['S',5]], spineTop = -5, spineBot = -48; let li = 0; const total = 30;
+const gmMat = toon(0xd7c2ff, {transparent:true, opacity:.28, depthWrite:false});
 LV.forEach(([L, n]) => { for (let k = 1; k <= n; k++, li++){
   const y = spineTop - 1.5 - li*(spineTop - spineBot - 3)/total;
   [-1, 1].forEach(s => [-1, 1].forEach(f => {
     const pts = [V(s*1.3, y, f*.7), V(s*3.2, y - .6, f*1.1), V(s*6.5, y - 2.2, f*.6), V(s*9, y - 3.6, 0)];
-    scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(new THREE.CatmullRomCurve3(pts).getPoints(18)), rootMat));
+    const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 14, .13, 6, false), rootMat); outline(m, .05); scene.add(m);
   }));
-  const gm = blob(V(0, y, 0), [3.6, .9, 2.4], glowMat(0x8a5466, 0x2a0d18, .22)); gm.renderOrder = -1;   // grey-matter ghost at each level
+  const gm = blob(V(0, y, 0), [3.6, .9, 2.4], gmMat); gm.renderOrder = -1;   // grey-matter ghost at each level
   if (k === 1 || k === n || (L === 'C' && (k === 3 || k === 5))) label(L + k + (L === 'C' && k >= 3 && k <= 5 ? ' · phrenic' : ''), V(6.5, y - 2.2, .6));
 }});
 function curveUAtY(y){ let best = 0, bd = 1e9; sampled.forEach((s, i) => { const d = Math.abs(s.y - y) + (s.y > 0 ? 100 : 0); if (d < bd){ bd = d; best = i; } }); return best/SAMPLES; }
 
 // brainstem & cerebellum around the fourth ventricle
-const pons = blob(V(0, 3.2, 5.2), [4.4, 3.6, 3.2], glowMat(0xd99aa8, 0x3a1020, .5)); label('pons', V(0, 3.2, 8.6));
-blob(V(0, -2.5, 2.8), [2.4, 4, 2.2], glowMat(0xc98a9a, 0x30101c, .45)); label('medulla', V(0, -3, 5.2));
+blob(V(0, 3.2, 5.2), [4.4, 3.6, 3.2], toon(0xffa8b8), .035); label('pons', V(0, 3.2, 8.6));
+blob(V(0, -2.5, 2.8), [2.4, 4, 2.2], toon(0xff95a8), .07); label('medulla', V(0, -3, 5.2));
 const cereb = new THREE.Group(); scene.add(cereb); cereb.position.set(0, 6, -9);
-for (let k = 0; k < 9; k++){ const f = new THREE.Mesh(new THREE.TorusGeometry(5.6 - Math.abs(k-4)*.35, .55, 12, 60), glowMat(0xf2b06a, 0x40200a, .55));
+const cerebMat = toon(0xffc46b);
+for (let k = 0; k < 9; k++){ const f = new THREE.Mesh(new THREE.TorusGeometry(5.6 - Math.abs(k-4)*.35, .55, 12, 60), cerebMat); outline(f, .1);
   f.rotation.y = Math.PI/2; f.position.x = (k - 4)*1.05; f.scale.set(1, .8, 1.15); cereb.add(f); }
 label('cerebellum (the roof)', V(0, 9.5, -8));
-for (let k = 0; k < 7; k++) blob(V((k%2 ? 1 : -1)*(.8 + (k%3)*.5), 1.2 + k*.95, 1.5 + (k%2)*.3), [.32,.32,.32], glowMat(0xfff0d8, 0x6a4a20, .9));   // cranial nerve nuclei
+const nucMat = toon(0xfff1a8);
+for (let k = 0; k < 7; k++) blob(V((k%2 ? 1 : -1)*(.8 + (k%3)*.5), 1.2 + k*.95, 1.5 + (k%2)*.3), [.32,.32,.32], nucMat, .2);   // cranial nerve nuclei
 label('cranial nerve nuclei', V(1.8, 3, 2.2));
 // colliculi behind the aqueduct
-[[-1.3,10.2],[1.3,10.2],[-1.3,12.6],[1.3,12.6]].forEach(([x,y]) => blob(V(x, y, -2.9), [.9,.85,.85], glowMat(0x9fd8c8, 0x14382e, .6)));
+const colMat = toon(0x8fe0c4);
+[[-1.3,10.2],[1.3,10.2],[-1.3,12.6],[1.3,12.6]].forEach(([x,y]) => blob(V(x, y, -2.9), [.9,.85,.85], colMat, .1));
 label('superior colliculi · vision', V(0, 13.6, -4.4));
 label('inferior colliculi · hearing', V(0, 9.4, -4.4));
 // thalami, hypothalamus, pituitary
-[-1, 1].forEach(s => blob(V(s*3.7, 17.4, 4.6), [2.4, 2.2, 3.4], glowMat(0xa48ae0, 0x24164a, .6)));
+const thalMat = toon(0xb9a3ff);
+[-1, 1].forEach(s => blob(V(s*3.7, 17.4, 4.6), [2.4, 2.2, 3.4], thalMat, .03));
 label('left thalamus', V(-4.4, 19.8, 5)); label('right thalamus', V(4.4, 19.8, 5));
-blob(V(0, 14.2, 7.6), [1.9, 1.3, 2.0], glowMat(0xf28aa0, 0x4a1020, .65)); label('hypothalamus', V(0, 13.6, 9.2));
-blob(V(0, 11.4, 8.8), [.9,.8,.9], glowMat(0xf6c0a0, 0x4a2410, .7)); label('pituitary', V(0, 10.6, 9.6));
+blob(V(0, 14.2, 7.6), [1.9, 1.3, 2.0], toon(0xff8fa8), .07); label('hypothalamus', V(0, 13.6, 9.2));
+blob(V(0, 11.4, 8.8), [.9,.8,.9], toon(0xffc9a0), .12); label('pituitary', V(0, 10.6, 9.6));
 // caudate nucleus along the lateral ventricle's outer wall, corpus callosum arching over the top
 const caudCurve = new THREE.CatmullRomCurve3([V(8.4,20.6,9.4), V(9,23.4,5.5), V(9,24.4,.5), V(8.6,23.4,-4.5), V(7.8,21,-8)]);
-const caud = new THREE.Mesh(new THREE.TubeGeometry(caudCurve, 80, 1, 18, false), glowMat(0x7fc7b4, 0x123c32, .65));
+const caud = new THREE.Mesh(new THREE.TubeGeometry(caudCurve, 80, 1, 18, false), toon(0x8fe0c4));
 { const p = caud.geometry.attributes.position; for (let i = 0; i <= 80; i++){ const c = caudCurve.getPointAt(i/80), r = 2.2 - 1.6*i/80; for (let j = 0; j <= 18; j++){ const k = i*19 + j; const v = V(p.getX(k), p.getY(k), p.getZ(k)).sub(c).multiplyScalar(r).add(c); p.setXYZ(k, v.x, v.y, v.z); } } caud.geometry.computeVertexNormals(); }
-scene.add(caud); label('caudate nucleus', V(10.6, 25, 4));
+outline(caud, .12); scene.add(caud); label('caudate nucleus', V(10.6, 25, 4));
 const ccCurve = new THREE.CatmullRomCurve3([V(0,25.5,11.5), V(0,29.4,8), V(0,30.9,1), V(0,30.2,-6), V(0,27.6,-10.5)]);
-const cc = new THREE.Mesh(new THREE.TubeGeometry(ccCurve, 90, 1.3, 16, false), glowMat(0xfff4e0, 0x5a4a30, .55)); cc.scale.x = 6; scene.add(cc);
+const cc = new THREE.Mesh(new THREE.TubeGeometry(ccCurve, 90, 1.3, 16, false), toon(0xfff7ea)); outline(cc, .12); cc.scale.x = 6; scene.add(cc);
 label('corpus callosum (the roof)', V(4, 31.6, 1));
-// choroid plexus: red frilly tufts inside the ventricles
-const chor = glowMat(0xd8364a, 0x5a0814, .95);
-// each tuft: a short stalk of tiny bumps hugging the wall (roof of the 3rd & 4th ventricles, floor of the lateral ventricle)
+// choroid plexus: frilly pink tufts inside the ventricles, like little bunches of grapes
+const chor = toon(0xff6f8e);
 [[stopU[3]-.004, -1], [stopU[3]+.006, -1], [stopU[5]+.012, 1], [stopU[5]+.024, 1], [stopU[7]-.01, -1], [stopU[7]+.02, -1], [stopU[7]+.05, -1], [stopU[7]+.08, -1]].forEach(([uu, side], n) => {
   const c = curve.getPointAt(Math.min(.9995, uu)), r = radiusAt(uu);
   const base = V(c.x + (n%2 ? .5 : -.5)*r*.4, c.y + side*r*.86, c.z);
-  for (let k = 0; k < 70; k++){
-    const t = k/70, a = k*2.4;
+  for (let k = 0; k < 26; k++){
+    const t = k/26, a = k*2.4, sc = .1 + Math.random()*.08;
     blob(V(base.x + Math.cos(a)*.35*(1 - t) + (Math.random()-.5)*.25, base.y - side*t*.55 + (Math.random()-.5)*.12, base.z + Math.sin(a)*.35*(1 - t) + (t - .5)*1.6),
-      [1,1,1].map(() => .06 + Math.random()*.07), chor);
+      [sc, sc, sc], chor, .25);
   }
 });
 label('choroid plexus · makes CSF', curve.getPointAt(Math.min(.9995, stopU[7] + .05)).add(V(0, -radiusAt(stopU[7] + .05)*.7, 0)));
 label('choroid plexus', curve.getPointAt(stopU[3]).add(V(0, -radiusAt(stopU[3])*.7, 0)));
 
-// CSF particles drifting (downstream, toward you)
-const NP = 1600, pGeo = new THREE.BufferGeometry(), pPos = new Float32Array(NP*3), pU = new Float32Array(NP), pOff = [];
-for (let i = 0; i < NP; i++){ pU[i] = .001 + Math.random()*.997; pOff.push([Math.random()*6.2832, Math.random()*.85]); }
-pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-const dotTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const r = g.createRadialGradient(32,32,0,32,32,32); r.addColorStop(0,'rgba(255,255,255,1)'); r.addColorStop(.35,'rgba(200,240,255,.6)'); r.addColorStop(1,'rgba(160,220,255,0)'); g.fillStyle = r; g.fillRect(0,0,64,64); return new THREE.CanvasTexture(c); })();
-const parts = new THREE.Points(pGeo, new THREE.PointsMaterial({color:0x9fe3ff, map:dotTex, size:.09, transparent:true, opacity:.75, depthWrite:false, blending:THREE.AdditiveBlending}));
+// CSF: cartoon bubbles drifting downstream, toward you
+const NP = 900, pGeo = new THREE.BufferGeometry(), pPos = new Float32Array(NP*3), pCol = new Float32Array(NP*3), pU = new Float32Array(NP), pOff = [];
+const BUB = [0xc9ecf5, 0xffffff, 0xffe3ec, 0xfff1b8].map(h => new THREE.Color(h));
+for (let i = 0; i < NP; i++){ pU[i] = .001 + Math.random()*.997; pOff.push([Math.random()*6.2832, Math.random()*.85]); const c = BUB[i%4]; pCol[3*i] = c.r; pCol[3*i+1] = c.g; pCol[3*i+2] = c.b; }
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3)); pGeo.setAttribute('color', new THREE.BufferAttribute(pCol, 3));
+const bubTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+  g.fillStyle = '#ffffff'; g.beginPath(); g.arc(32,32,26,0,6.2832); g.fill(); g.lineWidth = 6; g.strokeStyle = '#2e1d33'; g.stroke();
+  g.fillStyle = '#ffffff'; g.beginPath(); g.ellipse(24,23,7,4.5,-.6,0,6.2832); g.fill(); g.strokeStyle = '#2e1d3355'; g.lineWidth = 2.5; g.stroke();
+  return new THREE.CanvasTexture(c); })();
+const parts = new THREE.Points(pGeo, new THREE.PointsMaterial({map:bubTex, vertexColors:true, size:.1, transparent:true, alphaTest:.5}));
 scene.add(parts);
 const frames = curve.computeFrenetFrames(SEG, false);
 
@@ -306,13 +345,13 @@ const frames = curve.computeFrenetFrames(SEG, false);
 const mapSvg = document.getElementById('map'), NSV = 'http://www.w3.org/2000/svg';
 const mx = z => 80 + z*4.1, my = y => 70 - y*1.95 + 30;
 const sv = (tag, a) => { const e = document.createElementNS(NSV, tag); for (const k in a) e.setAttribute(k, a[k]); mapSvg.appendChild(e); return e; };
-sv('path', {d:`M${mx(-13)},${my(14)} C ${mx(-14)},${my(30)} ${mx(-4)},${my(36)} ${mx(4)},${my(35)} C ${mx(12)},${my(34)} ${mx(16)},${my(24)} ${mx(14)},${my(15)} C ${mx(13)},${my(10)} ${mx(8)},${my(9)} ${mx(5)},${my(10)} L ${mx(2.6)},${my(-2)} L ${mx(-2.6)},${my(-2)} L ${mx(-4)},${my(2)} C ${mx(-12)},${my(1)} ${mx(-14)},${my(8)} ${mx(-13)},${my(14)} Z`, fill:'#ffffff12', stroke:'#ffffff55', 'stroke-width':1});
-sv('rect', {x:mx(-1.6), y:my(-2), width:mx(1.6)-mx(-1.6), height:my(-60)-my(-2), rx:3, fill:'#ffffff12', stroke:'#ffffff55', 'stroke-width':1});
-sv('text', {x:mx(-12), y:my(-50), 'font-size':9, fill:'#cdb9bf', 'font-family':'Geist Mono, monospace'}).textContent = 'spinal cord';
-sv('text', {x:mx(5), y:my(-4), 'font-size':9, fill:'#cdb9bf', 'font-family':'Geist Mono, monospace'}).textContent = 'face →';
+sv('path', {d:`M${mx(-13)},${my(14)} C ${mx(-14)},${my(30)} ${mx(-4)},${my(36)} ${mx(4)},${my(35)} C ${mx(12)},${my(34)} ${mx(16)},${my(24)} ${mx(14)},${my(15)} C ${mx(13)},${my(10)} ${mx(8)},${my(9)} ${mx(5)},${my(10)} L ${mx(2.6)},${my(-2)} L ${mx(-2.6)},${my(-2)} L ${mx(-4)},${my(2)} C ${mx(-12)},${my(1)} ${mx(-14)},${my(8)} ${mx(-13)},${my(14)} Z`, fill:'#ffe4cf', stroke:'#2e1d33', 'stroke-width':2});
+sv('rect', {x:mx(-1.6), y:my(-2), width:mx(1.6)-mx(-1.6), height:my(-60)-my(-2), rx:4, fill:'#ffe4cf', stroke:'#2e1d33', 'stroke-width':2});
+sv('text', {x:mx(-12), y:my(-50), 'font-size':12, fill:'#6e5870', 'font-family':'Patrick Hand, sans-serif'}).textContent = 'spinal cord';
+sv('text', {x:mx(5), y:my(-4), 'font-size':12, fill:'#6e5870', 'font-family':'Patrick Hand, sans-serif'}).textContent = 'face →';
 let dRoute = ''; for (let i = 0; i <= 200; i++){ const p = curve.getPointAt(Math.min(.9995, i/200)); if (p.y < -58) continue; dRoute += (dRoute ? 'L' : 'M') + mx(p.z).toFixed(1) + ',' + my(p.y).toFixed(1); }
-sv('path', {d:dRoute, fill:'none', stroke:'#9fe3ff', 'stroke-width':2, 'stroke-linecap':'round', opacity:.8});
-const dot = sv('circle', {r:4.5, fill:'#ffd3a8', stroke:'#12070c', 'stroke-width':1.5});
+sv('path', {d:dRoute, fill:'none', stroke:'#5ec8e8', 'stroke-width':3.5, 'stroke-linecap':'round', 'stroke-dasharray':'1 6'});
+const dot = sv('circle', {r:6, fill:'#ff8f7a', stroke:'#2e1d33', 'stroke-width':2.5});
 
 /* ---------- stops UI ---------- */
 const stopsBox = document.getElementById('stops');
@@ -346,7 +385,7 @@ addEventListener('resize', resize); resize();
 const tmp = V(0,0,0), tmp2 = V(0,0,0);
 let last = performance.now();
 function frame(now){
-  const dt = Math.min(.05, (now - last)/1000); last = now;
+  const dt = Math.max(0, Math.min(.05, (now - last)/1000)); last = now;
   if (auto){ const speed = .012 * (RM ? .6 : 1) * (radiusAt(u) < 1.2 ? 1.3 : .8); scrollTo(0, Math.min(maxScroll(), scrollY + speed*dt*maxScroll()/U_END)); if (scrollY >= maxScroll() - 2) autopilot(false); }
   u += (target - u)*(1 - Math.pow(.02, dt));
   const pu = Math.max(0, Math.min(U_END, u));
@@ -362,7 +401,7 @@ function frame(now){
   head.position.copy(camera.position); glow.position.copy(ahead);
   // particles
   for (let i = 0; i < NP; i++){
-    pU[i] -= dt*(.006 + (i%7)*.0008); if (pU[i] < .0005) pU[i] += .998;
+    pU[i] -= dt*(.006 + (i%7)*.0008); if (pU[i] < .0005) pU[i] += .998; if (pU[i] > .9995) pU[i] = .9995;
     const uu = pU[i], c = curve.getPointAt(uu), k = Math.min(SEG, Math.round(uu*SEG)), r = radiusAt(uu)*pOff[i][1], a = pOff[i][0] + t*.2;
     tmp.copy(c).addScaledVector(frames.normals[k], Math.cos(a)*r).addScaledVector(frames.binormals[k], Math.sin(a)*r);
     pPos[3*i] = tmp.x; pPos[3*i+1] = tmp.y; pPos[3*i+2] = tmp.z;
