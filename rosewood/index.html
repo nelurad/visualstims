@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rosewood · VisualStims</title>
+<meta name="description" content="A xylophone you can actually play: hit harder for louder, hold to roll, drag for a glissando, use as many fingers as you like. Switch to marimba, change mallets.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&family=Fraunces:ital,opsz,wght,SOFT,WONK@1,9..144,100..900,0..100,0..1&family=Homemade+Apple&display=swap">
+<style>
+  /* Layout: full-bleed warm studio wall; the instrument fills the middle. Title top-left, how-to top-right,
+     one soft toolbar bottom-centre. Same family as Lump. */
+  :root{
+    --wall:#ece3d6;
+    --wall2:#cdbfae;
+    --ink:#3a2f29;
+    --soft:#6d5f55;
+    --chip:#fbf7f1;
+    --line:#3a2f2926;
+    --hot:#c8643c;
+    --grot:"Bricolage Grotesque","Helvetica Neue",Arial,system-ui,sans-serif;
+    --mono:"Geist Mono",ui-monospace,Menlo,monospace;
+    color-scheme:light;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;color:var(--ink);background:radial-gradient(120% 90% at 50% 45%,var(--wall) 0%,#e0d5c7 55%,var(--wall2) 100%)}
+  body{font-family:var(--grot);-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+  #c{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;display:block;touch-action:none}
+  @media (pointer:fine){ #c{cursor:none} }
+
+  header{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:5;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding:20px max(24px,env(safe-area-inset-right,0px)) 0 max(24px,env(safe-area-inset-left,0px));pointer-events:none}
+  header a{pointer-events:auto;font-size:13px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--ink)}
+  .title h1{margin:10px 0 0;font-weight:400;line-height:1}
+  .title .script{display:block;font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:300;font-variation-settings:"opsz" 144,"SOFT" 100,"WONK" 1;font-size:clamp(40px,4.4vw,68px);letter-spacing:.01em}
+  .title .sub{display:block;font-family:"Homemade Apple","Snell Roundhand",cursive;font-size:clamp(12px,1vw,15px);color:var(--soft);margin-top:6px;transform:rotate(-2deg);transform-origin:left}
+  .how{margin:0;padding:0;list-style:none;font-family:var(--mono);font-size:11.5px;line-height:1.75;color:var(--soft);text-align:right}
+  .how b{font-weight:500;color:var(--ink)}
+
+  .bar{position:fixed;left:0;right:0;margin:0 auto;width:fit-content;bottom:max(18px,env(safe-area-inset-bottom,0px));z-index:6;display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 24px);background:#fbf7f1e0;border:1px solid var(--line);border-radius:999px;padding:6px 10px;box-shadow:0 10px 30px -18px #3a2f2980;backdrop-filter:blur(10px)}
+  .bar button{font:500 12.5px/1 var(--grot);color:var(--ink);background:transparent;border:1px solid transparent;border-radius:999px;padding:8px 11px;cursor:pointer;white-space:nowrap}
+  .bar button:hover{background:#3a2f290f}
+  .bar button:disabled{opacity:.35;cursor:default}
+  .bar button[aria-pressed="true"]{background:var(--ink);color:var(--chip)}
+  .bar button:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .sep{width:1px;height:22px;background:var(--line);margin:0 3px}
+  .grp{display:flex;gap:2px;align-items:center}
+  .grp .k{font:11px var(--mono);color:var(--soft);padding:0 4px 0 2px}
+
+  #song{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(max(18px,env(safe-area-inset-bottom,0px)) + 58px);z-index:6;font:500 13px var(--grot);background:var(--ink);color:var(--chip);padding:7px 14px;border-radius:999px;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+  #song.on{opacity:1}
+  #start{position:fixed;inset:0;z-index:4;display:grid;place-items:center;pointer-events:none}
+  #start span{font:500 13px var(--mono);color:var(--soft);background:#fbf7f1cc;padding:8px 14px;border-radius:999px;transition:opacity .6s}
+
+  body.thumb header,body.thumb .bar,body.thumb #song,body.thumb #start{display:none}
+  @media (max-width:860px){
+    .how{display:none}
+    .title h1{margin-top:6px}
+    .title .script{font-size:34px}
+    .title .sub{font-size:11px}
+    .bar{bottom:10px;border-radius:20px;gap:2px;padding:5px}
+    .bar button{padding:7px 8px;font-size:12px}
+    .sep{display:none}
+    .grp .k{display:none}
+    #song{bottom:calc(max(10px,env(safe-area-inset-bottom,0px)) + 92px)}
+  }
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="A xylophone. Click or tap the wooden bars to play them. Hold on a bar to roll, drag across bars for a glissando. Computer keys Z to slash and Q to P play the bars too."></canvas>
+
+<header>
+  <div>
+    <a href="../">&larr; VisualStims</a>
+    <div class="title"><h1><span class="script">Rosewood</span><span class="sub">a xylophone, for your hands</span></h1></div>
+  </div>
+  <ul class="how">
+    <li><b>tap</b> a bar · <b>faster</b> = louder</li>
+    <li><b>hold</b> on a bar to roll</li>
+    <li><b>drag</b> across for a glissando</li>
+    <li>middle rings · near the cord goes dead</li>
+    <li>keys <b>Z X C V…</b> and <b>Q W E R…</b> · <b>shift</b> = accent</li>
+  </ul>
+</header>
+
+<div id="start" aria-hidden="true"><span>tap a bar · sound on</span></div>
+<div id="song" aria-live="polite"></div>
+
+<nav class="bar" aria-label="Instrument controls">
+  <div class="grp" role="group" aria-label="Instrument">
+    <button id="iXylo" aria-pressed="true">xylophone</button>
+    <button id="iMar" aria-pressed="false">marimba</button>
+  </div>
+  <span class="sep"></span>
+  <div class="grp" role="group" aria-label="Mallets"><span class="k">mallets</span>
+    <button data-mal="hard" aria-pressed="true">hard</button>
+    <button data-mal="rubber" aria-pressed="false">rubber</button>
+    <button data-mal="yarn" aria-pressed="false">yarn</button>
+  </div>
+  <span class="sep"></span>
+  <button id="down" title="Octave down" aria-label="Octave down">&larr; oct</button>
+  <button id="up" title="Octave up" aria-label="Octave up">oct &rarr;</button>
+  <span class="sep"></span>
+  <button id="lbl" aria-pressed="false">names</button>
+  <button id="learn" aria-pressed="false" title="Lights up the next bar to hit">learn a tune</button>
+  <button id="room" aria-pressed="true" title="Room echo">room</button>
+</nav>
+
+<script>
+(function(){
+'use strict';
+const THUMB = new URLSearchParams(location.search).has('thumb');
+if (THUMB) document.body.classList.add('thumb');
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const FINE = matchMedia('(pointer: fine)').matches;
+const $ = s => document.querySelector(s);
+const cv = $('#c'), g = cv.getContext('2d');
+
+const NAMES = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+const mod12 = n => ((n % 12) + 12) % 12;
+const isNat = m => [0, 2, 4, 5, 7, 9, 11].includes(mod12(m));
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+
+/* ---------------- instruments & mallets ----------------
+   A struck bar rings at several frequencies at once (its modes). Real xylophone bars are carved so the
+   2nd mode sits at 3x the fundamental; marimba bars at 4x. Where you hit the bar decides how much of each
+   mode you excite: mode 1 has its still points (nodes) where the cord runs, mode 2 has one in the middle. */
+const INST = {
+  xylo:   { ratios: [1, 3, 6.27, 10.2], amps: [1, .5, .2, .09], tau: .5,  ref: 523, tauExp: .55, res: .42, base: 72, lo: 60, hi: 84,
+            wood: ['#a34a26', '#c66a3a', '#7d3216'] },
+  marimba:{ ratios: [1, 3.99, 10.1, 18.6], amps: [1, .3, .07, .025], tau: 1.25, ref: 262, tauExp: .45, res: .6, base: 48, lo: 36, hi: 60,
+            wood: ['#6e2a18', '#8f3c22', '#4f1c0f'] }
+};
+const MALLETS = {
+  hard:   { bright: 1,   attack: .0007, click: .55, clickF: 7, clickTau: .004, head: '#f4efe6', stick: '#c9a978' },
+  rubber: { bright: .72, attack: .0018, click: .22, clickF: 4, clickTau: .007, head: '#9e3b2e', stick: '#c9a978' },
+  yarn:   { bright: .42, attack: .006,  click: .07, clickF: 2, clickTau: .012, head: '#3f5d8a', stick: '#c9a978' }
+};
+let instKey = 'xylo', malKey = 'hard', labels = false, roomOn = true;
+let base = INST.xylo.base;
+
+/* ---------------- audio ---------------- */
+let ctx = null, dry, wet, revIn, noiseBuf;
+const voices = [];
+function ac(){
+  if (!ctx){
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -10; comp.knee.value = 8; comp.ratio.value = 6; comp.attack.value = .002; comp.release.value = .15;
+    const master = ctx.createGain(); master.gain.value = .9;
+    dry = ctx.createGain(); dry.gain.value = 1;
+    revIn = ctx.createGain(); revIn.gain.value = 1;
+    const conv = ctx.createConvolver(); conv.buffer = impulse(2.2);
+    wet = ctx.createGain(); wet.gain.value = roomOn ? .3 : 0;
+    dry.connect(master); revIn.connect(conv); conv.connect(wet); wet.connect(master);
+    master.connect(comp); comp.connect(ctx.destination);
+    noiseBuf = ctx.createBuffer(1, ctx.sampleRate * .08, ctx.sampleRate);
+    const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  if (ctx.state === 'suspended') ctx.resume();
+  const st = $('#start span'); if (st) st.style.opacity = 0;
+  return ctx;
+}
+function impulse(sec){            // a small wooden room: early reflections + smooth tail
+  const sr = ctx.sampleRate, n = Math.floor(sr * sec), b = ctx.createBuffer(2, n, sr);
+  for (let ch = 0; ch < 2; ch++){
+    const d = b.getChannelData(ch);
+    for (let i = 0; i < n; i++){ const t = i / sr; d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2.2) * Math.exp(-t * 2.4); }
+    for (let k = 0; k < 7; k++){ const i = Math.floor(sr * (.008 + Math.random() * .05)); d[i] += (Math.random() - .5) * 1.2; }
+  }
+  return b;
+}
+function strike(bar, vel, u){
+  const c = ac(), t = c.currentTime + .002;
+  const I = INST[instKey], M = MALLETS[malKey], f = bar.f;
+  const uu = clamp(u, .02, .98) - .5;
+  // approximate free-bar mode shapes: how much each mode moves at the spot you hit
+  const shape = [
+    Math.abs(Math.cos(Math.PI * uu / .552)),
+    Math.abs(Math.sin(2 * Math.PI * uu / .736)),
+    Math.abs(Math.cos(Math.PI * uu / .2884)),
+    .55
+  ];
+  const out = c.createGain(); out.gain.value = 1;
+  const pan = c.createStereoPanner ? c.createStereoPanner() : null;
+  if (pan){ pan.pan.value = clamp((bar.cx / W - .5) * .7, -.6, .6); out.connect(pan); pan.connect(dry); pan.connect(revIn); }
+  else { out.connect(dry); out.connect(revIn); }
+  const amp = Math.pow(vel, 1.35) * .3 * Math.pow(I.ref / f, .12);
+  const bright = M.bright * (.5 + .5 * vel);
+  const tau1 = I.tau * Math.pow(I.ref / f, I.tauExp);
+  let end = 0;
+  const nodes = [];
+  I.ratios.forEach((r, i) => {
+    const fr = f * r; if (fr > 16000) return;
+    let a = I.amps[i] * (.1 + .9 * shape[i]) * Math.pow(bright, i * 1.15) * (.92 + Math.random() * .16);
+    if (i === 0) a = I.amps[0] * (.25 + .75 * shape[0]);
+    const tau = tau1 / Math.pow(1 + i * 1.6, 1.05);
+    const o = c.createOscillator(), gg = c.createGain();
+    o.frequency.value = fr;
+    gg.gain.setValueAtTime(0, t); gg.gain.linearRampToValueAtTime(a * amp, t + M.attack);
+    gg.gain.setTargetAtTime(0, t + M.attack, tau);
+    o.connect(gg); gg.connect(out); o.start(t); o.stop(t + tau * 7);
+    end = Math.max(end, tau * 7); nodes.push(o);
+  });
+  // the resonator tube under the bar picks up the fundamental and lets it bloom a little longer
+  {
+    const o = c.createOscillator(), gg = c.createGain(), tau = tau1 * 1.9;
+    o.frequency.value = f;
+    gg.gain.setValueAtTime(0, t); gg.gain.linearRampToValueAtTime(I.res * amp * (.3 + .7 * shape[0]), t + .025);
+    gg.gain.setTargetAtTime(0, t + .03, tau);
+    o.connect(gg); gg.connect(out); o.start(t); o.stop(t + tau * 7);
+    end = Math.max(end, tau * 7); nodes.push(o);
+  }
+  // the mallet's knock
+  {
+    const s = c.createBufferSource(), bp = c.createBiquadFilter(), gg = c.createGain();
+    s.buffer = noiseBuf; bp.type = 'bandpass'; bp.frequency.value = Math.min(9000, f * M.clickF); bp.Q.value = .9;
+    gg.gain.setValueAtTime(M.click * amp * (.6 + .6 * vel), t); gg.gain.setTargetAtTime(0, t, M.clickTau);
+    s.connect(bp); bp.connect(gg); gg.connect(out); s.start(t); s.stop(t + .08); nodes.push(s);
+  }
+  voices.push({ nodes, until: t + end });
+  const now = c.currentTime;
+  for (let i = voices.length - 1; i >= 0; i--) if (voices[i].until < now) voices.splice(i, 1);
+  while (voices.length > 70){ const v = voices.shift(); v.nodes.forEach(n => { try { n.stop(); } catch (e) {} }); }
+  // visuals
+  bar.hitT = performance.now() / 1000; bar.hitV = vel; bar.hitU = u;
+  sparks.push({ x: bar.cx, y: bar.top + u * bar.len, t: bar.hitT, v: vel });
+  songHit(bar);
+}
+
+/* ---------------- layout ---------------- */
+let W = 0, H = 0, DPR = 1, bars = [], nat = [], shp = [], rails = [];
+let woodTex = null;
+function makeWoodTex(){
+  const c = document.createElement('canvas'); c.width = 256; c.height = 1024;
+  const x = c.getContext('2d');
+  x.fillStyle = '#808080'; x.fillRect(0, 0, 256, 1024);
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 150; i++){
+    const x0 = rnd() * 256, wob = 2 + rnd() * 9, ph = rnd() * 6, fr = .002 + rnd() * .006;
+    x.strokeStyle = rnd() < .5 ? `rgba(0,0,0,${.05 + rnd() * .16})` : `rgba(255,255,255,${.04 + rnd() * .09})`;
+    x.lineWidth = .5 + rnd() * 2.2;
+    x.beginPath();
+    for (let y = 0; y <= 1024; y += 8){ const xx = x0 + Math.sin(y * fr + ph) * wob + Math.sin(y * fr * 3.1 + ph) * wob * .3; y ? x.lineTo(xx, y) : x.moveTo(xx, y); }
+    x.stroke();
+  }
+  for (let i = 0; i < 6; i++){ // a few knots
+    const kx = rnd() * 256, ky = rnd() * 1024, r = 4 + rnd() * 8;
+    const gr = x.createRadialGradient(kx, ky, 0, kx, ky, r * 3); gr.addColorStop(0, 'rgba(0,0,0,.25)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    x.fillStyle = gr; x.beginPath(); x.ellipse(kx, ky, r * 1.4, r * 3, 0, 0, 7); x.fill();
+  }
+  return c;
+}
+function layout(){
+  DPR = Math.min(2, devicePixelRatio || 1);
+  W = innerWidth; H = innerHeight;
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+  const narrow = W < 860;
+  const top0 = narrow ? 112 : 128, bottom0 = H - (narrow ? 112 : 86);
+  const margin = narrow ? 10 : Math.max(40, W * .05);
+  const target = narrow ? 42 : 56;
+  let N = clamp(Math.floor((W - 2 * margin) / target), 8, 22);
+  // range: N naturals starting at `base`, clamped to the instrument's range
+  const I = INST[instKey];
+  base = clamp(base, I.lo, I.hi);
+  const ms = []; let m = base;
+  while (ms.length < N){ if (isNat(m)) ms.push(m); m++; }
+  const barW = Math.min(76, (W - 2 * margin) / N), gap = barW * .13, bw = barW - gap;
+  const left = (W - barW * N) / 2;
+  const f0 = mtof(ms[0]);
+  const avail = bottom0 - top0, rowGap = Math.max(10, barW * .22);
+  const Lmax = Math.min(barW * 7.2, (avail - rowGap) / 1.96, 470);
+  const yc = bottom0 - Lmax / 2;
+  bars = []; nat = []; shp = [];
+  ms.forEach((mm, i) => {
+    const f = mtof(mm), len = Lmax * Math.sqrt(f0 / f);
+    const b = { m: mm, f, x: left + i * barW + gap / 2, w: bw, len, top: yc - len / 2, sharp: false };
+    b.cx = b.x + bw / 2; nat.push(b); bars.push(b);
+  });
+  for (let i = 0; i < nat.length - 1; i++){
+    const mm = nat[i].m + 1; if (isNat(mm)) continue;
+    const f = mtof(mm), len = Lmax * Math.sqrt(f0 / f);
+    const bot = Math.min(nat[i].top, nat[i + 1].top) - rowGap;
+    const sw = bw * .94;
+    const b = { m: mm, f, x: left + (i + 1) * barW - sw / 2, w: sw, len, top: bot - len, sharp: true };
+    b.cx = b.x + sw / 2; shp.push(b); bars.push(b);
+  }
+  bars.forEach(b => { b.hitT = -9; b.hitV = 0; b.hitU = .5; b.key = keyLabel(b.m); });
+  // rails + cords run under the node points (22.4% in from each end)
+  rails = [];
+  for (const row of [nat, shp]) if (row.length){
+    for (const fr of [.224, .776]){
+      const pts = row.map(b => [b.cx, b.top + fr * b.len]);
+      const a = pts[0], z = pts[pts.length - 1], wext = barW * .45;
+      const slope0 = pts.length > 1 ? (pts[1][1] - a[1]) / (pts[1][0] - a[0]) : 0;
+      const slope1 = pts.length > 1 ? (z[1] - pts[pts.length - 2][1]) / (z[0] - pts[pts.length - 2][0]) : 0;
+      rails.push([[a[0] - wext, a[1] - slope0 * wext], ...pts, [z[0] + wext, z[1] + slope1 * wext]]);
+    }
+  }
+  renderSprites();
+  $('#down').disabled = base <= I.lo; $('#up').disabled = base >= I.hi;
+  if (song) songShow();
+}
+function renderSprites(){
+  if (!woodTex) woodTex = makeWoodTex();
+  const I = INST[instKey];
+  bars.forEach((b, k) => {
+    const pad = 14, w = b.w, h = b.len;
+    const s = document.createElement('canvas'); s.width = Math.ceil((w + pad * 2) * DPR); s.height = Math.ceil((h + pad * 2) * DPR);
+    const x = s.getContext('2d'); x.scale(DPR, DPR); x.translate(pad, pad);
+    const r = Math.min(7, w * .18);
+    const path = () => { x.beginPath(); x.roundRect ? x.roundRect(0, 0, w, h, r) : x.rect(0, 0, w, h); };
+    // shadow
+    x.save(); x.shadowColor = 'rgba(40,20,10,.45)'; x.shadowBlur = 10; x.shadowOffsetY = 5; path(); x.fillStyle = I.wood[2]; x.fill(); x.restore();
+    // body: lighter down the middle, like a rounded top
+    const gr = x.createLinearGradient(0, 0, w, 0);
+    const tint = (k * 37) % 9 / 9 * .14 - .07;
+    gr.addColorStop(0, I.wood[2]); gr.addColorStop(.18, I.wood[0]); gr.addColorStop(.5, I.wood[1]); gr.addColorStop(.82, I.wood[0]); gr.addColorStop(1, I.wood[2]);
+    path(); x.fillStyle = gr; x.fill();
+    x.save(); path(); x.clip();
+    x.globalCompositeOperation = 'overlay'; x.globalAlpha = .75;
+    const off = (k * 131) % (1024 - Math.min(1024, h)); x.drawImage(woodTex, (k * 53) % 128, off, Math.min(256, w * 3), Math.min(1024, h), 0, 0, w, h);
+    x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+    x.fillStyle = tint > 0 ? `rgba(255,220,180,${tint})` : `rgba(30,10,0,${-tint})`; x.fillRect(0, 0, w, h);
+    // the underside arch (tuning cut) shows as a faint darker band in the middle
+    const arch = x.createLinearGradient(0, 0, 0, h);
+    arch.addColorStop(.3, 'rgba(0,0,0,0)'); arch.addColorStop(.5, 'rgba(30,8,0,.10)'); arch.addColorStop(.7, 'rgba(0,0,0,0)');
+    x.fillStyle = arch; x.fillRect(0, 0, w, h);
+    // top-end highlight
+    const hl = x.createLinearGradient(0, 0, 0, 18); hl.addColorStop(0, 'rgba(255,235,210,.35)'); hl.addColorStop(1, 'rgba(255,235,210,0)');
+    x.fillStyle = hl; x.fillRect(0, 0, w, 18);
+    x.restore();
+    x.strokeStyle = 'rgba(30,10,0,.35)'; x.lineWidth = 1; path(); x.stroke();
+    // cord holes / pins at the nodes
+    for (const fr of [.224, .776]){
+      x.fillStyle = 'rgba(20,8,2,.7)'; x.beginPath(); x.arc(w / 2, fr * h, Math.max(2, w * .07), 0, 7); x.fill();
+      x.fillStyle = 'rgba(255,240,220,.25)'; x.beginPath(); x.arc(w / 2 - .6, fr * h - .6, Math.max(1, w * .03), 0, 7); x.fill();
+    }
+    if (labels){
+      x.font = `600 ${Math.max(10, Math.min(15, w * .3))}px "Bricolage Grotesque", sans-serif`; x.textAlign = 'center';
+      x.fillStyle = 'rgba(255,240,222,.85)'; x.fillText(NAMES[mod12(b.m)], w / 2, h - 12);
+      if (FINE && b.key){ x.font = `${Math.max(9, Math.min(11, w * .22))}px "Geist Mono", monospace`; x.fillStyle = 'rgba(255,240,222,.5)'; x.fillText(b.key, w / 2, h - 28); }
+    }
+    b.sprite = s; b.pad = pad;
+  });
+}
+
+/* ---------------- computer keyboard ----------------
+   bottom row Z X C V … plays the first octave of naturals, A-row the sharps between them;
+   Q W E R … plays the next octave, number row its sharps (like a tracker keyboard). */
+const LOWN = ['KeyZ', 'KeyX', 'KeyC', 'KeyV', 'KeyB', 'KeyN', 'KeyM', 'Comma', 'Period', 'Slash'];
+const LOWS = { KeyS: 1, KeyD: 3, KeyG: 6, KeyH: 8, KeyJ: 10, KeyL: 13, Semicolon: 15 };
+const UPN = ['KeyQ', 'KeyW', 'KeyE', 'KeyR', 'KeyT', 'KeyY', 'KeyU', 'KeyI', 'KeyO', 'KeyP', 'BracketLeft', 'BracketRight'];
+const UPS = { Digit2: 1, Digit3: 3, Digit5: 6, Digit6: 8, Digit7: 10, Digit9: 13, Digit0: 15, Equal: 18 };
+const NAT_OFF = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19];
+const KEYCH = { KeyZ: 'Z', KeyX: 'X', KeyC: 'C', KeyV: 'V', KeyB: 'B', KeyN: 'N', KeyM: 'M', Comma: ',', Period: '.', Slash: '/', KeyS: 'S', KeyD: 'D', KeyG: 'G', KeyH: 'H', KeyJ: 'J', KeyL: 'L', Semicolon: ';',
+  KeyQ: 'Q', KeyW: 'W', KeyE: 'E', KeyR: 'R', KeyT: 'T', KeyY: 'Y', KeyU: 'U', KeyI: 'I', KeyO: 'O', KeyP: 'P', BracketLeft: '[', BracketRight: ']', Digit2: '2', Digit3: '3', Digit5: '5', Digit6: '6', Digit7: '7', Digit9: '9', Digit0: '0', Equal: '=' };
+function codeToMidi(code){
+  const c0 = base - mod12(base);   // keys are anchored to the C at or below the left end
+  let i = LOWN.indexOf(code); if (i >= 0) return c0 + NAT_OFF[i];
+  if (code in LOWS) return c0 + LOWS[code];
+  i = UPN.indexOf(code); if (i >= 0) return c0 + 12 + NAT_OFF[i];
+  if (code in UPS) return c0 + 12 + UPS[code];
+  return null;
+}
+function keyLabel(m){ for (const code in KEYCH) if (codeToMidi(code) === m) return KEYCH[code]; return ''; }
+const barOf = m => bars.find(b => b.m === m);
+const keysDown = new Map();
+addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const m = codeToMidi(e.code); if (m == null) return;
+  e.preventDefault();
+  if (e.repeat || keysDown.has(e.code)) return;
+  const b = barOf(m); if (!b) return;
+  const vel = e.shiftKey ? 1 : .72 + Math.random() * .06;
+  strike(b, vel, .5 + (Math.random() - .5) * .08);
+  const st = { b, vel, roll: setTimeout(() => startRoll(st), 260) };
+  keysDown.set(e.code, st);
+});
+addEventListener('keyup', e => { const st = keysDown.get(e.code); if (st){ stopRoll(st); keysDown.delete(e.code); } });
+addEventListener('blur', () => { keysDown.forEach(stopRoll); keysDown.clear(); ptrs.forEach(stopRoll); });
+
+/* ---------------- rolls: a held note on a xylophone is a fast tremolo ---------------- */
+function startRoll(st){
+  st.rolling = true; let k = 0;
+  const go = () => {
+    if (!st.rolling) return;
+    k++;
+    strike(st.b, clamp(st.vel * (.62 + Math.random() * .22), .2, 1), .5 + (k % 2 ? .07 : -.07) + (Math.random() - .5) * .04);
+    st.roll = setTimeout(go, 1000 / (13 + Math.random() * 3));
+  };
+  go();
+}
+function stopRoll(st){ st.rolling = false; clearTimeout(st.roll); }
+
+/* ---------------- pointers ---------------- */
+const ptrs = new Map();
+const hover = { x: -999, y: -999, hist: [], on: false, downT: -9 };
+function hit(x, y){
+  for (const b of bars) if (x >= b.x - 2 && x <= b.x + b.w + 2 && y >= b.top && y <= b.top + b.len) return { b, u: (y - b.top) / b.len };
+  return null;
+}
+function speedOf(hist){
+  if (hist.length < 2) return 0;
+  const a = hist[0], z = hist[hist.length - 1], dt = Math.max(1, z.t - a.t);
+  return Math.hypot(z.x - a.x, z.y - a.y) / dt;   // px per ms
+}
+function pushHist(hist, x, y){ const t = performance.now(); hist.push({ x, y, t }); while (hist.length && t - hist[0].t > 60) hist.shift(); }
+function velFrom(e, hist){
+  if (e.pointerType === 'mouse') return clamp(.5 + speedOf(hist) * .22, .38, 1);
+  if (e.pointerType === 'pen' && e.pressure > 0 && e.pressure !== .5) return clamp(.3 + e.pressure * .8, .3, 1);
+  const size = Math.max(e.width || 0, e.height || 0);
+  return clamp((size > 1 ? .55 + (size - 20) / 70 : .78) + (Math.random() - .5) * .08, .4, 1);
+}
+cv.addEventListener('pointerdown', e => {
+  e.preventDefault(); ac();
+  try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+  const st = { id: e.pointerId, b: null, vel: .8, hist: ptrs.get(e.pointerId)?.hist || [], roll: 0, rolling: false };
+  if (e.pointerType === 'mouse') st.hist = hover.hist.slice();
+  ptrs.set(e.pointerId, st);
+  const h = hit(e.clientX, e.clientY);
+  if (h){ st.b = h.b; st.vel = velFrom(e, st.hist); strike(h.b, st.vel, h.u); st.roll = setTimeout(() => startRoll(st), 240); }
+  if (e.pointerType === 'mouse') hover.downT = performance.now() / 1000;
+});
+cv.addEventListener('pointermove', e => {
+  if (e.pointerType === 'mouse'){ hover.x = e.clientX; hover.y = e.clientY; hover.on = true; pushHist(hover.hist, e.clientX, e.clientY); }
+  const st = ptrs.get(e.pointerId); if (!st) return;
+  pushHist(st.hist, e.clientX, e.clientY);
+  const h = hit(e.clientX, e.clientY);
+  const nb = h ? h.b : null;
+  if (nb !== st.b){
+    stopRoll(st); st.b = nb;
+    if (nb){
+      st.vel = clamp(.45 + speedOf(st.hist) * .2, .35, .95);   // glissando: speed of the sweep sets the loudness
+      strike(nb, st.vel, h.u); st.roll = setTimeout(() => startRoll(st), 300);
+      if (e.pointerType === 'mouse') hover.downT = performance.now() / 1000;
+    }
+  }
+});
+const up = e => { const st = ptrs.get(e.pointerId); if (st){ stopRoll(st); ptrs.delete(e.pointerId); } };
+cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+cv.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') hover.on = false; });
+cv.addEventListener('contextmenu', e => e.preventDefault());
+
+/* ---------------- learn a tune ---------------- */
+const SONGS = [
+  { name: 'Twinkle Twinkle', n: [0, 0, 7, 7, 9, 9, 7, 5, 5, 4, 4, 2, 2, 0] },
+  { name: 'Ode to Joy', n: [4, 4, 5, 7, 7, 5, 4, 2, 0, 0, 2, 4, 4, 2, 2] },
+  { name: 'Mary Had a Little Lamb', n: [4, 2, 0, 2, 4, 4, 4, 2, 2, 2, 4, 7, 7, 4, 2, 0, 2, 4, 4, 4, 4, 2, 2, 4, 2, 0] },
+  { name: 'Frère Jacques', n: [0, 2, 4, 0, 0, 2, 4, 0, 4, 5, 7, 4, 5, 7] }
+];
+let song = null, songI = 0, songIdx = -1;
+function songRoot(){ const c = nat.find(b => mod12(b.m) === 0); return c ? c.m : nat[0].m; }
+function songShow(){
+  if (!song){ $('#song').classList.remove('on'); return; }
+  $('#song').textContent = songI >= song.n.length ? `${song.name} · you played it! tap "learn a tune" for another` : `${song.name} · ${songI} / ${song.n.length} · hit the glowing bar`;
+  $('#song').classList.add('on');
+}
+function songTarget(){ if (!song || songI >= song.n.length) return null; return barOf(songRoot() + song.n[songI]); }
+function songHit(b){
+  if (!song || songI >= song.n.length) return;
+  const t = songTarget();
+  if (t && b === t){ songI++; songShow(); if (songI >= song.n.length) setTimeout(() => { const r = songRoot(); [0, 4, 7, 12].forEach((s, i) => setTimeout(() => { const bb = barOf(r + s); bb && strike(bb, .7, .5); }, i * 70)); }, 350); }
+}
+$('#learn').addEventListener('click', e => {
+  songIdx++;
+  if (songIdx >= SONGS.length){ songIdx = -1; song = null; }
+  else { song = SONGS[songIdx]; songI = 0; }
+  e.currentTarget.setAttribute('aria-pressed', song ? 'true' : 'false');
+  e.currentTarget.textContent = song ? `tune ${songIdx + 1}/${SONGS.length}` : 'learn a tune';
+  songShow();
+});
+
+/* ---------------- toolbar ---------------- */
+function setInst(k){
+  instKey = k; base = INST[k].base;
+  $('#iXylo').setAttribute('aria-pressed', k === 'xylo'); $('#iMar').setAttribute('aria-pressed', k === 'marimba');
+  if (k === 'marimba' && malKey === 'hard') setMal('yarn');
+  if (k === 'xylo' && malKey === 'yarn') setMal('hard');
+  layout();
+}
+function setMal(k){ malKey = k; document.querySelectorAll('[data-mal]').forEach(b => b.setAttribute('aria-pressed', b.dataset.mal === k)); }
+$('#iXylo').addEventListener('click', () => setInst('xylo'));
+$('#iMar').addEventListener('click', () => setInst('marimba'));
+document.querySelectorAll('[data-mal]').forEach(b => b.addEventListener('click', () => setMal(b.dataset.mal)));
+$('#down').addEventListener('click', () => { base -= 12; layout(); });
+$('#up').addEventListener('click', () => { base += 12; layout(); });
+$('#lbl').addEventListener('click', e => { labels = !labels; e.currentTarget.setAttribute('aria-pressed', labels); renderSprites(); });
+$('#room').addEventListener('click', e => { roomOn = !roomOn; e.currentTarget.setAttribute('aria-pressed', roomOn); if (wet) wet.gain.setTargetAtTime(roomOn ? .3 : 0, ctx.currentTime, .05); });
+document.querySelectorAll('.bar button').forEach(b => b.addEventListener('pointerdown', () => ac()));
+
+/* ---------------- drawing ---------------- */
+const sparks = [];
+function frame(){
+  const now = performance.now() / 1000;
+  g.setTransform(DPR, 0, 0, DPR, 0, 0);
+  g.clearRect(0, 0, W, H);
+  if (THUMB){ [0, 4, 7, 11].forEach((i, k) => { if (nat[i]) { nat[i].hitT = now - .03 - k * .05; nat[i].hitV = .9; } }); }
+  // rails (dark wood frame) and cords
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  for (const r of rails){
+    g.strokeStyle = 'rgba(40,20,10,.22)'; g.lineWidth = 22; poly(r, 0, 6);
+    g.strokeStyle = '#3d2618'; g.lineWidth = 16; poly(r, 0, 0);
+    g.strokeStyle = '#5a3a26'; g.lineWidth = 5; poly(r, 0, -3);
+    g.strokeStyle = 'rgba(235,220,190,.75)'; g.lineWidth = 1.6; poly(r, 0, 0);
+  }
+  // bars
+  const target = songTarget();
+  for (const b of bars){
+    const dt = now - b.hitT, a = b.hitV * Math.exp(-dt * 7);
+    const dy = a > .002 && !RM ? (a * 2.6 * Math.sin(dt * 95) + a * 1.6) : 0;
+    g.drawImage(b.sprite, b.x - b.pad, b.top - b.pad + dy, b.sprite.width / DPR, b.sprite.height / DPR);
+    if (a > .01){
+      g.save(); g.globalCompositeOperation = 'lighter';
+      const gy = b.top + b.hitU * b.len;
+      const gr = g.createRadialGradient(b.cx, gy, 0, b.cx, gy, b.len * .6);
+      gr.addColorStop(0, `rgba(255,190,120,${.38 * a})`); gr.addColorStop(1, 'rgba(255,190,120,0)');
+      g.fillStyle = gr; g.beginPath(); g.roundRect ? g.roundRect(b.x, b.top + dy, b.w, b.len, 6) : g.rect(b.x, b.top + dy, b.w, b.len); g.fill();
+      g.restore();
+    }
+    if (b === target){
+      const p = .5 + .5 * Math.sin(now * 6);
+      g.strokeStyle = `rgba(255,214,120,${.55 + .45 * p})`; g.lineWidth = 3 + 2 * p;
+      g.beginPath(); g.roundRect ? g.roundRect(b.x - 4, b.top - 4, b.w + 8, b.len + 8, 9) : g.rect(b.x - 4, b.top - 4, b.w + 8, b.len + 8); g.stroke();
+    }
+  }
+  // sparks: little wood-dust flecks off the hit point
+  for (let i = sparks.length - 1; i >= 0; i--){
+    const s = sparks[i], dt = now - s.t;
+    if (dt > .45 || RM){ sparks.splice(i, 1); continue; }
+    g.strokeStyle = `rgba(255,236,200,${(1 - dt / .45) * .8 * s.v})`; g.lineWidth = 1.5;
+    const r0 = 6 + dt * 70 * s.v, r1 = r0 + 6 * s.v;
+    for (let k = 0; k < 6; k++){ const an = k / 6 * Math.PI * 2 + s.x; g.beginPath(); g.moveTo(s.x + Math.cos(an) * r0, s.y + Math.sin(an) * r0); g.lineTo(s.x + Math.cos(an) * r1, s.y + Math.sin(an) * r1); g.stroke(); }
+  }
+  // mallet cursor
+  if (FINE && hover.on && !THUMB){
+    const M = MALLETS[malKey], k = Math.max(0, 1 - (now - hover.downT) / .12), lift = k * 1;
+    const hx = hover.x, hy = hover.y, sx = hx + 90 - lift * 10, sy = hy + 120 - lift * 26;
+    g.strokeStyle = 'rgba(40,20,10,.18)'; g.lineWidth = 7; g.beginPath(); g.moveTo(hx + 4, hy + 10); g.lineTo(sx + 4, sy + 10); g.stroke();
+    g.strokeStyle = M.stick; g.lineWidth = 4.5; g.beginPath(); g.moveTo(hx, hy); g.lineTo(sx, sy); g.stroke();
+    const rad = malKey === 'yarn' ? 11 : malKey === 'rubber' ? 9 : 8;
+    const gr = g.createRadialGradient(hx - rad * .35, hy - rad * .35, 1, hx, hy, rad);
+    gr.addColorStop(0, '#fff'); gr.addColorStop(.25, M.head); gr.addColorStop(1, shade(M.head, -.35));
+    g.fillStyle = gr; g.beginPath(); g.arc(hx, hy, rad * (1 - k * .12), 0, 7); g.fill();
+    if (malKey === 'yarn'){ g.strokeStyle = 'rgba(255,255,255,.25)'; g.lineWidth = 1; for (let i = 0; i < 5; i++){ g.beginPath(); g.arc(hx, hy, rad * (.4 + i * .12), i, i + 2); g.stroke(); } }
+  }
+  requestAnimationFrame(frame);
+}
+function poly(pts, dx, dy){ g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0] + dx, p[1] + dy) : g.moveTo(p[0] + dx, p[1] + dy)); g.stroke(); }
+function shade(hex, k){
+  const n = parseInt(hex.slice(1), 16), r = n >> 16, gg = (n >> 8) & 255, b = n & 255;
+  const f = v => Math.round(clamp(v + (k < 0 ? v * k : (255 - v) * k), 0, 255));
+  return `rgb(${f(r)},${f(gg)},${f(b)})`;
+}
+
+let rt = 0;
+addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(layout, 120); });
+layout();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => labels && renderSprites());
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

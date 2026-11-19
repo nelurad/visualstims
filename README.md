@@ -24,3 +24,4 @@ Not brain science, just hands and eyes.
 | | Piece | What it is |
 |---|---|---|
 | a | [Lump](lump/) | A ball of clay to play with in 3D: drag to press it in, hold then drag to pull it out, smooth it, spin it on a pottery wheel, pick a clay colour. Built with three.js. |
+| b | [Rosewood](rosewood/) | A xylophone you can actually play: modal bar synthesis (strike position changes the tone; near the cord goes dead), harder/faster hits are louder and brighter, hold to roll, drag for a glissando, multi-touch, computer-keyboard play, hard/rubber/yarn mallets, marimba mode, room echo, and a learn-a-tune mode. Web Audio + canvas. |
