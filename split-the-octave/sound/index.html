@@ -1,0 +1,904 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>What is a sound? · Split the Octave</title>
+<meta name="description" content="Lesson 1: sound is something wobbling. Hear and see vibration, pitch, loudness and noise, from scratch. Turn your volume on.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&family=Fraunces:ital,opsz,wght,SOFT,WONK@1,9..144,100..900,0..100,0..1&family=Homemade+Apple&display=swap">
+<link rel="stylesheet" href="../kit/series.css">
+<style>
+  /* ---- lesson 1 only ---- */
+  .hero h1 .big .lt{display:inline-block;animation:pass 2.6s ease-in-out infinite;animation-delay:calc(var(--i) * .085s)}
+  @keyframes pass{0%,55%,100%{transform:translate(0,0)}18%{transform:translate(.02em,-.07em) rotate(-2deg)}36%{transform:translate(-.01em,.03em) rotate(1deg)}}
+  @media (prefers-reduced-motion: reduce){ .hero h1 .big .lt{animation:none} }
+  .hero{cursor:crosshair}
+  .hero .txt{cursor:auto}
+  body.thumb #so-strip{display:none}
+  @media (max-width:700px){ body:not(.thumb) .hero{padding-top:250px} }
+
+  /* wobbly hand-cut boxes */
+  .lab-w{border-radius:22px 17px 25px 15px / 17px 24px 16px 23px}
+  .takeaway{border-radius:16px 12px 18px 11px / 12px 17px 11px 16px}
+  .scrawl{font-family:"Homemade Apple","Snell Roundhand",cursive;color:var(--hot);font-size:13.5px;line-height:1.5;display:inline-block;transform:rotate(-2.5deg);transform-origin:left}
+  .hint b{color:var(--hot);font-weight:500}
+
+  canvas.pad{border-radius:14px 11px 15px 12px;background:#00000026;cursor:pointer;-webkit-user-select:none;user-select:none}
+  canvas.pad:focus-visible{outline:2px solid var(--hot);outline-offset:3px}
+  #air{height:300px;touch-action:pan-y}
+  #pitch{height:250px;touch-action:pan-y;cursor:ew-resize}
+  #shelf{height:250px;touch-action:manipulation}
+  #lp{height:290px;touch-action:none;cursor:move}
+  #nz{height:170px}
+  #range{height:240px;touch-action:manipulation}
+  @media (max-width:560px){ #shelf{height:330px} #air{height:270px} #lp{height:270px} #range{height:250px} }
+  .btn:disabled{opacity:.4;cursor:default}
+
+  .seg{display:inline-flex;background:#00000033;border:1px solid var(--rule);border-radius:999px;padding:3px}
+  .seg button{border:0;background:transparent;border-radius:999px;padding:7px 14px;min-height:36px;cursor:pointer;font-size:14px;color:var(--soft)}
+  .seg button[aria-pressed="true"]{background:var(--hot);color:#2a1c10}
+
+  /* tuba vs whistle */
+  .things{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  .thing{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;text-align:left;background:var(--card2);border:1.5px solid var(--rule);padding:12px 14px;cursor:pointer;min-height:96px;transition:border-color .15s,transform .1s}
+  .thing:nth-child(1){border-radius:20px 14px 18px 24px / 16px 22px 14px 20px}
+  .thing:nth-child(2){border-radius:14px 22px 16px 18px / 22px 14px 20px 16px}
+  .thing:hover{border-color:var(--hot)}
+  .thing:active{transform:scale(.97) rotate(-.6deg)}
+  .thing svg{width:64px;height:64px;overflow:visible}
+  .thing svg *{fill:none;stroke:var(--hot);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .thing .n{display:block;font-family:var(--serif);font-style:italic;font-size:24px;line-height:1.1;color:var(--ink)}
+  .thing .s{display:block;font:12px var(--mono);color:var(--dim);margin-top:3px}
+  .thing.shake svg{animation:shk .5s ease-out}
+  .thing.fast.shake svg{animation:shkf .5s ease-out}
+  @keyframes shk{0%,100%{transform:none}20%{transform:rotate(-6deg)}45%{transform:rotate(5deg)}70%{transform:rotate(-3deg)}}
+  @keyframes shkf{0%,100%{transform:none}10%,30%,50%,70%{transform:translateX(-2px)}20%,40%,60%,80%{transform:translateX(2px)}}
+  @media (max-width:520px){ .things{grid-template-columns:1fr} }
+
+  /* steady vs noisy examples */
+  .exs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:14px}
+  .ex{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--rule);border-radius:12px 16px 13px 15px;padding:9px 12px;min-height:44px;cursor:pointer;font-size:15px;text-align:left}
+  .ex:hover{border-color:#ffffff66}
+  .ex i{font:normal 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:999px;opacity:0;transition:opacity .25s}
+  .ex.seen i{opacity:1}
+  .ex i.st{background:var(--hot2);color:var(--hot)}
+  .ex i.no{background:#b9a3ff26;color:#c9b8ff}
+  .ex.pop{animation:pop .3s ease-out}
+  @keyframes pop{50%{transform:scale(1.05) rotate(-1deg)}}
+
+  .safe{border-left-color:var(--bad)}
+  .safe .t{color:var(--bad)}
+  .lost{font-family:var(--serif);font-style:italic;font-size:clamp(22px,3vw,30px);color:var(--ink);min-height:1.3em;margin-top:8px}
+  .lost small{font:13px var(--mono);color:var(--dim);font-style:normal}
+  .duo p{margin:0;font-size:16px}
+  .duo .k{display:block;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--hot);margin-bottom:6px}
+</style>
+</head>
+<body>
+
+<section class="hero short gut" id="hero">
+  <canvas class="art" id="art" aria-hidden="true"></canvas>
+  <div class="txt">
+    <div class="kicker" id="so-kicker"></div>
+    <h1><span class="big" id="ttl">What is a sound?</span><span class="sub">air, wobbling, all the way to your ear</span></h1>
+    <p>Before notes, chords or songs, there's the raw stuff: something shakes, and the air carries the shake to you. This page shows how, with sound on every step. <b style="color:var(--ink)">Turn your volume on.</b></p>
+    <div class="soundgo">
+      <button class="btn go" id="hello"><span class="pl"></span> Turn on sound</button>
+      <span class="note">You should hear a few soft notes. Nothing? Turn your volume up. On an iPhone, also flip off the silent switch. Then tap the dark area to make ripples.</span>
+    </div>
+    <div id="so-strip" style="margin-top:28px"></div>
+  </div>
+</section>
+
+<main class="gut">
+
+<!-- 1 -->
+<section class="ch" id="c1">
+  <div class="num">1</div>
+  <h2>Sound is something wobbling</h2>
+  <p>Every sound you have ever heard started with something wobbling back and forth: a guitar string, a drum skin, two tiny flaps in your throat, the cone in a speaker. The grown-up word for a wobble is a <span class="word">vibration</span>.</p>
+  <p>The wobbling thing shoves the air right next to it. That air shoves the air next to <em>it</em>, and so on, like a push passed along a crowd. The air itself hardly goes anywhere. Only the push travels. When it reaches you it nudges your <span class="word">eardrum</span>, a thin skin inside your ear, and your brain says: <em>sound!</em></p>
+  <div class="lab-w">
+    <p class="hint"><b>TRY IT</b> · tap anywhere to pluck. Drag across the string to strum it. Watch the dots of air bunch up and spread out on their way to the ear.</p>
+    <div class="row" style="margin-bottom:12px;justify-content:space-between">
+      <div class="seg" role="group" aria-label="What wobbles"><button aria-pressed="true" data-src="string">a string</button><button aria-pressed="false" data-src="drum">a drum</button></div>
+      <button class="btn go sm" id="pluck"><span class="pl"></span> Pluck</button>
+    </div>
+    <canvas class="pad" id="air" tabindex="0" aria-label="A string pushes air dots towards an ear. Tap or press Enter to pluck."></canvas>
+    <div class="readout" id="r1">The dots are air. They jiggle a little all the time. Give them something to carry.</div>
+  </div>
+  <p>The bunched-up bands are air squeezed a bit tighter; the gaps are air stretched a bit thinner. So a sound is really a train of squeezes and stretches, rolling outward. It's quick, too: a sound crosses a big room in about a thirtieth of a second.</p>
+  <div class="takeaway"><b>The big idea:</b> a sound is a wobble, passed through the air from the thing that shakes to the little drum inside your ear.</div>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="c2">
+  <div class="num">2</div>
+  <h2>Fast wobbles sound high</h2>
+  <p>Some things wobble slowly and some wobble fast, and your ear can tell. You hear the speed as <span class="word">pitch</span>: how high or low a sound is.</p>
+  <p>Slow wobbles sound low, like a rumble. Fast wobbles sound high, like a squeak. That's the whole trick.</p>
+  <p>We count wobbles per second, and the unit has a name: <span class="word">hertz</span>, written <b>Hz</b>. 100 Hz just means 100 wobbles every second. (It's named after a scientist, Heinrich Hertz. It's pronounced like "hurts", but it doesn't.)</p>
+  <div class="lab-w">
+    <p class="hint"><b>TRY IT</b> · press and hold the box, then slide left and right. Arrow keys work too. The picture shows one fiftieth of a second of the wobble.</p>
+    <canvas class="pad" id="pitch" tabindex="0" role="slider" aria-label="Pitch: hold and drag left for low, right for high" aria-valuemin="50" aria-valuemax="2000" aria-valuenow="300"></canvas>
+    <div class="row" style="margin-top:12px">
+      <button class="btn go" id="pPlay"><span class="pl"></span> Keep playing</button>
+      <button class="btn sm" data-f="65">65 · big drum thud</button>
+      <button class="btn sm" data-f="120">120 · deep talking voice</button>
+      <button class="btn sm" data-f="440">440 · tuning note</button>
+      <button class="btn sm" data-f="1600">1600 · whistle</button>
+    </div>
+    <div class="readout" id="r2"></div>
+  </div>
+  <p>Look at the picture as you slide right: the wiggles crowd closer together. More wobbles get squeezed into the same tiny slice of time, and the sound climbs.</p>
+  <div class="takeaway"><b>The big idea:</b> pitch is wobble speed. More wobbles per second (more hertz) sounds higher.</div>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="c3">
+  <div class="num">3</div>
+  <h2>Big things sound low, small things sound high</h2>
+  <p>Here's a rule you already know without knowing you know it. Big, heavy things wobble slowly, so they sound low. Small, light things wobble quickly, so they sound high. A church bell goes <em>bonnng</em>; a bicycle bell goes <em>ting</em>.</p>
+  <div class="lab-w">
+    <p class="hint"><b>TRY IT</b> · tap the bells and drums (several fingers at once is fine; keys 1 to 8 work too). Watch how fast each one shivers.</p>
+    <canvas class="pad" id="shelf" tabindex="0" aria-label="Four bells and four drums from big to small. Tap to play, or press keys 1 to 8."></canvas>
+    <div class="things">
+      <button class="thing" id="tuba"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M22 54c-8 0-12-6-12-14V18c0-4 3-6 6-6h3"/><path d="M19 12c4-6 18-7 24-3"/><path d="M43 9c8 4 12 10 13 16-6 4-16 4-22 0 0-6 3-11 9-16z"/><path d="M22 54c10 0 16-4 16-14V24"/><path d="M28 30h10M28 37h10M28 44h10"/><circle cx="18" cy="38" r="5"/></svg><span><span class="n">a tuba</span><span class="s">big, long tube · low</span></span></button>
+      <button class="thing fast" id="whistle"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M8 28h30a12 12 0 1 1-6 22H20a12 12 0 0 1-12-12z"/><path d="M8 28v-4h18v4"/><circle cx="38" cy="40" r="4"/><path d="M50 18l6-6M54 26l7-2M46 14l2-8"/></svg><span><span class="n">a whistle</span><span class="s">tiny space of air · high</span></span></button>
+    </div>
+  </div>
+  <p>Your voice follows the same rule. Grown-ups usually have longer, heavier <span class="word">vocal cords</span> (those two flaps in your throat) than kids do, so their voices sit lower. It's the same story with a cello and a violin: the big one plays the low notes.</p>
+  <div class="takeaway"><b>The big idea:</b> bigger and heavier means slower wobbles, and slower wobbles mean lower sounds.</div>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="c4">
+  <div class="num">4</div>
+  <h2>Bigger wobbles sound louder</h2>
+  <p>A wobble has two separate things you can change. One is how <em>fast</em> it goes back and forth: that's pitch. The other is how <em>far</em> it swings: a tiny tremble or a big, wide swing. The size of the swing is <span class="word">loudness</span>.</p>
+  <p>Pluck a string gently and it barely moves; pluck it hard and it swings wide. You hear the same note, just louder. Speed and size don't depend on each other, so you can have a quiet high sound, a loud low one, or any mix.</p>
+  <div class="lab-w">
+    <p class="hint"><b>TRY IT</b> · press and drag the dot. Left and right change the <b>speed</b> (pitch). Up and down change the <b>swing</b> (loudness). Arrow keys work too.</p>
+    <canvas class="pad" id="lp" tabindex="0" aria-label="Two-way pad. Left and right change pitch, up and down change loudness. Use arrow keys."></canvas>
+    <div class="slider"><span style="width:58px">slower</span><input id="sp4" type="range" min="0" max="1000" value="400" aria-label="Wobble speed (pitch)"><span style="width:44px">faster</span></div>
+    <div class="slider"><span style="width:58px">smaller</span><input id="sz4" type="range" min="0" max="1000" value="450" aria-label="Swing size (loudness)"><span style="width:44px">bigger</span></div>
+    <div class="row">
+      <button class="btn go" id="lpPlay"><span class="pl"></span> Keep playing</button>
+      <button class="btn sm" id="demoQL">same note: quiet, then loud</button>
+      <button class="btn sm" id="demoLH">same loudness: low, then high</button>
+    </div>
+    <div class="readout" id="r4"></div>
+  </div>
+  <div class="aside"><span class="t">How loud is loud?</span>Loudness is often measured in <b>decibels</b> (dB). A whisper is about 30 dB, chatting is about 60, a rock concert is over 100. Very loud sound for a long time can damage your ears for good, so keep your volume comfy.</div>
+  <div class="takeaway"><b>The big idea:</b> how far it swings is loudness; how fast it swings is pitch. They are two separate knobs.</div>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="c5">
+  <div class="num">5</div>
+  <h2>Steady notes and noisy noise</h2>
+  <p>Hum a tune, then say "shhhh". Both are sounds, but they're different kinds. A hum is a <em>steady</em> wobble: the same little shape, repeating over and over, regular as a clock. Your ear locks on to the repeat and hears a definite pitch you could sing back. That's a <span class="word">note</span>.</p>
+  <p>"Shhhh" is a jumble of random wobbles, fast and slow all mixed up, never repeating. There's no single pitch to grab, so you hear a hiss. That's <span class="word">noise</span>.</p>
+  <div class="lab-w">
+    <p class="hint"><b>TRY IT</b> · press play, then slide from steady to noisy. Watch the repeating shape dissolve into scribble.</p>
+    <canvas class="pad" id="nz" aria-hidden="true"></canvas>
+    <div class="slider"><span style="width:52px">steady</span><input id="mix5" type="range" min="0" max="1000" value="0" aria-label="Steady to noisy"><span style="width:44px">noisy</span></div>
+    <div class="row">
+      <button class="btn go" id="nzPlay"><span class="pl"></span> Play</button>
+      <button class="btn sm" data-mix="0">hummm</button>
+      <button class="btn sm" data-mix="1">shhhh</button>
+    </div>
+    <div class="readout" id="r5"></div>
+    <p class="hint" style="margin:18px 0 0">Steady or noisy? Tap each one, listen, and then the label appears.</p>
+    <div class="exs" id="exs">
+      <button class="ex" data-ex="flute">a flute <i class="st">steady</i></button>
+      <button class="ex" data-ex="snare">a snare drum <i class="no">noisy</i></button>
+      <button class="ex" data-ex="voice">someone singing "aah" <i class="st">steady</i></button>
+      <button class="ex" data-ex="clap">a hand clap <i class="no">noisy</i></button>
+      <button class="ex" data-ex="box">a music box <i class="st">steady</i></button>
+      <button class="ex" data-ex="wind">wind <i class="no">noisy</i></button>
+    </div>
+  </div>
+  <p>Musical notes are the steady kind. Most drums lean noisy, which is why you can't hum the note of a snare drum. They still make music, though, by marking out time (that's lesson 5).</p>
+  <div class="takeaway"><b>The big idea:</b> a steady, repeating wobble gives a note with a pitch; a random wobble gives noise.</div>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="c6">
+  <div class="num">6</div>
+  <h2>How high can you hear?</h2>
+  <p>Human ears catch wobbles from about <b>20 Hz</b> (a deep rumble you feel more than hear) up to about <b>20,000 Hz</b> (a whisper-thin whine). Outside that range the air still wobbles, but we can't hear it. Elephants rumble to each other below it; dogs and bats hear far above it.</p>
+  <p>The top end slowly shrinks as we get older, so a teenager can hear tones their parents can't. Try it: start a sweep, and tap the button the moment the sound vanishes.</p>
+  <div class="aside safe"><span class="t">Ears first</span>Keep your volume at a normal level. When the tone fades away, that <em>is</em> the test working, so don't turn it up to chase it. Phone and laptop speakers can't play very low sounds, so the low sweep may go quiet early; headphones do better.</div>
+  <div class="lab-w">
+    <p class="hint"><b>TRY IT</b> · run a sweep, or tap anywhere on the ruler to hear that many wobbles per second.</p>
+    <canvas class="pad" id="range" tabindex="0" aria-label="A ruler of pitches from 20 to 20,000 hertz. Tap to hear a tone."></canvas>
+    <div class="row" style="margin-top:12px">
+      <button class="btn go" id="swUp"><span class="pl"></span> Sweep up (high)</button>
+      <button class="btn" id="swDn"><span class="pl"></span> Sweep down (low)</button>
+      <button class="btn" id="swLost" disabled>I can't hear it now</button>
+    </div>
+    <div class="lost" id="r6"></div>
+  </div>
+  <div class="takeaway"><b>The big idea:</b> we hear roughly 20 to 20,000 wobbles per second, and nearly all music lives in the comfy middle.</div>
+</section>
+
+<!-- quiz -->
+<section class="ch" id="quiz">
+  <div class="num">?</div>
+  <h2>Check yourself</h2>
+  <p>A mixed bag of questions about everything above. Listen, then choose. Press <b>Hear it again</b> as often as you like.</p>
+  <div class="lab-w"><div id="q"></div></div>
+  <div class="duo">
+    <div><span class="k">You now know</span><p>Sound is a wobble in the air. Speed of wobble = pitch. Size of wobble = loudness. Steady wobbles make notes; random ones make noise.</p></div>
+    <div><span class="k">Coming up</span><p>Two instruments can play the very same pitch at the very same loudness and still sound different. Why? That's tone colour, next.</p></div>
+  </div>
+</section>
+
+</main>
+
+<script src="../kit/series.js"></script>
+<script>
+(function(){
+'use strict';
+const { $, $$, play, drum, mtof, fit, addDrawer, THUMB, RM } = SO;
+SO.init('sound');
+
+/* ================= small helpers ================= */
+const TAU = Math.PI * 2;
+const HOT = SO.accent(45), VIO = 'hsl(262 70% 78%)', INK = '#f3ede3', DIM = '#8c8499', CORAL = 'hsl(12 85% 72%)';
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const loud = f => Math.min(1.3, Math.pow(262 / f, .22));
+const hash = n => { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
+const boil = t => RM ? 0 : Math.floor(t * 7);           // pencil "boil": jitter changes 7x a second
+const jit = (seed, i, a) => (hash(seed * 91.7 + i * 13.13) - .5) * 2 * a;
+const nowS = () => performance.now() / 1000;
+const HAND = '"Homemade Apple","Snell Roundhand",cursive';
+const SERIF = '"Fraunces",Georgia,serif';
+const fmtHz = f => Math.round(f).toLocaleString('en-US');
+
+/* a hand-drawn polyline: jittered points, smoothed with quadratic curves */
+function sketch(x, pts, seed = 0, j = 1.2, close = false){
+  const P = pts.map(([px, py], i) => [px + jit(seed, i * 2, j), py + jit(seed, i * 2 + 1, j)]);
+  x.beginPath(); x.moveTo(P[0][0], P[0][1]);
+  for (let i = 1; i < P.length - 1; i++){ const mx = (P[i][0] + P[i + 1][0]) / 2, my = (P[i][1] + P[i + 1][1]) / 2; x.quadraticCurveTo(P[i][0], P[i][1], mx, my); }
+  x.lineTo(P[P.length - 1][0], P[P.length - 1][1]);
+  if (close) x.closePath();
+}
+/* stroke a path twice, slightly offset, like pencil over pencil */
+function pencil(x, pts, seed, col, lw = 1.6, j = 1.2, close = false){
+  x.strokeStyle = col; x.lineCap = 'round'; x.lineJoin = 'round';
+  x.lineWidth = lw; x.globalAlpha = .9; sketch(x, pts, seed, j, close); x.stroke();
+  x.lineWidth = lw * .55; x.globalAlpha = .45; sketch(x, pts, seed + 17, j * 1.6, close); x.stroke();
+  x.globalAlpha = 1;
+}
+function blob(cx, cy, r, n = 22, seed = 0, wob = .06){
+  const pts = []; for (let i = 0; i <= n; i++){ const a = i / n * TAU, rr = r * (1 + jit(seed, i % n, wob)); pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]); } return pts;
+}
+function hand(x, txt, px, py, size = 14, col = HOT, rot = -.04, align = 'left'){
+  x.save(); x.translate(px, py); x.rotate(rot); x.font = `${size}px ${HAND}`; x.fillStyle = col; x.textAlign = align; x.textBaseline = 'middle'; x.fillText(txt, 0, 0); x.restore();
+}
+function arrow(x, x0, y0, x1, y1, seed, col = HOT){
+  const mx = (x0 + x1) / 2 + (y1 - y0) * .18, my = (y0 + y1) / 2 - (x1 - x0) * .18;
+  const pts = []; for (let i = 0; i <= 10; i++){ const u = i / 10; pts.push([(1 - u) * (1 - u) * x0 + 2 * u * (1 - u) * mx + u * u * x1, (1 - u) * (1 - u) * y0 + 2 * u * (1 - u) * my + u * u * y1]); }
+  pencil(x, pts, seed, col, 1.4, .8);
+  const a = Math.atan2(y1 - my, x1 - mx);
+  pencil(x, [[x1 - 9 * Math.cos(a - .45), y1 - 9 * Math.sin(a - .45)], [x1, y1], [x1 - 9 * Math.cos(a + .45), y1 - 9 * Math.sin(a + .45)]], seed + 3, col, 1.4, .5);
+}
+/* doodled ear (front faces left), with a shaking eardrum dot */
+function ear(x, ex, ey, s, wig, seed, col = INK){
+  const P = (pts) => pts.map(([a, b]) => [ex + a * s, ey + b * s]);
+  const outer = [[-2, -30], [12, -32], [24, -24], [28, -10], [24, 2], [17, 11], [16, 20], [12, 28], [3, 32], [-5, 28]];
+  const inner = [[0, -18], [10, -19], [15, -9], [11, 0], [6, 5], [6, 12]];
+  pencil(x, P(outer), seed, col, 2, 1.1);
+  pencil(x, P(inner), seed + 5, col, 1.5, .9);
+  const dx = ex + (-4 + wig) * s, dy = ey + 2 * s;
+  x.fillStyle = HOT; x.globalAlpha = .35 + Math.min(.65, Math.abs(wig) * .25);
+  x.beginPath(); x.arc(dx, dy, 3.4 * s, 0, TAU); x.fill(); x.globalAlpha = 1;
+}
+
+/* noise for "shhh" sounds */
+let NB = null;
+function noiseBuf(){
+  const c = SO.ac();
+  if (!NB || NB.sampleRate !== c.sampleRate){ NB = c.createBuffer(1, c.sampleRate * 2, c.sampleRate); const d = NB.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  return NB;
+}
+function shh(t0 = 0, dur = .8, vel = .8, fc = 3500, q = .6){
+  const c = SO.ac(), t = c.currentTime + .03 + t0;
+  const s = c.createBufferSource(); s.buffer = noiseBuf(); s.loop = true;
+  const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = fc; bp.Q.value = q;
+  const g = c.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.4 * vel, t + .08);
+  g.gain.setValueAtTime(.4 * vel, t + dur); g.gain.setTargetAtTime(0, t + dur, .07);
+  s.connect(bp); bp.connect(g); g.connect(SO.bus); s.start(t, Math.random()); s.stop(t + dur + .6);
+}
+/* stop a page-wide sustained sound when its chapter scrolls well out of view */
+function guard(section, owner){
+  new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting && SO.isOwner(owner)) SO.stopDrone(); }), { rootMargin: '80px' }).observe(section);
+}
+function pos(cv, e){ const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top, r.width, r.height]; }
+
+/* ================= hero: ripples of air ================= */
+const ttl = $('#ttl');
+{ let i = 0; ttl.innerHTML = ttl.textContent.split(' ').map(wd => `<span style="white-space:nowrap">${[...wd].map(c => `<span class="lt" style="--i:${i++}">${c}</span>`).join('')}</span>`).join(' '); }
+
+const art = $('#art'), heroTxt = $('#hero .txt');
+const H = { src: [] };
+const T0 = nowS();
+function heroGeo(w, h){
+  const ph = w < 700;
+  const tTop = heroTxt.offsetTop, pcy = clamp((tTop + 56) / 2, 84, h * .3);
+  return ph ? { ph, cx: w * .34, cy: pcy, ex: w - 34, ey: pcy, S: 15 }
+            : { ph, cx: w * .64, cy: h * .47, ex: w - 92, ey: h * .47, S: 18 };
+}
+// the ambient wobbler, always gently going
+const AMB = { amb: true, t0: T0 - 30, A: 9, fv: .5, c: 72, fixed: true };
+if (THUMB){
+  // a couple of earlier plucks so the still image has some extra interference rings
+  H.src.push({ t0: T0 - 1.6, A: 15, fv: .8, tau: 2.6, c: 120, rx: .82, ry: .22 }, { t0: T0 - .7, A: 13, fv: .9, tau: 2.4, c: 120, rx: .5, ry: .8 });
+}
+function srcAt(s, r, t){
+  const tt = t - s.t0 - r / s.c; if (tt <= 0) return null;
+  const at = 1 / (1 + r / (s.amb ? 520 : 300)), ph = TAU * s.fv * tt;
+  if (s.amb){ const fd = Math.min(1, tt / 2.5); return [s.A * at * fd * Math.sin(ph), s.A * at * fd * TAU * s.fv * Math.cos(ph) / s.c]; }
+  const env = Math.exp(-tt / s.tau);
+  return [s.A * at * env * Math.sin(ph), s.A * at * env * (TAU * s.fv * Math.cos(ph) - Math.sin(ph) / s.tau) / s.c];
+}
+const BUCK = 9;
+const bucketCol = i => {
+  const u = i / (BUCK - 1);          // 0 = stretched (thin air), 1 = squeezed
+  if (u < .5){ const k = u / .5; return `hsla(${262 - k * 220} ${40 + k * 10}% ${70 + k * 10}% / ${.16 + k * .26})`; }
+  const k = (u - .5) / .5; return `hsla(${42 + k * 3} ${55 + k * 40}% ${80 - k * 6}% / ${.42 + k * .55})`;
+};
+const BCOL = Array.from({ length: BUCK }, (_, i) => bucketCol(i));
+addDrawer(art, tt => {
+  const [x, w, h] = fit(art);
+  const t = THUMB ? T0 + 2.2 : (RM && !H.src.length ? T0 + 9.3 : nowS());
+  const G = heroGeo(w, h);
+  x.clearRect(0, 0, w, h);
+  const srcs = [Object.assign(AMB, { x: G.cx, y: G.cy })];
+  H.src.forEach(s => { if (s.rx != null){ s.x = w * s.rx; s.y = h * s.ry; } srcs.push(s); });
+  H.src = H.src.filter(s => t - s.t0 < 14);
+  // dot field
+  const S = G.S, cols = Math.ceil(w / S) + 1, rows = Math.ceil(h / S) + 1, seed = boil(t);
+  const paths = Array.from({ length: BUCK }, () => new Path2D());
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++){
+    const id = j * 997 + i;
+    const bx = i * S + (hash(id) - .5) * S * .7 + (j % 2) * S * .5, by = j * S + (hash(id + .5) - .5) * S * .7;
+    let dx = 0, dy = 0, dens = 0;
+    for (const s of srcs){
+      const ox = bx - s.x, oy = by - s.y, r = Math.hypot(ox, oy) || 1;
+      if (r < 20 && s.amb) { dens = -9; break; }
+      const v = srcAt(s, r, t); if (!v) continue;
+      dx += v[0] * ox / r; dy += v[0] * oy / r; dens += v[1];
+    }
+    if (dens === -9) continue;
+    const jj = RM ? 0 : .5;
+    const px = bx + dx + jit(seed, id, jj), py = by + dy + jit(seed, id + 3, jj);
+    const b = clamp(Math.round((clamp(dens * 2.2, -1, 1) + 1) / 2 * (BUCK - 1)), 0, BUCK - 1);
+    const rr = .9 + b * .2 + hash(id + 9) * .5;
+    paths[b].moveTo(px + rr, py); paths[b].arc(px, py, rr, 0, TAU);
+  }
+  paths.forEach((p, b) => { x.fillStyle = BCOL[b]; x.fill(p); });
+  // the wobbler itself: a little drum skin breathing in and out
+  const e0 = srcAt(AMB, 0, t), pulse = e0 ? e0[0] : 0;
+  x.fillStyle = 'hsla(45 90% 70% / .2)'; x.beginPath(); x.arc(G.cx, G.cy, 15 + pulse * .9, 0, TAU); x.fill();
+  pencil(x, blob(G.cx, G.cy, 17 + pulse * 1.1, 20, seed, .07), seed, HOT, 2.4, .8, true);
+  pencil(x, blob(G.cx, G.cy, 7 + pulse * .5, 12, seed + 1, .1), seed + 1, HOT, 1.4, .6, true);
+  // pluck wavefronts
+  H.src.forEach((s, k) => {
+    const r = (t - s.t0) * s.c, a = Math.exp(-(t - s.t0) / s.tau) * .7;
+    if (a < .03 || r < 4) return;
+    x.globalAlpha = a; pencil(x, blob(s.x, s.y, r, 40, seed + k * 7, .015), seed + k, HOT, 1.2, 1.2, true); x.globalAlpha = 1;
+  });
+  // the ear on the far side, shaking along
+  const re = Math.hypot(G.ex - G.cx, G.ey - G.cy);
+  let wig = 0; for (const s of srcs){ const v = srcAt(s, Math.hypot(G.ex - s.x, G.ey - s.y), t); if (v) wig += v[0] * .35; }
+  ear(x, G.ex, G.ey, G.ph ? .85 : 1.25, wig, seed + 40);
+  // margin notes
+  if (!G.ph){
+    hand(x, 'something wobbles', G.cx - 70, G.cy - 92, 15, HOT, -.06);
+    arrow(x, G.cx - 40, G.cy - 76, G.cx - 12, G.cy - 22, seed + 60);
+    hand(x, 'the air passes the push along', G.cx + 30, G.cy + 150, 14, INK, -.03);
+    hand(x, 'your ear', G.ex - 8, G.ey - 64, 15, HOT, -.05, 'center');
+    if (!THUMB) hand(x, 'tap the dark to make a ripple', w - 34, h - 34, 12.5, DIM, -.02, 'right');
+  } else {
+    hand(x, 'wobble', G.cx - 28, G.cy - 46, 13, HOT, -.06);
+    hand(x, 'ear', G.ex, G.ey - 42, 13, HOT, -.05, 'center');
+    if (!THUMB) hand(x, 'tap me!', G.cx + 26, G.cy + 30, 11, DIM, -.04);
+  }
+  void re;
+});
+const PENTA = [43, 45, 48, 50, 52, 55, 57, 60, 62, 64, 67, 69, 72];
+$('#hero').addEventListener('pointerdown', e => {
+  if (e.target.closest('.txt a, .txt button, .series-strip')) return;
+  if (e.target.closest('.txt') && innerWidth >= 700) return;
+  const [px, py, w, h] = pos(art, e);
+  const t = nowS();
+  H.src.push({ x: px, y: py, t0: t, A: 15, fv: .85, tau: 2.6, c: 120 });
+  if (H.src.length > 7) H.src.shift();
+  const m = PENTA[clamp(Math.round((1 - py / h) * (PENTA.length - 1)), 0, PENTA.length - 1)];
+  play('guitar', mtof(m), { dur: 1.6, vel: .7, pan: clamp((px / w - .5) * 1.2, -.6, .6) });
+});
+
+/* ================= 1 · string pushes air to an ear ================= */
+const air = $('#air'), r1 = $('#r1');
+const C1 = { plucks: [], src: 'string' };
+const SRC = { string: { fv: 1.3, tau: 2.6, c: 110 }, drum: { fv: 1.7, tau: .9, c: 110 } };
+function D1(t){ // displacement of the wobbler at time t
+  let d = 0; const P = SRC[C1.src];
+  for (const p of C1.plucks){ const u = t - p.t0; if (u > 0) d += p.A * Math.exp(-u / P.tau) * Math.sin(TAU * P.fv * u); }
+  return d;
+}
+function geo1(w, h){ const ph = w < 560; return { x0: ph ? 30 : 46, y0: 22, y1: h - 22, xe: w - (ph ? 34 : 54), ph }; }
+function pluck1(vel = .7){
+  const t = nowS();
+  C1.plucks.push({ t0: t, A: 6 + 10 * vel }); if (C1.plucks.length > 6) C1.plucks.shift();
+  if (C1.src === 'string'){ play('guitar', 110, { dur: 2, vel: clamp(vel, .2, 1) }); r1.innerHTML = 'The real string wobbles <b>110 times a second</b>. We slowed the picture right down so your eyes can keep up.'; }
+  else { drum('tom', { f: 92, vel: clamp(.4 + vel * .6, .3, 1) }); r1.innerHTML = 'A drum skin wobbles too, just more briefly: it dies away fast, so you get a <b>thump</b> instead of a ring.'; }
+}
+addDrawer(air, tt => {
+  const [x, w, h] = fit(air), t = nowS(), seed = boil(t), G = geo1(w, h), P = SRC[C1.src];
+  x.clearRect(0, 0, w, h);
+  const d0 = D1(t);
+  // air dots
+  const sp = G.ph ? 12 : 13, rows = Math.floor((G.y1 - G.y0 - 12) / sp), span = G.xe - 26 - (G.x0 + 22);
+  const ytop = (h - rows * sp) / 2 + sp / 2;
+  const paths = Array.from({ length: BUCK }, () => new Path2D());
+  for (let cx = G.x0 + 22; cx < G.xe - 26; cx += sp){
+    const lag = (cx - G.x0) / P.c, fall = 1 - .3 * (cx - G.x0) / span;
+    const dd = D1(t - lag) * fall * .85;
+    const dens = (D1(t - lag + .02) - D1(t - lag - .02)) / .04 / P.c * fall;
+    const b = clamp(Math.round((clamp(dens * 1.2, -1, 1) + 1) / 2 * (BUCK - 1)), 0, BUCK - 1);
+    for (let j = 0; j < rows; j++){
+      const id = Math.round(cx) * 31 + j;
+      const px = cx + dd + (hash(id) - .5) * 4 + jit(seed, id, RM ? 0 : .6), py = ytop + j * sp + (hash(id + 2) - .5) * 4 + jit(seed, id + 1, RM ? 0 : .6);
+      const rr = 1.3 + b * .18;
+      paths[b].moveTo(px + rr, py); paths[b].arc(px, py, rr, 0, TAU);
+    }
+  }
+  paths.forEach((p, b) => { x.fillStyle = BCOL[b]; x.fill(p); });
+  // the wobbler
+  if (C1.src === 'string'){
+    const pts = []; for (let i = 0; i <= 14; i++){ const u = i / 14; pts.push([G.x0 + d0 * Math.sin(Math.PI * u), G.y0 + u * (G.y1 - G.y0)]); }
+    pencil(x, pts, seed, HOT, 2.4, .6);
+    [G.y0, G.y1].forEach((y, k) => { x.fillStyle = INK; x.beginPath(); x.arc(G.x0, y, 4, 0, TAU); x.fill(); });
+    hand(x, 'string', G.x0 + 10, h - 9, 11, HOT, -.05);
+  } else {
+    const ry = (G.y1 - G.y0) * .36, cy = h / 2, shell = 26;
+    pencil(x, [[G.x0 - shell, cy - ry], [G.x0, cy - ry]], seed + 1, INK, 1.6);
+    pencil(x, [[G.x0 - shell, cy + ry], [G.x0, cy + ry]], seed + 2, INK, 1.6);
+    pencil(x, [[G.x0 - shell, cy - ry], [G.x0 - shell - 6, cy], [G.x0 - shell, cy + ry]], seed + 3, INK, 1.6);
+    const pts = []; for (let i = 0; i <= 14; i++){ const u = i / 14; pts.push([G.x0 + d0 * 1.1 * Math.sin(Math.PI * u), cy - ry + u * 2 * ry]); }
+    pencil(x, pts, seed, HOT, 2.6, .6);
+    hand(x, 'drum skin', G.x0 - 24, cy + ry + 18, 11, HOT, -.1);
+  }
+  // ear
+  const lag = (G.xe - G.x0) / P.c, wig = D1(t - lag) * .5;
+  ear(x, G.xe, h / 2, G.ph ? .9 : 1.1, wig, seed + 9);
+  hand(x, 'ear', G.xe + 4, h / 2 - 48, 12, HOT, -.05, 'center');
+  if (!G.ph) hand(x, 'air (slowed way down)', (G.x0 + G.xe) / 2, 14, 12, DIM, -.02, 'center');
+  void tt;
+});
+let lastX = null;
+air.addEventListener('pointerdown', e => { const [px] = pos(air, e); lastX = px; pluck1(.75); });
+air.addEventListener('pointermove', e => {
+  if (lastX == null || !(e.buttons & 1)) return;
+  const [px, , w, h] = pos(air, e), x0 = geo1(w, h).x0;
+  if ((lastX - x0) * (px - x0) < 0) pluck1(clamp(Math.abs(px - lastX) / 25, .3, 1));
+  lastX = px;
+});
+['pointerup', 'pointercancel', 'pointerleave'].forEach(n => air.addEventListener(n, () => lastX = null));
+air.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pluck1(.75); } });
+$('#pluck').addEventListener('click', () => pluck1(.75));
+$$('[data-src]').forEach(b => b.addEventListener('click', () => {
+  C1.src = b.dataset.src; C1.plucks = [];
+  $$('[data-src]').forEach(o => o.setAttribute('aria-pressed', o === b ? 'true' : 'false'));
+  pluck1(.75);
+}));
+
+/* ================= 2 · pitch pad ================= */
+const pc = $('#pitch'), r2 = $('#r2'), pPlay = $('#pPlay');
+const C2 = { u: .47, held: false, latched: false, d: null, flash: 0 };
+const f2 = () => 50 * Math.pow(40, C2.u);
+const uOf2 = f => Math.log(f / 50) / Math.log(40);
+const own2 = { onStop(){ C2.latched = false; SO.setPlayBtn(pPlay, false, 'Keep playing', 'Stop'); } };
+const pitchWord = f => f < 90 ? 'a deep rumble' : f < 200 ? 'low, like a big deep voice' : f < 500 ? 'middling, like singing' : f < 1000 ? 'fairly high' : 'high and piercing, like a whistle';
+function on2(){ return SO.isOwner(own2); }
+function start2(){ if (!on2()) C2.d = SO.drone([f2()], 'triangle', .17, own2); upd2(); }
+function upd2(){
+  const f = f2();
+  if (on2()){ C2.d.set(0, f); C2.d.gain(0, .17 * loud(f)); }
+  r2.innerHTML = `<b>${fmtHz(f)} Hz</b> · ${fmtHz(f)} wobbles every second · ${pitchWord(f)}`;
+  pc.setAttribute('aria-valuenow', Math.round(f)); pc.setAttribute('aria-valuetext', `${Math.round(f)} hertz, ${pitchWord(f)}`);
+}
+function setU2(e){ const [px, , w] = pos(pc, e); C2.u = clamp((px - 16) / (w - 32), 0, 1); upd2(); }
+pc.addEventListener('pointerdown', e => { C2.held = true; try { pc.setPointerCapture(e.pointerId); } catch (_){} setU2(e); start2(); });
+pc.addEventListener('pointermove', e => { if (C2.held) setU2(e); });
+const rel2 = () => { if (!C2.held) return; C2.held = false; if (!C2.latched && on2()) SO.stopDrone(); };
+pc.addEventListener('pointerup', rel2); pc.addEventListener('pointercancel', rel2);
+pc.addEventListener('keydown', e => {
+  const k = { ArrowRight: .02, ArrowUp: .02, ArrowLeft: -.02, ArrowDown: -.02, PageUp: .1, PageDown: -.1 }[e.key];
+  if (k == null) return; e.preventDefault(); C2.u = clamp(C2.u + k, 0, 1); upd2();
+  if (!on2()) play('triangle', f2(), { dur: .35, vel: .8 });
+});
+pPlay.addEventListener('click', () => {
+  if (on2() && C2.latched){ SO.stopDrone(); return; }
+  start2(); C2.latched = true; SO.setPlayBtn(pPlay, true, 'Keep playing', 'Stop');
+});
+$$('#c2 [data-f]').forEach(b => b.addEventListener('click', () => {
+  const f = +b.dataset.f; C2.u = uOf2(f); upd2(); C2.flash = nowS();
+  if (!on2()) play('triangle', f, { dur: 1.1, vel: .85 });
+}));
+guard($('#c2'), own2);
+upd2();
+addDrawer(pc, () => {
+  const [x, w, h] = fit(pc), t = nowS(), seed = boil(t), f = f2(), live = on2() || t - C2.flash < 1.2;
+  x.clearRect(0, 0, w, h);
+  // faint hand-ruled lines
+  x.strokeStyle = '#ffffff10'; x.lineWidth = 1;
+  for (let k = 1; k < 4; k++){ x.beginPath(); x.moveTo(10, h * k / 4 + jit(k, 1, 1)); x.lineTo(w - 10, h * k / 4 + jit(k, 2, 1)); x.stroke(); }
+  const mid = h * .56, A = h * .26, cyc = f * .02, ph = RM ? 0 : t * 1.4;
+  const pts = []; const n = Math.max(80, Math.min(700, Math.round(w / 2)));
+  for (let i = 0; i <= n; i++){ const u = i / n; pts.push([12 + u * (w - 24), mid - A * Math.sin(TAU * cyc * u - ph)]); }
+  pencil(x, pts, seed, live ? HOT : '#c4bccd88', live ? 2.4 : 1.6, .7);
+  // big readout
+  x.fillStyle = INK; x.textBaseline = 'alphabetic'; x.textAlign = 'left';
+  x.font = `italic 300 ${w < 500 ? 40 : 54}px ${SERIF}`;
+  const s = fmtHz(f); x.fillText(s, 16, w < 500 ? 46 : 60);
+  const sw = x.measureText(s).width;
+  hand(x, 'wobbles a second', 24 + sw, w < 500 ? 34 : 44, w < 500 ? 11 : 13, HOT, -.05);
+  // handle
+  const hx = 16 + C2.u * (w - 32);
+  x.setLineDash([3, 5]); x.strokeStyle = '#ffffff33'; x.beginPath(); x.moveTo(hx, 72); x.lineTo(hx, h - 30); x.stroke(); x.setLineDash([]);
+  pencil(x, blob(hx, h - 18, C2.held ? 11 : 9, 16, seed, .08), seed + 2, HOT, 2, .6, true);
+  hand(x, 'low', 16, h - 16, 12, DIM, -.04);
+  hand(x, 'high', w - 16, h - 16, 12, DIM, -.04, 'right');
+});
+
+/* ================= 3 · big things low, small things high ================= */
+const shelf = $('#shelf');
+const OBJ = [
+  { k: 'bell', sz: 1,   m: 55 }, { k: 'bell', sz: .78, m: 62 }, { k: 'bell', sz: .6, m: 67 }, { k: 'bell', sz: .45, m: 74 },
+  { k: 'drum', sz: 1,   f: 62 }, { k: 'drum', sz: .8, f: 95 }, { k: 'drum', sz: .62, f: 145 }, { k: 'drum', sz: .46, f: 220 },
+].map((o, i) => Object.assign(o, { i, hit: -9, rank: i % 4 }));
+function lay3(w, h){
+  const ph = w < 560;
+  const groups = [OBJ.slice(0, 4), OBJ.slice(4)];
+  groups.forEach((g, gi) => {
+    const gx = ph ? 10 : (gi ? w / 2 + 10 : 14), gw = ph ? w - 20 : w / 2 - 24;
+    const base = ph ? (gi ? h * .84 : h * .4) : h * .74;
+    const maxS = Math.min(gw / 3.1, ph ? h * .3 : h * .55);
+    const tot = g.reduce((a, o) => a + o.sz * maxS, 0), gap = (gw - tot) / 5;
+    let cx = gx + gap;
+    g.forEach(o => { o.s = o.sz * maxS; o.cx = cx + o.s / 2; o.base = base; cx += o.s + gap; });
+  });
+  return ph;
+}
+function hit3(o){
+  o.hit = nowS();
+  if (o.k === 'bell') play('bell', mtof(o.m), { vel: .8 });
+  else drum('tom', { f: o.f, vel: .9 });
+}
+function drawBell(x, o, seed){
+  const s = o.s, b = o.base;
+  const L = []; const R = [];
+  const prof = [[.5, 0], [.44, -.08], [.36, -.2], [.32, -.42], [.3, -.62], [.22, -.78], [.1, -.85], [0, -.86]];
+  prof.forEach(([a, c]) => { L.push([o.cx - a * s, b + c * s]); R.unshift([o.cx + a * s, b + c * s]); });
+  const pts = L.concat(R.slice(1));
+  sketch(x, pts, seed, .9, true); x.fillStyle = 'hsla(45 80% 62% / .16)'; x.fill();
+  pencil(x, pts, seed, HOT, 1.8, .9, true);
+  pencil(x, [[o.cx - .48 * s, b - .03 * s], [o.cx, b + .02 * s], [o.cx + .48 * s, b - .03 * s]], seed + 4, HOT, 1.2, .6);
+  pencil(x, blob(o.cx, b - .93 * s, .07 * s + 2, 12, seed + 2, .1), seed + 3, HOT, 1.5, .5, true);
+  x.fillStyle = HOT; x.beginPath(); x.arc(o.cx, b + .06 * s, Math.max(2.5, .05 * s), 0, TAU); x.fill();
+}
+function drawDrum(x, o, seed){
+  const s = o.s, b = o.base, rx = s / 2, ry = s * .13, ht = s * .5, top = b - ht;
+  const ell = (cy, half) => { const p = []; for (let i = 0; i <= 18; i++){ const a = half ? i / 18 * Math.PI : i / 18 * TAU; p.push([o.cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]); } return p; };
+  const body = [[o.cx - rx, top]].concat(ell(b, true).reverse(), [[o.cx + rx, top]]);
+  sketch(x, body, seed, .8); x.fillStyle = 'hsla(12 70% 60% / .16)'; x.fill();
+  pencil(x, body, seed, CORAL, 1.8, .8);
+  sketch(x, ell(top, false), seed + 1, .7, true); x.fillStyle = 'hsla(40 40% 88% / .14)'; x.fill();
+  pencil(x, ell(top, false), seed + 1, INK, 1.6, .7, true);
+  for (let k = 1; k < 4; k++){ const xx = o.cx - rx + k * rx / 2; pencil(x, [[xx, top + ry * .9], [xx + rx * .12, b - ry * .1]], seed + 5 + k, CORAL, 1, .5); }
+}
+addDrawer(shelf, () => {
+  const [x, w, h] = fit(shelf), t = nowS(), seed = boil(t), ph = lay3(w, h);
+  x.clearRect(0, 0, w, h);
+  OBJ.forEach(o => {
+    const u = t - o.hit, vf = 3 + o.rank * 3, env = u < 3 ? Math.exp(-u * 2.2) : 0;
+    const sh = env * Math.sin(TAU * vf * u);
+    x.save(); x.translate(o.cx, o.base); x.scale(1 + .07 * sh, 1 - .05 * sh); x.translate(-o.cx, -o.base);
+    (o.k === 'bell' ? drawBell : drawDrum)(x, o, seed + o.i * 11);
+    x.restore();
+    if (env > .05){
+      x.globalAlpha = env; const top = o.base - o.s * (o.k === 'bell' ? .55 : .3), sx = o.s * .62 + 6;
+      for (const sg of [-1, 1]) for (let k = 0; k < 2; k++){
+        const xx = o.cx + sg * (sx + k * 8), r = 8 + k * 5;
+        pencil(x, [[xx - sg * 3, top - r], [xx + sg * 2, top], [xx - sg * 3, top + r]], seed + k + sg * 5, o.k === 'bell' ? HOT : CORAL, 1.3, .5);
+      }
+      x.globalAlpha = 1;
+    }
+  });
+  const lab = (g, txt) => { const a = OBJ[g * 4], z = OBJ[g * 4 + 3]; const y = ph ? a.base - a.s - 18 : 22;
+    hand(x, txt, ph ? 14 : a.cx - a.s / 2, y, 13, g ? CORAL : HOT, -.04);
+    if (ph && !g) return;
+    hand(x, 'big', a.cx, a.base + a.s * .2 + 16, 11, DIM, -.04, 'center'); hand(x, 'small', z.cx, z.base + a.s * .2 + 16, 11, DIM, -.04, 'center'); };
+  lab(0, 'bells'); lab(1, 'drums');
+});
+shelf.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  const [px, py] = pos(shelf, e);
+  let best = null, bd = 1e9;
+  OBJ.forEach(o => { const cy = o.base - o.s * .45, d = Math.hypot((px - o.cx) / Math.max(o.s * .6, 26), (py - cy) / Math.max(o.s * .65, 30)); if (d < 1 && d < bd){ bd = d; best = o; } });
+  if (best) hit3(best);
+});
+shelf.addEventListener('keydown', e => { const n = +e.key; if (n >= 1 && n <= 8){ e.preventDefault(); hit3(OBJ[n - 1]); } });
+function shake(b){ b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); }
+$('#tuba').addEventListener('click', e => { shake(e.currentTarget); play('trumpet', mtof(38), { dur: 1.1, vel: .9 }); play('trumpet', mtof(38), { t0: 1.3, dur: .5, vel: .7 }); });
+$('#whistle').addEventListener('click', e => { shake(e.currentTarget); play('flute', mtof(93), { dur: .35, vel: .55 }); play('flute', mtof(93), { t0: .45, dur: .7, vel: .55 }); });
+
+/* ================= 4 · loudness vs pitch pad ================= */
+const lp = $('#lp'), r4 = $('#r4'), sp4 = $('#sp4'), sz4 = $('#sz4'), lpPlay = $('#lpPlay');
+const C4 = { u: .4, a: .45, held: false, latched: false, d: null, demoUntil: 0 };
+const f4 = () => 150 * Math.pow(1000 / 150, C4.u);
+const own4 = { onStop(){ C4.latched = false; SO.setPlayBtn(lpPlay, false, 'Keep playing', 'Stop'); } };
+const on4 = () => SO.isOwner(own4);
+const sizeWord = a => a < .15 ? 'a tiny tremble (very quiet)' : a < .35 ? 'small (quiet)' : a < .6 ? 'medium' : a < .85 ? 'big (loud)' : 'huge (very loud)';
+const g4 = () => .2 * Math.pow(C4.a, 1.3) * loud(f4());
+function start4(){ if (!on4()) C4.d = SO.drone([f4()], 'triangle', .1, own4); upd4(); }
+function upd4(src){
+  const f = f4();
+  if (on4()){ C4.d.set(0, f); C4.d.gain(0, g4()); }
+  if (src !== 'sl'){ sp4.value = Math.round(C4.u * 1000); sz4.value = Math.round(C4.a * 1000); }
+  r4.innerHTML = `speed <b>${fmtHz(f)} Hz</b> (${f < 260 ? 'lowish' : f < 520 ? 'middle' : 'highish'}) · swing <b>${sizeWord(C4.a)}</b>`;
+}
+function grid4(w, h){ return { l: 18, r: w - 18, top: 22, bot: h - 22, mid: h / 2 }; }
+function set4(e){
+  const [px, py, w, h] = pos(lp, e), G = grid4(w, h);
+  C4.u = clamp((px - G.l) / (G.r - G.l), 0, 1);
+  C4.a = clamp((G.mid - py) / (G.mid - G.top - 6), .03, 1);
+  upd4();
+}
+lp.addEventListener('pointerdown', e => { e.preventDefault(); C4.held = true; try { lp.setPointerCapture(e.pointerId); } catch (_){} set4(e); start4(); });
+lp.addEventListener('pointermove', e => { if (C4.held) set4(e); });
+const rel4 = () => { if (!C4.held) return; C4.held = false; if (!C4.latched && on4()) SO.stopDrone(); };
+lp.addEventListener('pointerup', rel4); lp.addEventListener('pointercancel', rel4);
+lp.addEventListener('keydown', e => {
+  const m = { ArrowRight: [.03, 0], ArrowLeft: [-.03, 0], ArrowUp: [0, .05], ArrowDown: [0, -.05] }[e.key];
+  if (!m) return; e.preventDefault(); C4.u = clamp(C4.u + m[0], 0, 1); C4.a = clamp(C4.a + m[1], .03, 1); upd4();
+  if (!on4()) play('triangle', f4(), { dur: .35, vel: clamp(C4.a * 1.1, .05, 1) });
+});
+[sp4, sz4].forEach(s => s.addEventListener('input', () => {
+  C4.u = sp4.value / 1000; C4.a = Math.max(.03, sz4.value / 1000); upd4('sl');
+  if (!on4()){ start4(); C4.latched = true; SO.setPlayBtn(lpPlay, true, 'Keep playing', 'Stop'); }
+}));
+lpPlay.addEventListener('click', () => {
+  if (on4() && C4.latched){ SO.stopDrone(); return; }
+  start4(); C4.latched = true; SO.setPlayBtn(lpPlay, true, 'Keep playing', 'Stop');
+});
+function demo(steps){
+  SO.stopDrone(); const c = SO.ac();
+  steps.forEach(([u, a, t0]) => {
+    const f = 150 * Math.pow(1000 / 150, u);
+    play('flute', f, { t0, dur: .85, vel: clamp(Math.pow(a, 1.3) * 1.15, .05, 1) });
+    SO.at(c.currentTime + .03 + t0, () => { C4.u = u; C4.a = a; C4.demoUntil = nowS() + 1; upd4(); });
+  });
+}
+$('#demoQL').addEventListener('click', () => demo([[.45, .18, 0], [.45, .95, 1.1]]));
+$('#demoLH').addEventListener('click', () => demo([[.1, .6, 0], [.85, .6, 1.1]]));
+guard($('#c4'), own4);
+upd4();
+addDrawer(lp, () => {
+  const [x, w, h] = fit(lp), t = nowS(), seed = boil(t), G = grid4(w, h), f = f4(), live = on4() || t < C4.demoUntil;
+  x.clearRect(0, 0, w, h);
+  // centre line and axes
+  pencil(x, [[G.l, G.mid], [G.r, G.mid]], 3, '#ffffff22', 1, .8);
+  arrow(x, G.l + 4, G.mid + 34, G.l + 4, G.top + 18, 7, '#ffffff40');
+  hand(x, 'bigger swing = louder', G.l + 14, G.top + 8, 11, DIM, -.03);
+  arrow(x, G.r - 120, G.bot - 4, G.r - 10, G.bot - 4, 8, '#ffffff40');
+  hand(x, 'faster = higher', G.r - 12, G.bot - 22, 11, DIM, -.03, 'right');
+  // the wave
+  const A = C4.a * (G.mid - G.top - 6), cyc = f * .012, ph = RM ? 0 : t * 1.4;
+  const pts = []; const n = Math.max(80, Math.min(700, Math.round(w / 2)));
+  for (let i = 0; i <= n; i++){ const u = i / n; pts.push([G.l + u * (G.r - G.l), G.mid - A * Math.sin(TAU * cyc * u - ph)]); }
+  x.globalAlpha = .12; x.fillStyle = HOT; x.beginPath(); x.moveTo(G.l, G.mid); pts.forEach(p => x.lineTo(p[0], p[1])); x.lineTo(G.r, G.mid); x.fill(); x.globalAlpha = 1;
+  pencil(x, pts, seed, live ? HOT : '#c4bccd99', live ? 2.4 : 1.6, .6);
+  // swing-size brace on the right
+  pencil(x, [[G.r - 4, G.mid], [G.r + 2, G.mid - A / 2], [G.r - 4, G.mid - A]], seed + 4, VIO, 1.4, .4);
+  // handle
+  const hx = G.l + C4.u * (G.r - G.l), hy = G.mid - A;
+  x.fillStyle = 'hsla(45 90% 70% / .25)'; x.beginPath(); x.arc(hx, hy, 15, 0, TAU); x.fill();
+  pencil(x, blob(hx, hy, C4.held ? 13 : 11, 16, seed, .08), seed + 2, HOT, 2.2, .5, true);
+});
+
+/* ================= 5 · steady vs noisy ================= */
+const nz = $('#nz'), r5 = $('#r5'), mix5 = $('#mix5'), nzPlay = $('#nzPlay');
+const C5 = { mix: 0, d: null, ng: null, n: null };
+const F5 = 147;
+const own5 = { onStop(){ try { C5.n && C5.n.stop(SO.ctx.currentTime + .4); } catch (_){} C5.n = null; SO.setPlayBtn(nzPlay, false); } };
+const on5 = () => SO.isOwner(own5);
+function start5(){
+  if (on5()) return;
+  const d = SO.drone([F5, F5 * 2], 'organ', .1, own5), c = SO.ctx;
+  const n = c.createBufferSource(); n.buffer = noiseBuf(); n.loop = true;
+  const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = .45;
+  const ng = c.createGain(); ng.gain.value = 0; n.connect(bp); bp.connect(ng); ng.connect(d.out); n.start();
+  Object.assign(C5, { d, n, ng }); SO.setPlayBtn(nzPlay, true); upd5();
+}
+function upd5(){
+  const m = C5.mix;
+  if (on5()){
+    const c = SO.ctx;
+    C5.d.gain(0, .14 * loud(F5) * Math.pow(1 - m, 1.2)); C5.d.gain(1, .05 * Math.pow(1 - m, 1.2));
+    C5.ng.gain.setTargetAtTime(.55 * Math.pow(m, .8), c.currentTime, .04);
+  }
+  mix5.value = Math.round(m * 1000);
+  r5.innerHTML = m < .15 ? '<b>Steady:</b> the same shape repeats again and again, so you hear one clear pitch.'
+    : m < .5 ? '<b>Mostly steady:</b> a note with a breathy hiss on top. You can still pick out the pitch.'
+    : m < .85 ? '<b>Mostly noise:</b> the repeating shape is getting buried. The pitch is hard to find.'
+    : '<b>Noise:</b> random wobbles with no pattern. No pitch at all, just "shhhh".';
+}
+mix5.addEventListener('input', () => { C5.mix = mix5.value / 1000; if (!on5()) start5(); upd5(); });
+nzPlay.addEventListener('click', () => { if (on5()) SO.stopDrone(); else start5(); });
+$$('#c5 [data-mix]').forEach(b => b.addEventListener('click', () => { C5.mix = +b.dataset.mix; if (!on5()) start5(); upd5(); }));
+guard($('#c5'), own5);
+upd5();
+const steadyShape = p => (Math.sin(p) + .55 * Math.sin(2 * p + .6) + .3 * Math.sin(3 * p + 1.4) + .15 * Math.sin(4 * p + .2)) / 2;
+addDrawer(nz, () => {
+  const [x, w, h] = fit(nz), t = nowS(), live = on5(), seed = live && !RM ? Math.floor(t * 30) : boil(t), m = C5.mix;
+  x.clearRect(0, 0, w, h);
+  const mid = h / 2 - 6, A = h * .36, cyc = w < 500 ? 3.5 : 5.5, ph = RM ? 0 : t * .8;
+  const n = Math.round(w / 3), pts = [];
+  for (let i = 0; i <= n; i++){
+    const u = i / n, s = steadyShape(TAU * cyc * u - ph), r = (hash(seed * 7.3 + i * 1.91) - .5) * 2;
+    pts.push([10 + u * (w - 20), mid - A * ((1 - m) * s + m * r * .95)]);
+  }
+  pencil(x, pts, seed, live ? HOT : '#c4bccd99', live ? 2 : 1.5, .4);
+  if (m < .5){ // bracket one repeat
+    const x0 = 10 + (w - 20) * ((ph / TAU) % 1 + 1) / cyc, x1 = x0 + (w - 20) / cyc;
+    x.globalAlpha = 1 - m * 2;
+    pencil(x, [[x0, h - 18], [x0, h - 12], [x1, h - 12], [x1, h - 18]], 5, VIO, 1.4, .5);
+    hand(x, 'one repeat', (x0 + x1) / 2, h - 26, 11, VIO, -.03, 'center');
+    x.globalAlpha = 1;
+  }
+  if (m > .6){ x.globalAlpha = (m - .6) / .4; hand(x, 'no pattern at all!', w - 16, 18, 12, VIO, -.04, 'right'); x.globalAlpha = 1; }
+});
+$('#exs').addEventListener('click', e => {
+  const b = e.target.closest('.ex'); if (!b) return;
+  SO.stopDrone();
+  b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
+  setTimeout(() => b.classList.add('seen'), 700);
+  ({ flute: () => play('flute', mtof(72), { dur: 1.1, vel: .7 }),
+     snare: () => { drum('snare'); drum('snare', { t0: .35, vel: .7 }); },
+     voice: () => play('voice', mtof(57), { dur: 1.3, vel: .7 }),
+     clap:  () => { drum('clap'); drum('clap', { t0: .3 }); },
+     box:   () => [76, 79, 84].forEach((m, i) => play('music-box', mtof(m), { t0: i * .22, vel: .7 })),
+     wind:  () => { shh(0, 1.4, .7, 700, .9); shh(.3, 1, .4, 1600, 1.5); } })[b.dataset.ex]();
+});
+
+/* ================= 6 · range of hearing ================= */
+const rc = $('#range'), r6 = $('#r6'), swUp = $('#swUp'), swDn = $('#swDn'), swLost = $('#swLost');
+const LO = 20, HI = 20000, lp6 = f => (Math.log(f) - Math.log(LO)) / (Math.log(HI) - Math.log(LO));
+const C6 = { sw: null, mark: null, tap: null };
+const own6 = { onStop(){ if (C6.sw && !C6.sw.done) C6.sw.done = true; swLost.disabled = true; SO.setPlayBtn(swUp, false, 'Sweep up (high)'); SO.setPlayBtn(swDn, false, 'Sweep down (low)'); } };
+function sweepF(){ const s = C6.sw; if (!s) return null; const u = clamp((SO.ctx.currentTime - s.t) / s.T, 0, 1); return s.f0 * Math.pow(s.f1 / s.f0, u); }
+function sweep(f0, f1, T, btn, lab){
+  if (C6.sw && !C6.sw.done && SO.isOwner(own6)){ SO.stopDrone(); r6.innerHTML = 'Stopped. <small>Run a sweep again any time.</small>'; return; }
+  const d = SO.drone([f0], 'sine', .05, own6), c = SO.ctx, t = c.currentTime;
+  const fr = d.vs[0].o.frequency; fr.cancelScheduledValues(t); fr.setValueAtTime(f0, t); fr.exponentialRampToValueAtTime(f1, t + T);
+  d.gain(0, f1 > f0 ? .045 : .1);
+  C6.sw = { f0, f1, T, t, done: false, up: f1 > f0 }; C6.mark = null;
+  swLost.disabled = false; SO.setPlayBtn(btn, true, lab, 'Stop sweep');
+  r6.innerHTML = f1 > f0 ? 'Climbing… tap <b>I can\'t hear it now</b> when it disappears.' : 'Sinking… tap <b>I can\'t hear it now</b> when it fades into nothing.';
+  const me = C6.sw;
+  setTimeout(() => { if (C6.sw === me && !me.done && SO.isOwner(own6)){ SO.stopDrone(); r6.innerHTML = `It went all the way to ${fmtHz(f1)} Hz. <small>Did you hear the end? If so, your ears (and speakers) are doing great.</small>`; } }, T * 1000 + 150);
+}
+swUp.addEventListener('click', () => sweep(1500, 20000, 14, swUp, 'Sweep up (high)'));
+swDn.addEventListener('click', () => sweep(220, 20, 10, swDn, 'Sweep down (low)'));
+swLost.addEventListener('click', () => {
+  if (!C6.sw || C6.sw.done) return;
+  const f = sweepF(); C6.mark = { f, up: C6.sw.up }; SO.stopDrone();
+  r6.innerHTML = C6.sw.up
+    ? `You lost it at about <b>${fmtHz(f)} Hz</b>. <small>${f > 16000 ? 'Sharp ears! That is teenager territory.' : f > 12000 ? 'A very typical grown-up ear.' : 'Speakers often give up up here before ears do; try headphones.'}</small>`
+    : `It vanished at about <b>${fmtHz(f)} Hz</b>. <small>${f < 40 ? 'Deep! You (or your headphones) reach the very bottom.' : 'Small speakers can\'t push enough air for the lowest wobbles. That\'s the speaker, not you.'}</small>`;
+});
+guard($('#c6'), own6);
+function geo6(w, h){ const ph = w < 560; return { l: ph ? 18 : 30, r: w - (ph ? 18 : 30), y: h * .52, ph }; }
+const fx6 = (G, f) => G.l + lp6(f) * (G.r - G.l);
+rc.addEventListener('pointerdown', e => {
+  const [px, , w, h] = pos(rc, e), G = geo6(w, h);
+  const f = LO * Math.pow(HI / LO, clamp((px - G.l) / (G.r - G.l), 0, 1));
+  if (C6.sw && !C6.sw.done && SO.isOwner(own6)) SO.stopDrone();
+  C6.tap = { f, t: nowS() };
+  play('sine', f, { dur: .6, vel: f > 6000 ? .35 : f > 2500 ? .5 : .8 });
+});
+rc.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); swUp.click(); } });
+const MARKS = [
+  { f: 27.5, t: 'lowest piano key', up: 1, l: 0 }, { f: 120, t: 'talking voice', up: 0, l: 0, ph: 0 }, { f: 440, t: 'tuning note', up: 1, l: 1 },
+  { f: 4186, t: 'top piano key', up: 0, l: 1 }, { f: 12000, t: 'many grown-ups stop', up: 1, l: 0, ph: 0 }, { f: 17000, t: 'teens only', up: 0, l: 0, phUp: 1 },
+];
+addDrawer(rc, () => {
+  const [x, w, h] = fit(rc), t = nowS(), seed = boil(t), G = geo6(w, h);
+  x.clearRect(0, 0, w, h);
+  // the "music lives here" band
+  const m0 = fx6(G, 40), m1 = fx6(G, 4200);
+  x.fillStyle = 'hsla(45 85% 70% / .08)'; x.fillRect(m0, G.y - 26, m1 - m0, 52);
+  hand(x, 'most music lives here', (m0 + m1) / 2, G.y + (G.ph ? 40 : 40), G.ph ? 10 : 11, HOT, -.02, 'center');
+  // ruler
+  pencil(x, [[G.l, G.y], [(G.l + G.r) / 2, G.y + 1], [G.r, G.y]], 2, INK, 1.8, .8);
+  x.font = `500 ${G.ph ? 9.5 : 11}px "Geist Mono",monospace`; x.fillStyle = DIM; x.textAlign = 'center'; x.textBaseline = 'top';
+  [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000].forEach((f, i) => {
+    const px = fx6(G, f), big = [20, 100, 1000, 10000, 20000].includes(f);
+    pencil(x, [[px, G.y - (big ? 7 : 4)], [px, G.y + (big ? 7 : 4)]], 20 + i, INK, 1.2, .4);
+    if (big || !G.ph) x.fillText(f >= 1000 ? (f / 1000) + 'k' : f, px, G.y + 10);
+  });
+  // landmarks, alternating above/below
+  MARKS.forEach((mk, i) => {
+    if (G.ph && mk.ph === 0) return;
+    const px = fx6(G, mk.f), up = G.ph && mk.phUp != null ? mk.phUp : mk.up, ly = up ? G.y - 44 - mk.l * 24 : G.y + 66 + mk.l * 24;
+    pencil(x, [[px, up ? G.y - 10 : G.y + 24], [px + 2, up ? ly + 8 : ly - 10]], 40 + i, '#ffffff40', 1, .6);
+    hand(x, mk.t, clamp(px, G.l + 40, G.r - 40), ly, G.ph ? 9.5 : 11, INK, -.04, 'center');
+  });
+  hand(x, '← elephants', G.l, 16, G.ph ? 9.5 : 11, VIO, -.04, 'left');
+  hand(x, 'dogs, bats →', G.r, 16, G.ph ? 9.5 : 11, VIO, -.04, 'right');
+  // sweep marker
+  const live = C6.sw && !C6.sw.done && SO.isOwner(own6);
+  if (live){
+    const f = sweepF(), px = fx6(G, f);
+    x.fillStyle = 'hsla(45 90% 70% / .2)'; x.beginPath(); x.arc(px, G.y, 16, 0, TAU); x.fill();
+    pencil(x, blob(px, G.y, 9, 14, seed, .1), seed, HOT, 2.2, .5, true);
+    x.font = `italic 400 ${G.ph ? 18 : 22}px ${SERIF}`; x.fillStyle = INK; x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+    x.fillText(fmtHz(f) + ' Hz', clamp(px, G.l + 50, G.r - 50), G.y - 20);
+  }
+  if (C6.mark){
+    const px = fx6(G, C6.mark.f);
+    pencil(x, [[px, G.y + 2], [px, G.y - 46], [px + 26, G.y - 40], [px, G.y - 33]], 77, CORAL, 2, .5);
+    hand(x, 'you', px + 6, G.y - 56, 12, CORAL, -.05);
+  }
+  if (C6.tap && t - C6.tap.t < .8){
+    const px = fx6(G, C6.tap.f), a = 1 - (t - C6.tap.t) / .8;
+    x.globalAlpha = a; pencil(x, blob(px, G.y, 8 + (1 - a) * 16, 14, seed + 3, .08), seed + 3, HOT, 1.5, .5, true); x.globalAlpha = 1;
+    x.font = `500 11px "Geist Mono",monospace`; x.fillStyle = HOT; x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+    x.fillText(fmtHz(C6.tap.f) + ' Hz', clamp(px, G.l + 30, G.r - 30), G.y - 22);
+  }
+});
+
+/* ================= quiz ================= */
+const pick = a => a[Math.floor(Math.random() * a.length)];
+SO.quiz($('#q'), { make(){
+  const kind = pick(['higher', 'higher', 'louder', 'louder', 'noise', 'bigger']);
+  if (kind === 'higher'){
+    const inst = pick(['piano', 'flute', 'marimba', 'clarinet']), m = 55 + Math.floor(Math.random() * 12), gap = 4 + Math.floor(Math.random() * 8);
+    const answer = Math.random() < .5 ? 0 : 1, a = answer ? m : m + gap, b = answer ? m + gap : m;
+    return { prompt: 'Two sounds. <b>Which one is higher?</b>', options: ['the first', 'the second'], answer,
+      play(){ play(inst, mtof(a), { dur: .8 }); play(inst, mtof(b), { t0: 1, dur: .8 }); },
+      explain: `The ${answer ? 'second' : 'first'} one wobbles faster, so it sounds higher.` };
+  }
+  if (kind === 'louder'){
+    const inst = pick(['flute', 'clarinet', 'organ']), f = mtof(60 + Math.floor(Math.random() * 10));
+    const answer = Math.random() < .5 ? 0 : 1, va = answer ? .2 : .95, vb = answer ? .95 : .2;
+    return { prompt: 'Same note twice. <b>Which one is louder?</b>', options: ['the first', 'the second'], answer,
+      play(){ play(inst, f, { dur: .8, vel: va }); play(inst, f, { t0: 1, dur: .8, vel: vb }); },
+      explain: 'Same speed of wobble (same pitch), but a bigger swing, so it sounds louder.' };
+  }
+  if (kind === 'noise'){
+    const answer = Math.random() < .5 ? 0 : 1;
+    const steady = pick([() => play('flute', mtof(67), { dur: 1 }), () => play('voice', mtof(57), { dur: 1.1 }), () => play('organ', mtof(60), { dur: 1, vel: .7 })]);
+    const noisy = pick([() => shh(0, 1, .8, 3500), () => shh(0, 1, .7, 900, .9), () => { drum('snare'); drum('snare', { t0: .4 }); }]);
+    return { prompt: '<b>Is this a steady note, or noise?</b>', options: ['a steady note', 'noise'], answer,
+      play(){ answer ? noisy() : steady(); },
+      explain: answer ? 'Random wobbles with no repeating pattern: noise. You can\'t hum it back.' : 'It repeats the same wobble over and over, so it has a clear pitch: a note.' };
+  }
+  const answer = Math.random() < .5 ? 0 : 1, big = 70, small = 170;
+  return { prompt: 'Two drums. <b>Which one is the bigger drum?</b>', options: ['the first', 'the second'], answer,
+    play(){ drum('tom', { f: answer ? small : big }); drum('tom', { f: answer ? big : small, t0: .8 }); },
+    explain: `The bigger drum wobbles slower, so it sounds lower. That was the ${answer ? 'second' : 'first'} one.` };
+} });
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Naming the notes · Split the Octave</title>
+<meta name="description" content="Seven letters, A to G, the piano keyboard, and the octave: the same note, only higher. Turn your volume on.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&family=Fraunces:ital,opsz,wght,SOFT,WONK@1,9..144,100..900,0..100,0..1&family=Homemade+Apple&display=swap">
+<link rel="stylesheet" href="../kit/series.css">
+<style>
+  /* ---------- lesson 3 · naming the notes ---------- */
+  .hero h1 .big .lt{display:inline-block;animation:bob 3.4s ease-in-out infinite;animation-delay:calc(var(--i) * -.23s)}
+  @media (prefers-reduced-motion: reduce){ .hero h1 .big .lt{animation:none} }
+  @media (max-width:700px){ .hero.short{padding-top:345px} }
+  .scrawl{font-family:"Homemade Apple","Snell Roundhand",cursive;color:var(--hot);font-size:14px;line-height:1.3}
+  .lab-w canvas.touch{touch-action:none;cursor:ns-resize;border-radius:12px}
+  .big-read{color:var(--ink)}
+
+  /* toggles that look like little hand-cut tabs */
+  .tog{border:1.5px dashed color-mix(in oklab,var(--hot) 60%,transparent);background:transparent;color:var(--ink);border-radius:999px;padding:9px 14px;min-height:40px;font:500 14.5px var(--grot);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+  .tog i{width:30px;height:16px;border-radius:9px;background:#ffffff22;position:relative;transition:background .2s}
+  .tog i::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--ink);transition:transform .2s}
+  .tog[aria-pressed="true"]{border-style:solid;border-color:var(--hot)}
+  .tog[aria-pressed="true"] i{background:var(--hot)}
+  .tog[aria-pressed="true"] i::after{transform:translateX(14px);background:#2a1c10}
+
+  /* ch2 · the walking alphabet */
+  .walk2{display:grid;grid-template-columns:170px minmax(0,1fr);gap:20px;align-items:center;margin-top:10px}
+  .ribbon{display:flex;align-items:flex-end;gap:4px;height:200px;min-width:600px;padding:6px 2px 20px}
+  .tile{flex:1;min-width:38px;height:48px;border:0;border-radius:46% 54% 42% 58%/55% 45% 55% 45%;background:color-mix(in oklab,var(--c) 30%,var(--card2));box-shadow:inset 0 -3px 0 color-mix(in oklab,var(--c) 70%,transparent);font:italic 400 22px var(--serif);font-variation-settings:"opsz" 72,"SOFT" 100,"WONK" 1;color:var(--ink);cursor:pointer;transition:transform .12s,background .12s;position:relative}
+  .tile:nth-child(odd){border-radius:55% 45% 58% 42%/45% 55% 45% 55%}
+  .tile.lit{background:var(--c);color:#1b1622;transform:translateY(-6px) rotate(-4deg)}
+  .tile .o{position:absolute;bottom:-17px;left:0;right:0;font:500 9.5px var(--mono);color:var(--dim);font-style:normal}
+  .typed{font:italic 400 clamp(22px,3vw,30px) var(--serif);letter-spacing:.06em;min-height:1.4em;margin-top:22px;color:var(--soft);overflow-wrap:anywhere}
+  .typed span{transition:color .2s}
+  .typed .now{color:var(--hot)}
+  svg.ring{width:100%;max-width:170px;display:block;margin:0 auto;overflow:visible}
+  svg.ring .nd{cursor:pointer}
+  svg.ring .nd path{fill:var(--card2);stroke:var(--c);stroke-width:2;transition:fill .2s}
+  svg.ring .nd text{fill:var(--ink);font:italic 400 19px var(--serif);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+  svg.ring .nd.lit path{fill:var(--c)}
+  svg.ring .nd.lit text{fill:#1b1622}
+  svg.ring .track{fill:none;stroke:#ffffff26;stroke-width:1.5;stroke-dasharray:3 6;stroke-linecap:round}
+  @media (max-width:560px){ .walk2{grid-template-columns:1fr;gap:12px} svg.ring{max-width:180px} }
+
+  /* ch3 · same note game */
+  .pebbles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+  .peb{display:grid;justify-items:center;gap:8px}
+  .peb .blob{width:min(96px,100%);aspect-ratio:1;border:2px solid #ffffff3a;background:var(--card2);border-radius:58% 42% 51% 49%/46% 55% 45% 54%;cursor:pointer;font:italic 400 30px var(--serif);color:var(--ink);transition:transform .15s,background .25s,border-color .25s;display:grid;place-items:center;line-height:1}
+  .peb:nth-child(2) .blob{border-radius:44% 56% 47% 53%/58% 42% 58% 42%}
+  .peb:nth-child(3) .blob{border-radius:52% 48% 60% 40%/40% 60% 44% 56%}
+  .peb .blob:active{transform:scale(.94)}
+  .peb .blob.ping{transform:scale(1.07) rotate(3deg);border-color:var(--hot)}
+  .peb .blob small{display:block;font:500 10px var(--mono);font-style:normal;color:var(--dim);margin-top:4px}
+  .peb.rev .blob{background:color-mix(in oklab,var(--c) 40%,var(--card2));border-color:var(--c)}
+  .peb.good .blob{box-shadow:0 0 0 4px #7fd6b055}
+  .peb .btn{min-height:36px}
+
+  /* ch4 · big keyboard */
+  .bigkb .keys{height:200px}
+  .nolab .keys .lbl,.nolab .keys .dot{visibility:hidden}
+  .keys .b.g2{background:#2d2440;box-shadow:inset 0 -14px 0 #ffd27a,0 0 0 2px #ffd27a}
+  .keys .b.g3{background:#22283e;box-shadow:inset 0 -14px 0 #9fd1ff,0 0 0 2px #9fd1ff}
+  .keys .w.ok{background:color-mix(in oklab,#7fd6b0 55%,#f2ece2)}
+  .keys .w.no{animation:nope .35s}
+  @keyframes nope{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font:500 12px var(--mono);color:var(--dim);margin:10px 0 0}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  .gameline{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:baseline;margin:16px 0 4px}
+  .gameline .big-read{font-size:clamp(26px,3vw,36px)}
+  .tally{font:500 13px var(--mono);color:var(--dim)}
+  .tally b{color:var(--ok)}
+  .landmarks{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:18px 0}
+  .landmarks div{background:var(--card2);border-radius:14px 18px 12px 16px;padding:12px 14px;color:var(--soft);font-size:15.5px}
+  .landmarks b{font-family:var(--serif);font-style:italic;font-weight:400;font-size:26px;margin-right:6px}
+
+  /* ch5 · floors above the wide keyboard */
+  .floors{display:flex;min-width:600px;height:34px;margin-bottom:6px;position:relative}
+  .floors span{flex:7;position:relative;border-bottom:2px solid #ffffff2a;margin:0 2px;text-align:center;font:500 11px var(--mono);color:var(--dim);border-radius:0 0 6px 6px}
+  .floors span::before,.floors span::after{content:"";position:absolute;bottom:-2px;width:2px;height:9px;background:#ffffff2a}
+  .floors span::before{left:0}.floors span::after{right:0}
+  .floors span.last{flex:1;border:0}
+  .floors span.last::before,.floors span.last::after{display:none}
+  .floors span.mid{color:var(--hot);border-color:var(--hot)}
+  .floors span.mid::before,.floors span.mid::after{background:var(--hot)}
+  .floors span.on{color:var(--ink)}
+  .lowhigh{display:flex;justify-content:space-between;font-family:"Homemade Apple",cursive;font-size:13px;color:var(--soft);margin:12px 4px 0}
+
+  /* ch6 · contour */
+  .paper{background:#1c1925;border-radius:12px;background-image:radial-gradient(#ffffff0a 1px,transparent 1px);background-size:14px 14px}
+  .kb-small .keys{height:130px}
+  /* ch7 · staff */
+  #staff{cursor:crosshair}
+
+  /* quiz keyboard drawing */
+  .qkb{display:block;width:100%;max-width:440px;height:auto;margin:10px 0 2px}
+</style>
+</head>
+<body>
+
+<section class="hero short gut">
+  <canvas class="art" id="art" aria-hidden="true"></canvas>
+  <div class="txt">
+    <div class="kicker" id="so-kicker"></div>
+    <h1><span class="big" id="ttl">Naming the notes</span><span class="sub">seven letters, round and round</span></h1>
+    <p>Music doesn’t use every pitch. It picks out certain ones and gives them names: just seven letters, used over and over again. By the end of this page you’ll find any white key on a piano and play a tune with it. <b style="color:var(--ink)">Turn your volume on.</b></p>
+    <div class="soundgo">
+      <button class="btn go" id="hello"><span class="pl"></span> Turn on sound</button>
+      <span class="note">You should hear a few soft notes. Nothing? Turn your volume up. On an iPhone, also flip off the silent switch.</span>
+    </div>
+    <div id="so-strip" style="margin-top:28px"></div>
+  </div>
+</section>
+
+<main class="gut">
+
+<!-- 1 -->
+<section class="ch" id="c1">
+  <div class="num">1</div>
+  <h2>Stairs, not a ramp</h2>
+  <p>In lesson 1 you heard that pitch is how high or low a sound is. A siren slides smoothly through every pitch on the way up, like rolling up a ramp.</p>
+  <p>Music mostly doesn’t do that. It hops between a set of chosen pitches, like walking up <b>stairs</b>. Each stair is a <span class="word">note</span>: one particular pitch with a name.</p>
+  <div class="lab-w">
+    <p class="hint">TRY IT · press and drag up and down on the pad. Then flip on “snap to notes” and drag again.</p>
+    <canvas id="pad" class="touch paper" style="height:300px"></canvas>
+    <div class="row" style="margin-top:12px">
+      <button class="tog" id="snap" aria-pressed="false"><i></i> snap to notes</button>
+      <button class="btn sm" id="siren"><span class="pl"></span> Siren (slide)</button>
+      <button class="btn sm" id="stairs"><span class="pl"></span> Stairs (notes)</button>
+    </div>
+    <div class="readout" id="padRead">Silent. Press on the pad to make a sound.</div>
+  </div>
+  <p>Hear the difference? The slide is smeary and wailing. The stairs sound like <em>music</em>, even when you’re just dragging a finger. Every song you know is built out of these steps.</p>
+  <div class="takeaway"><b>The big idea:</b> music picks out certain pitches, called notes, and steps between them like stairs.</div>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="c2">
+  <div class="num">2</div>
+  <h2>Seven letters, then round again</h2>
+  <p>The notes are named with letters of the alphabet, but only the first seven: <b>A B C D E F G</b>. After G, there is no H. You go back to A and start again.</p>
+  <p>So the names go round in a loop: <span class="scrawl">…E F G A B C D E F G A B…</span> like the days of the week. After Sunday comes Monday again, not “day eight”.</p>
+  <div class="lab-w">
+    <p class="hint">TRY IT · tap the stepping stones, or let it walk. Watch the little loop of letters go round.</p>
+    <div class="kscroll"><div class="ribbon" id="ribbon"></div></div>
+    <div class="walk2">
+      <svg class="ring" id="ring" viewBox="-110 -110 220 220" aria-label="The seven letter names in a loop"></svg>
+      <div>
+        <div class="row">
+          <button class="btn go" id="walkUp"><span class="pl"></span> Walk up</button>
+          <button class="btn" id="walkDown"><span class="pl"></span> Walk down</button>
+        </div>
+        <div class="typed" id="typed" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+  <p>Each time the letters come round, the notes keep getting higher. The A at the end sounds like the A at the start, only higher. That’s not a coincidence. It’s the whole next chapter.</p>
+  <div class="aside"><span class="t">Wait, what about the black keys?</span>Pianos also have black keys squeezed in between. They’re real notes too, and they get their names in the next lesson. Today is all about the seven letters.</div>
+  <div class="takeaway"><b>The big idea:</b> notes are named A, B, C, D, E, F, G, and then the letters start over.</div>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="c3">
+  <div class="num">3</div>
+  <h2>The same note, only higher</h2>
+  <p>Why do the letters repeat? Because your ear says they should. Play a C, then the next C up. They sound weirdly <em>alike</em>: the same note, just in a higher place. Now play C then D. Those sound like two different notes.</p>
+  <div class="lab-w">
+    <p class="hint">TRY IT · pick a pair, then listen one after the other, and together.</p>
+    <canvas id="waves" style="height:190px"></canvas>
+    <div class="row" style="margin-top:12px">
+      <button class="tog" id="pOct" aria-pressed="true"><i></i> C and the next C</button>
+      <button class="tog" id="pStep" aria-pressed="false"><i></i> C and D</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn go" id="pSeq"><span class="pl"></span> One, then the other</button>
+      <button class="btn" id="pTog"><span class="pl"></span> Together</button>
+    </div>
+    <div class="readout" id="wRead"></div>
+  </div>
+  <p>Here is the secret. The higher C wobbles <b>exactly twice as fast</b> as the lower one. Every wobble of the low C fits two wobbles of the high one, so they line up again and again (see the bright lines). C and D hardly ever line up.</p>
+  <p>That jump, from a note to the one with twice the wobbles, is called an <span class="word">octave</span>. Notes an octave apart get the same letter. When men and women sing the “same” tune together, they’re usually an octave apart without even trying.</p>
+  <div class="row"><button class="btn" id="voices"><span class="pl"></span> Two voices, one tune</button></div>
+
+  <div class="lab-w" style="margin-top:22px">
+    <p class="hint">GAME · find the same note. Hear the first note, then tap the three stones. One of them is the same letter, higher.</p>
+    <div class="row"><button class="btn go" id="gFirst"><span class="pl"></span> Hear the first note</button><button class="btn sm" id="gNew">New round</button></div>
+    <div class="pebbles" id="pebbles"></div>
+    <div class="readout" id="gRead">Your score: 0 of 0</div>
+  </div>
+  <div class="takeaway"><b>The big idea:</b> double the wobbles and you get the same note, higher. That’s an octave, and it’s why the letters repeat.</div>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="c4">
+  <div class="num">4</div>
+  <h2>Finding your way on a piano</h2>
+  <p>A piano is just the stairs laid out flat. Each key is one note. The white keys are the seven letters, over and over. But they all look the same, so how do you know which is which?</p>
+  <p>Look at the black keys. They come in little groups: <b>two</b>, then <b>three</b>, then two, then three, all the way along. Call them the <span class="word">twins</span> and the <span class="word">triplets</span>. They’re your landmarks.</p>
+  <div class="landmarks">
+    <div><b style="color:var(--c0)">C</b> is the white key just <em>left of the twins</em>.</div>
+    <div><b style="color:var(--c5)">F</b> is the white key just <em>left of the triplets</em>.</div>
+    <div>Find C, and the rest follow in order: <span class="scrawl">C D E F G A B</span></div>
+  </div>
+  <div class="lab-w">
+    <p class="hint">TRY IT · play it with your mouse or finger. On a computer, the keys A W S E D F T G Y H U J K… play it too.</p>
+    <div id="kb4" class="bigkb"></div>
+    <div class="legend"><span><i style="background:#ffd27a"></i>twins (groups of two)</span><span><i style="background:#9fd1ff"></i>triplets (groups of three)</span></div>
+    <div class="row" style="margin-top:12px">
+      <button class="tog" id="tGroups" aria-pressed="false"><i></i> show the groups</button>
+      <button class="tog" id="tLabels" aria-pressed="true"><i></i> show the letters</button>
+    </div>
+    <div class="gameline"><span class="big-read" id="gPrompt">Pick a game below</span><span class="tally" id="gTally"></span></div>
+    <div class="row">
+      <button class="btn go sm" data-find="0">Find every C</button>
+      <button class="btn sm" data-find="5">Find every F</button>
+      <button class="btn sm" data-find="4">Find every E</button>
+      <button class="btn sm" data-find="r">Surprise me</button>
+    </div>
+    <div class="readout" id="kbRead">The letters hide when a game starts. Use the black-key groups.</div>
+  </div>
+  <div class="takeaway"><b>The big idea:</b> the black keys come in twos and threes; C sits just left of the two, F just left of the three.</div>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="c5">
+  <div class="num">5</div>
+  <h2>Low on the left, high on the right</h2>
+  <p>On a piano, pitch goes sideways. The far left is low and growly; the far right is high and tinkly. Each step to the right is one stair up.</p>
+  <p>Since there are lots of Cs, we give each one a number to say <em>which</em> C. Think of the keyboard as a building with floors. Each floor starts on a C and runs up to B. Count floors from the bottom of a full-size piano, and the C nearest the middle lands on floor 4. So it’s called <b>C4</b>, or <span class="word">middle C</span>. The E just above it is E4; the next C up is C5.</p>
+  <div class="lab-w">
+    <p class="hint">TRY IT · play anywhere. The readout tells you the letter and the floor.</p>
+    <div id="kb5"></div>
+    <div class="lowhigh"><span>&larr; low, growly</span><span>high, tinkly &rarr;</span></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn go" id="climbC"><span class="pl"></span> Climb the Cs</button>
+      <button class="btn" id="sweep"><span class="pl"></span> Run up all the white keys</button>
+      <button class="btn sm" id="midC">Where’s middle C?</button>
+    </div>
+    <div class="readout" id="kb5Read">Middle C is marked. Play any key.</div>
+  </div>
+  <div class="takeaway"><b>The big idea:</b> left is low and right is high, and a number like C4 just says which floor that C lives on (C4 is middle C).</div>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="c6">
+  <div class="num">6</div>
+  <h2>A tune is a walk up and down</h2>
+  <p>Now you can read a tune without any special symbols. Here a melody is drawn as dots: higher dots are higher notes, and left to right is the order you play them. A tune is just a little walk up and down the stairs.</p>
+  <div class="lab-w">
+    <p class="hint">TRY IT · pick a song and press play. Tap any dot to hear it. Then try “your turn” and follow the glowing key.</p>
+    <div class="row" style="margin-bottom:12px">
+      <button class="tog" data-song="twinkle" aria-pressed="true"><i></i> Twinkle Twinkle</button>
+      <button class="tog" data-song="mary" aria-pressed="false"><i></i> Mary Had a Little Lamb</button>
+    </div>
+    <canvas id="contour" class="paper" style="height:220px;cursor:pointer"></canvas>
+    <div id="kb6" class="kb-small" style="margin-top:12px"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn go" id="tPlay"><span class="pl"></span> Play it</button>
+      <button class="btn" id="tTurn">Your turn</button>
+    </div>
+    <div class="readout" id="tRead">Twinkle Twinkle uses just six notes: C D E F G A.</div>
+  </div>
+  <p>Notice the shape. Twinkle jumps up, floats a bit, then walks back down one step at a time. Mary wobbles around three notes like someone pacing. You can hear the shape before you know a single note name.</p>
+  <div class="takeaway"><b>The big idea:</b> a melody is a path of notes going up and down, and you can draw it as dots.</div>
+</section>
+
+<!-- 7 -->
+<section class="ch" id="c7">
+  <div class="num">7</div>
+  <h2>A sneak peek at sheet music</h2>
+  <p>Sheet music is the same dot idea, tidied up. The dots sit on a ladder of <b>five lines</b> called a <span class="word">staff</span>. Each line and each gap between lines is one white key. Higher on the page means higher in pitch. That’s honestly most of it. We’ll learn to read it properly much later.</p>
+  <div class="lab-w">
+    <p class="hint">TRY IT · tap or drag on the lines to write a tune. Each tap adds the next note. Then play it back.</p>
+    <canvas id="staff" class="touch paper" style="height:230px"></canvas>
+    <div class="row" style="margin-top:12px">
+      <button class="btn go" id="sPlay"><span class="pl"></span> Play my tune</button>
+      <button class="btn" id="sTwinkle">Write Twinkle for me</button>
+      <button class="btn sm" id="sClear">Clear</button>
+    </div>
+    <div class="readout" id="sRead">Notes higher on the staff are higher notes.</div>
+  </div>
+  <div class="takeaway"><b>The big idea:</b> on a staff, higher on the page means a higher note, one white key per line or gap.</div>
+</section>
+
+<section class="ch" id="quiz">
+  <div class="num">?</div>
+  <h2>Check yourself</h2>
+  <p>A mix of three kinds of question: which note is higher, which letter a key is, and which note is the same letter as another. Press play and use your ears.</p>
+  <div class="lab-w"><div id="q"></div></div>
+</section>
+
+</main>
+
+<script src="../kit/series.js"></script>
+<script>
+(function(){
+'use strict';
+const { $, $$, play, mtof, fit, addDrawer, THUMB, RM, pcCol, mod12, octOf, nearest, isBlack } = SO;
+SO.init('notes');
+
+/* ---------- small helpers ---------- */
+const WP = [0, 2, 4, 5, 7, 9, 11];                 // white-key pitch classes
+const LET = { 0: 'C', 2: 'D', 4: 'E', 5: 'F', 7: 'G', 9: 'A', 11: 'B' };
+const letter = m => LET[mod12(m)] || SO.NAMES[mod12(m)];
+const dToM = d => 60 + 12 * Math.floor(d / 7) + WP[((d % 7) + 7) % 7];   // white-key index from C4 -> midi
+const whitesIn = (lo, hi) => { const a = []; for (let m = lo; m <= hi; m++) if (!isBlack(m)) a.push(m); return a; };
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const tnow = () => performance.now() / 1000;
+// colour tokens for inline use
+WP.forEach(pc => document.documentElement.style.setProperty('--c' + pc, pcCol(pc, 72)));
+// a wobbly, hand-cut blob
+function blob(x, cx, cy, r, seed, wob = .07, t = 0){
+  const N = 9, pts = [];
+  for (let k = 0; k < N; k++){
+    const a = k / N * Math.PI * 2;
+    const rr = r * (1 + wob * Math.sin(seed * 3.1 + k * 2.3 + t) + wob * .6 * Math.cos(seed * 1.7 + k * 1.3 - t * .7));
+    pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]);
+  }
+  x.beginPath();
+  for (let k = 0; k <= N; k++){
+    const p = pts[k % N], q = pts[(k + 1) % N], mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2;
+    if (k === 0) x.moveTo(mx, my); else x.quadraticCurveTo(p[0], p[1], mx, my);
+  }
+  x.closePath();
+}
+// hand-drawn line: a few jittered passes
+function scribble(x, pts, seed = 1){
+  x.beginPath();
+  pts.forEach(([px, py], i) => { const j = Math.sin(seed + i * 12.9898) * .8; i ? x.lineTo(px + j, py - j) : x.moveTo(px, py); });
+  x.stroke();
+}
+const serif = (px, w = 400) => `italic ${w} ${px}px Fraunces, Georgia, serif`;
+const mono = px => `500 ${px}px "Geist Mono", ui-monospace, monospace`;
+
+// bobbing title letters
+{ const t = $('#ttl'); let i = 0; t.innerHTML = t.textContent.split(' ').map(wd => `<span style="white-space:nowrap">${[...wd].map(c => `<span class="lt" style="--i:${i++}">${c}</span>`).join('')}</span>`).join(' '); }
+
+/* ===================== hero: the coil of notes =====================
+   The note names wound round a spring. Seven stones per turn; every C sits straight above the last C,
+   so octaves line up vertically. A spark hops up the stairs; any note played on the page makes its stone jump. */
+const pulse = {};
+SO.onTone(f => { let m = nearest(f).m; if (isBlack(m)) return; while (m < 48) m += 12; while (m > 84) m -= 12; pulse[m] = tnow(); });
+const STONES = []; for (let i = 0; i <= 21; i++) STONES.push({ i, m: 48 + 12 * Math.floor(i / 7) + WP[i % 7], seed: i * 1.37 + .4 });
+const specks = Array.from({ length: 140 }, (_, i) => ({ x: Math.random(), y: Math.random(), r: Math.random() * 1.3 + .3, a: Math.random() * .35 + .05, p: Math.random() * 6 }));
+addDrawer($('#art'), t => {
+  const [x, w, h] = fit($('#art'));
+  x.clearRect(0, 0, w, h);
+  const T = RM ? 0 : t, nowS = tnow();
+  // paper specks
+  specks.forEach(s => { x.fillStyle = `rgba(255,236,210,${s.a * (.7 + .3 * Math.sin(T * .8 + s.p))})`; x.beginPath(); x.arc(s.x * w, s.y * h, s.r, 0, 7); x.fill(); });
+  const mob = w < 700 && !THUMB;
+  const cx = THUMB ? w * .47 : mob ? w * .48 : w * .7;
+  const R = THUMB ? Math.min(w * .22, h * .36) : mob ? Math.min(w * .27, 120) : Math.min(w * .17, 210);
+  const top = THUMB ? h * .2 : mob ? 138 : h * .2, bot = THUMB ? h * .8 : mob ? 308 : h * .82;
+  const turnH = (bot - top) / 3.05, tilt = .3;
+  const phi = -T * .22 + .5;
+  const P = th => { const a = th + phi; return { x: cx + R * Math.cos(a), y: bot - th / (Math.PI * 2) * turnH + R * tilt * Math.sin(a), z: Math.sin(a) }; };
+  // soft shadow under the coil
+  x.fillStyle = 'rgba(0,0,0,.25)'; x.beginPath(); x.ellipse(cx, bot + R * tilt + 22, R * 1.05, R * tilt * .55, 0, 0, 7); x.fill();
+  // the C-thread: every C on one vertical line
+  const c0 = P(0), c3 = P(Math.PI * 6);
+  x.save(); x.setLineDash([2, 7]); x.lineCap = 'round'; x.strokeStyle = pcCol(0, 72, 70); x.globalAlpha = .55; x.lineWidth = 1.6;
+  x.beginPath(); x.moveTo(c0.x, c0.y + 30); x.lineTo(c3.x, c3.y - R * .3 - 22); x.stroke(); x.restore();
+  x.font = '15px "Homemade Apple", cursive'; x.fillStyle = pcCol(0, 76); x.globalAlpha = .8;
+  { const lab = 'same note, higher', tw = x.measureText(lab).width; x.textAlign = 'left'; x.fillText(lab, clamp(c3.x - tw / 2, 8, w - tw - 10), c3.y - R * .3 - 34); } x.globalAlpha = 1;
+  // coil spring (back half first)
+  const thMax = Math.PI * 2 * 3, steps = 260;
+  const seg = front => {
+    x.lineWidth = front ? 2.4 : 1.4; x.lineCap = 'round';
+    for (let s = 0; s < steps; s++){
+      const a = P(s / steps * thMax), b = P((s + 1) / steps * thMax);
+      if ((a.z > 0) !== front) continue;
+      const k = s / steps * 21;
+      x.strokeStyle = pcCol(WP[Math.floor(k) % 7], front ? 70 : 55, front ? 60 : 35);
+      x.globalAlpha = front ? .75 : .35;
+      x.beginPath(); x.moveTo(a.x, a.y); x.lineTo(b.x, b.y); x.stroke();
+    }
+    x.globalAlpha = 1;
+  };
+  // spark position
+  const rate = 2.1, run = T * rate, si = Math.floor(run) % 22, fr = run - Math.floor(run);
+  const drawStones = front => STONES.forEach(st => {
+    const p = P(st.i / 7 * Math.PI * 2); if ((p.z > 0) !== front) return;
+    const sc = .72 + .28 * (p.z + 1) / 2;
+    let r = R * .145 * sc;
+    const pk = pulse[st.m] ? Math.max(0, 1 - (nowS - pulse[st.m]) / .9) : 0;
+    const land = !RM && st.i === si ? Math.max(0, 1 - fr * 3) : 0;
+    r *= 1 + .35 * pk + .12 * land;
+    const pc = mod12(st.m);
+    x.save(); x.translate(p.x, p.y - 10 * pk);
+    if (pk > 0){ x.fillStyle = pcCol(pc, 70, 90); x.globalAlpha = .25 * pk; blob(x, 0, 0, r * 1.8, st.seed, .1, T * 2); x.fill(); x.globalAlpha = 1; }
+    x.scale(1 + .12 * land, 1 - .12 * land);
+    x.fillStyle = pcCol(pc, front ? 64 + 16 * pk : 44, front ? 72 : 45);
+    blob(x, 0, 0, r, st.seed, .08, T * .6); x.fill();
+    x.strokeStyle = 'rgba(20,14,26,.45)'; x.lineWidth = 1.2; x.stroke();
+    x.fillStyle = front ? '#1b1622' : 'rgba(27,22,34,.75)';
+    x.font = serif(Math.round(r * 1.15)); x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText(LET[pc], 0, r * .04);
+    x.restore();
+  });
+  seg(false); drawStones(false); seg(true); drawStones(true);
+  // the hopping spark
+  if (!RM && si < 21){
+    const a = P(si / 7 * Math.PI * 2), b = P((si + 1) / 7 * Math.PI * 2);
+    const e = fr < .55 ? fr / .55 : 1, sx = a.x + (b.x - a.x) * e, sy = a.y + (b.y - a.y) * e - Math.sin(e * Math.PI) * R * .32 - R * .2;
+    const g = x.createRadialGradient(sx, sy, 0, sx, sy, 16); g.addColorStop(0, 'rgba(255,246,225,.95)'); g.addColorStop(1, 'rgba(255,246,225,0)');
+    x.fillStyle = g; x.beginPath(); x.arc(sx, sy, 16, 0, 7); x.fill();
+  }
+  // little hand-written labels
+  x.font = '13px "Homemade Apple", cursive'; x.fillStyle = 'rgba(243,237,227,.55)'; x.textAlign = 'left';
+  const lo = P(0), hi = P(Math.PI * 6);
+  x.fillText('low', cx + R + 18, bot + 6); x.fillText('high', cx + R + 18, hi.y + 30);
+  x.strokeStyle = 'rgba(243,237,227,.35)'; x.lineWidth = 1.3; x.beginPath(); x.moveTo(cx + R + 30, bot - 12); x.quadraticCurveTo(cx + R + 44, (bot + hi.y) / 2, cx + R + 30, hi.y + 42); x.stroke();
+  x.beginPath(); x.moveTo(cx + R + 25, hi.y + 49); x.lineTo(cx + R + 30, hi.y + 42); x.lineTo(cx + R + 37, hi.y + 47); x.stroke();
+});
+
+/* ===================== 1 · pitch pad: ramp vs stairs ===================== */
+{
+  const cv = $('#pad'), read = $('#padRead'), snapB = $('#snap');
+  const LO = 55, HI = 76;
+  const S = { on: false, y: .5, snap: false, trail: [], auto: null, d: null, lastTxt: '' };
+  const owner = { onStop(){ S.on = false; S.auto = null; S.d = null; SO.setPlayBtn($('#siren'), false, 'Siren (slide)'); SO.setPlayBtn($('#stairs'), false, 'Stairs (notes)'); } };
+  const snapWhite = m => { let best = null; for (let k = Math.floor(m) - 1; k <= Math.ceil(m) + 1; k++) if (!isBlack(k) && (best == null || Math.abs(k - m) < Math.abs(best - m))) best = k; return best; };
+  const midiOf = (y, snap) => { const m = HI - clamp(y, 0, 1) * (HI - LO); return snap ? snapWhite(m) : m; };
+  const setSnap = v => { S.snap = v; snapB.setAttribute('aria-pressed', v); };
+  snapB.addEventListener('click', () => setSnap(!S.snap));
+  const start = () => { S.d = SO.drone([mtof(midiOf(S.y, S.snap))], 'triangle', .17, owner); S.on = true; };
+  const yOf = e => { const r = cv.getBoundingClientRect(); return (e.clientY - r.top - 14) / (r.height - 28); };
+  cv.addEventListener('pointerdown', e => {
+    e.preventDefault(); cv.setPointerCapture(e.pointerId); S.auto = null; S.y = yOf(e); start();
+    SO.setPlayBtn($('#siren'), false, 'Siren (slide)'); SO.setPlayBtn($('#stairs'), false, 'Stairs (notes)');
+  });
+  cv.addEventListener('pointermove', e => { if (S.on && !S.auto){ S.y = yOf(e); } });
+  const up = () => { if (!S.auto && SO.isOwner(owner)) SO.stopDrone(); };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+  const demo = (kind, b) => {
+    if (S.auto && S.auto.kind === kind){ SO.stopDrone(); return; }
+    setSnap(kind === 'stairs'); S.y = 1; start(); S.auto = { kind, t0: tnow() };
+    SO.setPlayBtn($('#siren'), kind === 'siren', 'Siren (slide)'); SO.setPlayBtn($('#stairs'), kind === 'stairs', 'Stairs (notes)');
+  };
+  $('#siren').addEventListener('click', () => demo('siren'));
+  $('#stairs').addEventListener('click', () => demo('stairs'));
+  let lastM = null;
+  addDrawer(cv, () => {
+    const [x, w, h] = fit(cv); if (w < 20 || h < 20) return;
+    x.clearRect(0, 0, w, h);
+    if (S.auto){
+      const p = (tnow() - S.auto.t0) / 5.2;
+      if (p >= 1){ SO.stopDrone(); } else { const tri = p < .5 ? p * 2 : 2 - p * 2; S.y = 1 - (.5 - .5 * Math.cos(tri * Math.PI)); }
+    }
+    const m = S.on ? midiOf(S.y, S.snap) : null;
+    if (S.on && S.d && m !== lastM){ S.d.set(0, mtof(m)); lastM = m; }
+    if (!S.on) lastM = null;
+    const yM = mm => 14 + (HI - mm) / (HI - LO) * (h - 28);
+    // stair lines for the white keys
+    whitesIn(LO, HI).forEach(k => {
+      const y = yM(k), pc = mod12(k);
+      x.strokeStyle = pcCol(pc, 66, 60); x.globalAlpha = S.snap ? .5 : .13; x.lineWidth = S.snap ? 1.4 : 1;
+      x.beginPath(); x.moveTo(34, y); x.lineTo(w - 8, y); x.stroke();
+      x.globalAlpha = S.snap ? 1 : .45; x.fillStyle = pcCol(pc, 72); x.font = serif(13); x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.fillText(LET[pc], 16, y);
+    });
+    x.globalAlpha = 1;
+    if (!S.snap){ x.font = '13px "Homemade Apple", cursive'; x.fillStyle = 'rgba(243,237,227,.25)'; x.textAlign = 'right'; x.fillText('a smooth ramp', w - 16, h - 18); }
+    // trail scrolling left
+    S.trail.push(m); const maxN = Math.max(1, Math.ceil((w - 60) / 2)); while (S.trail.length > maxN) S.trail.shift();
+    const penX = w - 26;
+    x.lineWidth = 3.2; x.lineCap = 'round'; x.lineJoin = 'round';
+    for (let i = 1; i < S.trail.length; i++){
+      const a = S.trail[i - 1], b = S.trail[i]; if (a == null || b == null) continue;
+      const xa = penX - (S.trail.length - i) * 2, xb = xa + 2;
+      x.strokeStyle = pcCol(Math.round(b), 70, 80); x.globalAlpha = .25 + .75 * i / S.trail.length;
+      x.beginPath(); x.moveTo(xa, yM(a)); x.lineTo(xb, yM(b)); x.stroke();
+    }
+    x.globalAlpha = 1;
+    if (m != null){
+      const y = yM(m), g = x.createRadialGradient(penX, y, 0, penX, y, 20);
+      g.addColorStop(0, pcCol(Math.round(m), 75, 90)); g.addColorStop(1, 'rgba(0,0,0,0)');
+      x.fillStyle = g; x.beginPath(); x.arc(penX, y, 20, 0, 7); x.fill();
+      x.fillStyle = '#fff'; x.beginPath(); x.arc(penX, y, 4.5, 0, 7); x.fill();
+    }
+    // readout
+    let txt;
+    if (m == null) txt = 'Silent. Press on the pad to make a sound.';
+    else if (S.snap) txt = `On a stair: <b>${letter(m)}</b>`;
+    else { const lo = Math.floor(m), n = nearest(mtof(m)); txt = Math.abs(n.off) < 12 && !isBlack(n.m) ? `Sliding… passing <b>${letter(n.m)}</b>` : `Sliding… somewhere between notes`; }
+    if (txt !== S.lastTxt){ read.innerHTML = txt; S.lastTxt = txt; }
+  });
+}
+
+/* ===================== 2 · the walking alphabet ===================== */
+{
+  const rib = $('#ribbon'), typed = $('#typed'), ring = $('#ring');
+  const NOTES = whitesIn(57, 81);              // A3 .. A5
+  NOTES.forEach((m, i) => {
+    const b = document.createElement('button');
+    b.className = 'tile'; b.style.setProperty('--c', pcCol(mod12(m), 66)); b.style.marginBottom = (i * 8.5) + 'px';
+    b.innerHTML = `${letter(m)}<span class="o">${letter(m)}${octOf(m)}</span>`; b.dataset.m = m;
+    b.setAttribute('aria-label', 'Play ' + letter(m));
+    b.addEventListener('pointerdown', e => { e.preventDefault(); stopWalk(); hit(m, true); });
+    b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); stopWalk(); hit(m, true); } });
+    rib.appendChild(b);
+  });
+  // ring of seven
+  const ORDER = [9, 11, 0, 2, 4, 5, 7];  // A B C D E F G
+  let svg = `<circle class="track" r="78"/>`;
+  ORDER.forEach((pc, k) => {
+    const a = -Math.PI / 2 + k / 7 * Math.PI * 2, X = Math.cos(a) * 78, Y = Math.sin(a) * 78;
+    const r = 22, j = [1, .92, 1.06, .96, 1.04, .94, 1.02];
+    let d = ''; for (let s = 0; s <= 8; s++){ const b2 = s / 8 * Math.PI * 2, rr = r * j[(s + k) % 7]; d += (s ? 'L' : 'M') + (X + Math.cos(b2) * rr).toFixed(1) + ' ' + (Y + Math.sin(b2) * rr).toFixed(1); }
+    svg += `<g class="nd" data-pc="${pc}" style="--c:${pcCol(pc, 66)}" role="button" tabindex="0" aria-label="Play ${LET[pc]}"><path d="${d}Z" stroke-linejoin="round"/><text x="${X.toFixed(1)}" y="${Y.toFixed(1)}">${LET[pc]}</text></g>`;
+  });
+  svg += `<text x="0" y="-6" text-anchor="middle" style="font:13px 'Homemade Apple',cursive;fill:var(--hot)">and round</text><text x="0" y="14" text-anchor="middle" style="font:13px 'Homemade Apple',cursive;fill:var(--hot)">again</text>`;
+  ring.innerHTML = svg;
+  const nodes = {}; ring.querySelectorAll('.nd').forEach(g => {
+    const pc = +g.dataset.pc; nodes[pc] = g;
+    const go = () => { stopWalk(); hit(57 + mod12(pc - 9), true); };
+    g.addEventListener('pointerdown', e => { e.preventDefault(); go(); });
+    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } });
+  });
+  let typedArr = [];
+  function hit(m, sound){
+    if (sound) play('piano', mtof(m), { dur: .9, vel: .7 });
+    const pc = mod12(m);
+    rib.querySelectorAll('.tile').forEach(t => t.classList.toggle('lit', +t.dataset.m === m));
+    Object.values(nodes).forEach(n => n.classList.toggle('lit', n === nodes[pc]));
+    clearTimeout(hit.t); hit.t = setTimeout(() => { rib.querySelectorAll('.tile.lit').forEach(t => t.classList.remove('lit')); Object.values(nodes).forEach(n => n.classList.remove('lit')); }, 650);
+    typedArr.push(LET[pc]); if (typedArr.length > 15) typedArr = typedArr.slice(-15);
+    typed.innerHTML = typedArr.map((l, i) => `<span class="${i === typedArr.length - 1 ? 'now' : ''}">${l}</span>`).join(' ');
+  }
+  let walkTimer = 0;
+  function stopWalk(){ clearTimeout(walkTimer); walkTimer = 0; }
+  function walk(list){
+    stopWalk(); typedArr = []; let i = 0;
+    const tile = rib.querySelector('.tile'); const sc = rib.parentElement;
+    const step = () => {
+      if (i >= list.length){ walkTimer = 0; return; }
+      const m = list[i++]; hit(m, true);
+      const el = rib.querySelector(`[data-m="${m}"]`); if (el && sc.scrollWidth > sc.clientWidth) sc.scrollLeft = el.offsetLeft - sc.clientWidth / 2;
+      walkTimer = setTimeout(step, 330);
+    };
+    step();
+  }
+  $('#walkUp').addEventListener('click', () => walk(NOTES));
+  $('#walkDown').addEventListener('click', () => walk([...NOTES].reverse()));
+  typed.innerHTML = '<span style="color:var(--dim);font-size:.7em">the letters you play appear here</span>';
+}
+
+/* ===================== 3 · octave: twice the wobbles ===================== */
+{
+  const cv = $('#waves'), read = $('#wRead');
+  let pair = 'oct', playUntil = 0, phase = 0, lastT = 0;
+  const PAIRS = { oct: [60, 72], step: [60, 62] };
+  const setPair = p => { pair = p; $('#pOct').setAttribute('aria-pressed', p === 'oct'); $('#pStep').setAttribute('aria-pressed', p === 'step'); info(); };
+  const info = () => {
+    const [a, b] = PAIRS[pair], fa = Math.round(mtof(a)), fb = Math.round(mtof(b));
+    read.innerHTML = pair === 'oct'
+      ? `<b>C4</b> wobbles ${fa} times a second. <b>C5</b> wobbles ${fb}. That’s exactly twice: same letter.`
+      : `<b>C4</b> wobbles ${fa} times a second. <b>D4</b> wobbles ${fb}. Not double, so it’s a different letter.`;
+  };
+  $('#pOct').addEventListener('click', () => setPair('oct'));
+  $('#pStep').addEventListener('click', () => setPair('step'));
+  $('#pSeq').addEventListener('click', () => { SO.stopAll(); const [a, b] = PAIRS[pair]; play('piano', mtof(a), { dur: .9 }); play('piano', mtof(b), { t0: .75, dur: 1.1 }); playUntil = tnow() + 2.2; });
+  $('#pTog').addEventListener('click', () => { SO.stopAll(); const [a, b] = PAIRS[pair]; play('piano', mtof(a), { dur: 1.6, vel: .7 }); play('piano', mtof(b), { dur: 1.6, vel: .7 }); playUntil = tnow() + 2; });
+  $('#voices').addEventListener('click', () => {
+    SO.stopAll();
+    const tune = [0, 0, 7, 7, 9, 9, 7, 5, 5, 4, 4, 2, 2, 0], du = [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2];
+    let t = 0; tune.forEach((s, i) => { const d = du[i] * .4; play('voice', mtof(48 + s), { t0: t, dur: d * .92, vel: .65, pan: -.3 }); play('voice', mtof(60 + s), { t0: t, dur: d * .92, vel: .5, pan: .3 }); t += d; });
+  });
+  info();
+  addDrawer(cv, t => {
+    const [x, w, h] = fit(cv); if (w < 20 || h < 20) return; x.clearRect(0, 0, w, h);
+    const dt = Math.min(.05, t - lastT); lastT = t;
+    if (tnow() < playUntil && !RM) phase += dt * .5;
+    const [a, b] = PAIRS[pair], ra = 1, rb = mtof(b) / mtof(a);
+    const cyc = w < 500 ? 3.5 : 5;          // cycles of the low note across the width
+    const L = 76, rows = [[h * .28, a, ra], [h * .74, b, rb]];
+    const cols = rows.map(r => pcCol(mod12(r[1]), 70, 80));
+    // line-up marks
+    x.lineWidth = 2;
+    for (let k = Math.ceil(phase * cyc) - 1; k < phase * cyc + cyc + 1; k++){
+      const tt = k / cyc;                       // time (in window units) at a low-note wobble start
+      const pb = (tt * cyc * rb) % 1, ok = pb < .04 || pb > .96;
+      const X = L + (tt - phase) * (w - L - 10); if (X < L || X > w - 10) continue;
+      x.strokeStyle = ok ? 'rgba(255,240,200,.75)' : 'rgba(255,255,255,.07)'; x.setLineDash(ok ? [] : [3, 5]);
+      x.beginPath(); x.moveTo(X, 10); x.lineTo(X, h - 10); x.stroke();
+    }
+    x.setLineDash([]);
+    rows.forEach(([cy, m, r], i) => {
+      x.strokeStyle = cols[i]; x.lineWidth = 2.6; x.beginPath();
+      for (let X = L; X <= w - 10; X += 2){
+        const tt = phase + (X - L) / (w - L - 10);
+        const Y = cy - Math.sin(tt * cyc * r * Math.PI * 2) * h * .15;
+        X === L ? x.moveTo(X, Y) : x.lineTo(X, Y);
+      }
+      x.stroke();
+      x.fillStyle = cols[i]; x.font = serif(26); x.textAlign = 'left'; x.textBaseline = 'middle';
+      x.fillText(letter(m), 8, cy - 4);
+      x.font = mono(10); x.fillStyle = 'rgba(243,237,227,.5)'; x.fillText(SO.nameOf(m), 30, cy + 2);
+    });
+  });
+
+  // ---- game: find the same note ----
+  const host = $('#pebbles'), gRead = $('#gRead');
+  let G = null, right = 0, total = 0;
+  function round(){
+    const t = pick(whitesIn(60, 71)), hiM = t + 12, ws = whitesIn(70, 86);
+    const idx = ws.indexOf(hiM), cands = shuffle([hiM, ws[idx - 1], ws[idx + 1]]);
+    G = { t, cands, done: false };
+    host.innerHTML = cands.map((m, i) => `<div class="peb" style="--c:${pcCol(mod12(m), 66)}"><button class="blob" data-i="${i}" aria-label="Hear stone ${i + 1}">?<small>tap</small></button><button class="btn sm" data-pick="${i}">This one</button></div>`).join('');
+    gRead.innerHTML = `Your score: ${right} of ${total}. Which stone is the same note as the first one?`;
+  }
+  host.addEventListener('click', e => {
+    const bl = e.target.closest('.blob'), pk = e.target.closest('[data-pick]');
+    if (!G) return;
+    if (bl){
+      const m = G.cands[+bl.dataset.i]; SO.stopAll();
+      play('piano', mtof(G.t), { dur: .7, vel: .7 }); play('piano', mtof(m), { t0: .55, dur: 1 });
+      bl.classList.add('ping'); setTimeout(() => bl.classList.remove('ping'), 350);
+    }
+    if (pk && !G.done){
+      G.done = true; total++;
+      const i = +pk.dataset.pick, m = G.cands[i], ok = m === G.t + 12; if (ok) right++;
+      [...host.children].forEach((p, j) => { p.classList.add('rev'); p.querySelector('.blob').innerHTML = `${letter(G.cands[j])}<small>${SO.nameOf(G.cands[j])}</small>`; if (G.cands[j] === G.t + 12) p.classList.add('good'); p.querySelector('[data-pick]').disabled = true; });
+      play('piano', mtof(G.t), { dur: 1, vel: .6 }); play('piano', mtof(G.t + 12), { dur: 1, vel: .6 });
+      gRead.innerHTML = (ok ? '<b style="color:var(--ok)">Yes!</b> ' : 'Not quite. ') + `The first note was <b>${SO.nameOf(G.t)}</b>, and its twin is <b>${SO.nameOf(G.t + 12)}</b>: same letter, twice the wobbles. Score: ${right} of ${total}. <button class="btn sm" id="gAgain" style="margin-left:6px">Next round</button>`;
+      $('#gAgain').addEventListener('click', () => { round(); play('piano', mtof(G.t), { dur: 1 }); });
+    }
+  });
+  $('#gFirst').addEventListener('click', () => { if (!G || G.done) round(); SO.stopAll(); play('piano', mtof(G.t), { dur: 1.1 }); });
+  $('#gNew').addEventListener('click', () => { round(); SO.stopAll(); play('piano', mtof(G.t), { dur: 1.1 }); });
+  round();
+}
+
+/* ===================== 4 · the keyboard map + find-the-key game ===================== */
+{
+  const host = $('#kb4'), read = $('#kbRead'), prompt = $('#gPrompt'), tally = $('#gTally');
+  const KBL = 'A W S E D F T G Y H U J K O L P ;'.split(' ');
+  let game = null;
+  const kb = SO.keys(host, { lo: 60, hi: 84, keymap: true, labels: 'white', kbLabels: KBL, dur: 1.1, onPress: m => check(m) });
+  // the groups
+  for (let m = 60; m <= 84; m++){ const pc = mod12(m); if (pc === 1 || pc === 3) kb.keys[m].classList.add('gg2'); if (pc === 6 || pc === 8 || pc === 10) kb.keys[m].classList.add('gg3'); }
+  const tg = $('#tGroups'), tl = $('#tLabels');
+  const setGroups = v => { tg.setAttribute('aria-pressed', v); Object.values(kb.keys).forEach(k => { k.classList.toggle('g2', v && k.classList.contains('gg2')); k.classList.toggle('g3', v && k.classList.contains('gg3')); }); };
+  const setLabels = v => { tl.setAttribute('aria-pressed', v); host.classList.toggle('nolab', !v); };
+  tg.addEventListener('click', () => setGroups(tg.getAttribute('aria-pressed') !== 'true'));
+  tl.addEventListener('click', () => setLabels(tl.getAttribute('aria-pressed') !== 'true'));
+  const HINT = { 0: 'C is just left of the twins (the two black keys).', 2: 'D sits in the middle of the twins.', 4: 'E is just right of the twins.', 5: 'F is just left of the triplets (the three black keys).', 7: 'G is the first gap inside the triplets.', 9: 'A is the second gap inside the triplets.', 11: 'B is just right of the triplets.' };
+  const NAME_PL = pc => `${LET[pc]}s`;
+  function startGame(pc){
+    const all = whitesIn(60, 84).filter(m => mod12(m) === pc);
+    game = { pc, all, found: new Set() };
+    Object.values(kb.keys).forEach(k => k.classList.remove('ok'));
+    setLabels(false);
+    prompt.innerHTML = `Find every <span style="color:${pcCol(pc, 72)}">${LET[pc]}</span>`;
+    tally.innerHTML = `0 of ${all.length} found`;
+    read.innerHTML = `There are ${all.length} ${NAME_PL(pc)} hiding on this keyboard. Need a clue? Turn on “show the groups”.`;
+    play('piano', mtof(all[0]), { dur: .9, vel: .55 });
+  }
+  function check(m){
+    if (!game) return;
+    if (isBlack(m)){ read.innerHTML = `That’s a black key. Their names come next lesson. ${HINT[game.pc]}`; return; }
+    const pc = mod12(m), k = kb.keys[m];
+    if (pc === game.pc){
+      if (game.found.has(m)){ read.innerHTML = `You already found that ${LET[pc]}. ${game.all.length - game.found.size} more to go.`; return; }
+      game.found.add(m); k.classList.add('ok');
+      tally.innerHTML = `<b>${game.found.size}</b> of ${game.all.length} found`;
+      if (game.found.size === game.all.length){
+        read.innerHTML = `<b style="color:var(--ok)">All of them!</b> Listen: every ${LET[pc]} on the keyboard, low to high. Same note, higher and higher.`;
+        game.all.forEach((mm, i) => play('piano', mtof(mm), { t0: .35 + i * .3, dur: .8, vel: .6 }));
+        const done = game; game = null;
+        setTimeout(() => { if (!game){ prompt.innerHTML = 'Nice. Pick another game'; } }, 1600);
+      } else read.innerHTML = `Yes, that’s ${SO.nameOf(m)}! ${game.all.length - game.found.size} more ${game.all.length - game.found.size === 1 ? LET[pc] : NAME_PL(pc)} to find.`;
+    } else {
+      k.classList.remove('no'); void k.offsetWidth; k.classList.add('no');
+      read.innerHTML = `That one is <b>${LET[pc]}</b>. ${HINT[game.pc]}`;
+    }
+  }
+  $$('[data-find]').forEach(b => b.addEventListener('click', () => { const v = b.dataset.find; startGame(v === 'r' ? pick(WP.filter(p => !game || p !== game.pc)) : +v); }));
+}
+
+/* ===================== 5 · low to high, octave numbers ===================== */
+{
+  const host = $('#kb5'), read = $('#kb5Read');
+  const fl = document.createElement('div'); fl.className = 'floors';
+  fl.innerHTML = [2, 3, 4, 5].map(n => `<span class="${n === 4 ? 'mid' : ''}" data-f="${n}">floor ${n}${n === 4 ? ' · middle' : ''}</span>`).join('') + '<span class="last"></span>';
+  host.appendChild(fl);
+  const kb = SO.keys(host, { lo: 36, hi: 84, labels: 'c', dur: 1.2, onPress: m => say(m) });
+  kb.mark([60], 'in');
+  function say(m){
+    const o = octOf(m);
+    fl.querySelectorAll('span[data-f]').forEach(s => s.classList.toggle('on', +s.dataset.f === o));
+    if (isBlack(m)){ read.innerHTML = `A black key on floor ${o}. Its name comes next lesson.`; return; }
+    const extra = m === 60 ? ' That’s <b>middle C</b>!' : m < 48 ? ' Down in the growly basement.' : m >= 72 ? ' Up where it tinkles.' : '';
+    read.innerHTML = `<span class="big-read" style="color:${pcCol(mod12(m), 72)}">${SO.nameOf(m)}</span> &nbsp;letter <b>${letter(m)}</b>, floor <b>${o}</b>.${extra}`;
+  }
+  const scrollTo = m => { const k = kb.keys[m], sc = host; if (sc.scrollWidth > sc.clientWidth) sc.scrollLeft = k.offsetLeft - sc.clientWidth / 2; };
+  let tm = [];
+  const clear = () => { tm.forEach(clearTimeout); tm = []; };
+  $('#climbC').addEventListener('click', () => { SO.stopAll(); clear(); [36, 48, 60, 72, 84].forEach((m, i) => { play('piano', mtof(m), { t0: i * .55, dur: 1, vel: .7 }); tm.push(setTimeout(() => { say(m); scrollTo(m); }, i * 550 + 30)); }); });
+  $('#sweep').addEventListener('click', () => { SO.stopAll(); clear(); whitesIn(36, 84).forEach((m, i) => { play('piano', mtof(m), { t0: i * .085, dur: .5, vel: .55 }); tm.push(setTimeout(() => scrollTo(m), i * 85)); }); });
+  $('#midC').addEventListener('click', () => { clear(); scrollTo(60); kb.press(60); kb.light(60, 900); });
+  // start scrolled to the middle on phones
+  requestAnimationFrame(() => scrollTo(60));
+}
+
+/* ===================== 6 · contour: a tune as dots ===================== */
+{
+  const SONGS = {
+    twinkle: { n: [60, 60, 67, 67, 69, 69, 67, 65, 65, 64, 64, 62, 62, 60], d: [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2], blurb: 'Twinkle Twinkle uses just six notes: C D E F G A.' },
+    mary: { n: [64, 62, 60, 62, 64, 64, 64, 62, 62, 62, 64, 67, 67, 64, 62, 60, 62, 64, 64, 64, 64, 62, 62, 64, 62, 60], d: [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3], blurb: 'Mary Had a Little Lamb hangs around C, D and E, with one hop up to G.' },
+  };
+  const cv = $('#contour'), read = $('#tRead');
+  let song = 'twinkle', hi = -1, mode = null, idx = 0, timer = 0, dots = [];
+  const kb = SO.keys($('#kb6'), { lo: 60, hi: 72, labels: 'white', dur: .9, onPress: m => along(m) });
+  const S = () => SONGS[song];
+  function stop(){ clearTimeout(timer); timer = 0; mode = null; hi = -1; kb.mark([]); SO.setPlayBtn($('#tPlay'), false, 'Play it'); $('#tTurn').setAttribute('aria-pressed', 'false'); }
+  function setSong(s){ stop(); song = s; $$('[data-song]').forEach(b => b.setAttribute('aria-pressed', b.dataset.song === s)); read.innerHTML = S().blurb; }
+  $$('[data-song]').forEach(b => b.addEventListener('click', () => setSong(b.dataset.song)));
+  $('#tPlay').addEventListener('click', () => {
+    if (mode === 'play'){ stop(); return; }
+    stop(); SO.stopAll(); mode = 'play'; SO.setPlayBtn($('#tPlay'), true, 'Play it'); let i = 0; const beat = .42;
+    const step = () => {
+      if (i >= S().n.length || mode !== 'play'){ stop(); return; }
+      const m = S().n[i], d = S().d[i]; hi = i;
+      play('piano', mtof(m), { dur: d * beat * .9, vel: .7 });
+      read.innerHTML = `Note ${i + 1}: <b style="color:${pcCol(mod12(m), 72)}">${letter(m)}</b>`;
+      i++; timer = setTimeout(step, d * beat * 1000);
+    };
+    step();
+  });
+  $('#tTurn').addEventListener('click', () => {
+    if (mode === 'turn'){ stop(); read.innerHTML = S().blurb; return; }
+    stop(); mode = 'turn'; idx = 0; $('#tTurn').setAttribute('aria-pressed', 'true'); cue();
+  });
+  function cue(){ const m = S().n[idx]; hi = idx; kb.mark([m]); read.innerHTML = `Press the glowing key: <b style="color:${pcCol(mod12(m), 72)}">${letter(m)}</b> (note ${idx + 1} of ${S().n.length})`; }
+  function along(m){
+    if (mode !== 'turn') return;
+    const want = S().n[idx];
+    if (m !== want){ read.innerHTML = `That was ${letter(m)}. Look for the glowing <b style="color:${pcCol(mod12(want), 72)}">${letter(want)}</b>.`; return; }
+    idx++;
+    if (idx >= S().n.length){
+      stop(); read.innerHTML = `<b style="color:var(--ok)">You played the whole tune!</b> Want to go again? Press “Your turn”.`;
+      [60, 64, 67, 72].forEach((mm, i) => play('music-box', mtof(mm + 12), { t0: .3 + i * .1, dur: 1, vel: .4 }));
+      return;
+    }
+    cue();
+  }
+  // tap a dot
+  cv.addEventListener('pointerdown', e => {
+    const r = cv.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
+    let best = -1, bd = 1e9; dots.forEach((d, i) => { const dd = (d.x - px) ** 2 + (d.y - py) ** 2; if (dd < bd){ bd = dd; best = i; } });
+    if (best >= 0 && bd < 40 * 40){ const m = S().n[best]; play('piano', mtof(m), { dur: .8 }); if (mode !== 'turn'){ hi = best; setTimeout(() => { if (!mode) hi = -1; }, 500); } }
+  });
+  // computer keys for this little keyboard, only when it's on screen and the big one isn't
+  const map = 'awsedftgyhujk'.split('');
+  document.addEventListener('keydown', e => {
+    if (e.repeat || e.metaKey || e.ctrlKey || e.altKey || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+    const i = map.indexOf(e.key.toLowerCase()); if (i < 0) return;
+    const vis = el => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; };
+    if (!vis(kb.el) || vis($('#kb4 .keys'))) return;
+    kb.press(60 + i);
+  });
+  addDrawer(cv, t => {
+    const [x, w, h] = fit(cv); if (w < 20 || h < 20) return; x.clearRect(0, 0, w, h);
+    const s = S(), tot = s.d.reduce((a, b) => a + b, 0), L = 30, Rr = w - 16;
+    const lo = 59, hiM = 70, yM = m => h - 22 - (m - lo) / (hiM - lo) * (h - 44);
+    // faint stair lines
+    whitesIn(60, 69).forEach(m => { x.strokeStyle = 'rgba(255,255,255,.06)'; x.lineWidth = 1; x.beginPath(); x.moveTo(L, yM(m)); x.lineTo(Rr, yM(m)); x.stroke(); x.fillStyle = pcCol(mod12(m), 70); x.globalAlpha = .6; x.font = serif(13); x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(letter(m), 13, yM(m)); x.globalAlpha = 1; });
+    let acc = 0; dots = s.n.map((m, i) => { const X = L + 10 + (acc + .5) / tot * (Rr - L - 20) * 1; acc += s.d[i]; return { x: X, y: yM(m), m }; });
+    // the path
+    x.strokeStyle = 'rgba(243,237,227,.35)'; x.lineWidth = 1.6; x.lineJoin = 'round';
+    scribble(x, dots.map(d => [d.x, d.y]), 3);
+    const sp = (Rr - L) / s.n.length, r0 = clamp(sp * .38, 6, 15);
+    dots.forEach((d, i) => {
+      const on = i === hi, pc = mod12(d.m), r = r0 * (on ? 1.35 : 1) * (mode === 'turn' && on && !RM ? 1 + .08 * Math.sin(t * 8) : 1);
+      if (on){ x.fillStyle = pcCol(pc, 72, 90); x.globalAlpha = .25; blob(x, d.x, d.y, r * 1.9, i, .1, t * 2); x.fill(); x.globalAlpha = 1; }
+      x.fillStyle = pcCol(pc, on ? 74 : 62, on ? 90 : 70); blob(x, d.x, d.y, r, i * 1.3, .07); x.fill();
+      if (mode === 'turn' && i < idx){ x.strokeStyle = '#7fd6b0'; x.lineWidth = 2; x.stroke(); }
+      if (r0 >= 10){ x.fillStyle = '#1b1622'; x.font = serif(Math.round(r * 1.05)); x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(letter(d.m), d.x, d.y + 1); }
+    });
+    x.font = '12px "Homemade Apple", cursive'; x.fillStyle = 'rgba(243,237,227,.35)'; x.textAlign = 'right'; x.fillText('time →', Rr, h - 6);
+  });
+}
+
+/* ===================== 7 · the staff, gently ===================== */
+{
+  const cv = $('#staff'), read = $('#sRead');
+  const MAXN = 10;
+  let notes = [], drag = null, ghost = null, playing = -1, timer = 0;
+  const geo = (w, h) => { const gap = Math.min(22, h / 9.5), base = h / 2 + gap * 2.3; return { gap, yS: s => base - (s - 2) * gap / 2, L: 54, R: w - 14 }; };
+  const sOf = (y, h, w) => { const g = geo(w, h); return clamp(Math.round(2 + (g.yS(2) - y) / (g.gap / 2)), 0, 11); };
+  const slotX = (i, g) => g.L + 24 + i * (g.R - g.L - 40) / (MAXN - 1);
+  const ev = e => { const r = cv.getBoundingClientRect(); return { y: e.clientY - r.top, w: r.width, h: r.height, x: e.clientX - r.left }; };
+  cv.addEventListener('pointerdown', e => {
+    e.preventDefault(); cv.setPointerCapture(e.pointerId); stopPlay();
+    const p = ev(e), s = sOf(p.y, p.h, p.w);
+    if (notes.length >= MAXN) notes.shift();
+    notes.push(s); drag = notes.length - 1;
+    play('piano', mtof(dToM(s)), { dur: .8 }); say(s);
+  });
+  cv.addEventListener('pointermove', e => {
+    const p = ev(e), s = sOf(p.y, p.h, p.w);
+    if (drag != null){ if (notes[drag] !== s){ notes[drag] = s; play('piano', mtof(dToM(s)), { dur: .6, vel: .6 }); say(s); } }
+    else ghost = s;
+  });
+  cv.addEventListener('pointerleave', () => { ghost = null; });
+  const end = () => { drag = null; };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  function say(s){ const m = dToM(s), on = s % 2 === 0; read.innerHTML = `<b style="color:${pcCol(mod12(m), 72)}">${SO.nameOf(m)}</b> sits ${s === 0 ? 'on its own little extra line below the staff' : on ? 'on a line' : 'in a gap'}.`; }
+  function stopPlay(){ clearTimeout(timer); playing = -1; SO.setPlayBtn($('#sPlay'), false, 'Play my tune'); }
+  $('#sPlay').addEventListener('click', () => {
+    if (playing >= 0){ stopPlay(); return; }
+    if (!notes.length){ read.innerHTML = 'Tap on the staff first to write some notes.'; return; }
+    SO.setPlayBtn($('#sPlay'), true, 'Play my tune'); let i = 0;
+    const step = () => { if (i >= notes.length){ stopPlay(); return; } playing = i; play('piano', mtof(dToM(notes[i])), { dur: .5 }); i++; timer = setTimeout(step, 420); };
+    step();
+  });
+  $('#sTwinkle').addEventListener('click', () => { stopPlay(); notes = [0, 0, 4, 4, 5, 5, 4]; read.innerHTML = 'The first line of Twinkle: C C G G A A G. See it jump up, then step back down?'; $('#sPlay').click(); });
+  $('#sClear').addEventListener('click', () => { stopPlay(); notes = []; read.innerHTML = 'All clear. Tap to write a new tune.'; });
+  addDrawer(cv, t => {
+    const [x, w, h] = fit(cv); if (w < 20 || h < 20) return; x.clearRect(0, 0, w, h);
+    const g = geo(w, h);
+    // five lines, slightly hand-drawn
+    x.strokeStyle = 'rgba(243,237,227,.55)'; x.lineWidth = 1.4;
+    [2, 4, 6, 8, 10].forEach((s, i) => { const y = g.yS(s); x.beginPath(); x.moveTo(g.L - 6, y + Math.sin(i) * .6); x.bezierCurveTo(w * .35, y - .8, w * .65, y + .8, g.R, y + Math.cos(i) * .6); x.stroke(); });
+    x.font = '12px "Homemade Apple", cursive'; x.fillStyle = 'rgba(243,237,227,.4)'; x.textAlign = 'left';
+    x.fillText('higher', 4, g.yS(10) - 2); x.fillText('lower', 4, g.yS(2) + 4);
+    // line names, tiny
+    const drawNote = (s, X, alpha, big) => {
+      const y = g.yS(s), m = dToM(s), pc = mod12(m);
+      if (s === 0){ x.strokeStyle = `rgba(243,237,227,${.55 * alpha})`; x.lineWidth = 1.4; x.beginPath(); x.moveTo(X - 15, y); x.lineTo(X + 15, y); x.stroke(); }
+      x.save(); x.globalAlpha = alpha; x.translate(X, y); x.rotate(-.35);
+      x.fillStyle = pcCol(pc, big ? 74 : 64, big ? 90 : 75); x.beginPath(); x.ellipse(0, 0, g.gap * .62 * (big ? 1.2 : 1), g.gap * .44 * (big ? 1.2 : 1), 0, 0, 7); x.fill();
+      x.restore();
+      x.globalAlpha = alpha * .9; x.fillStyle = pcCol(pc, 74); x.font = serif(13); x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.fillText(LET[pc], X, h - 12); x.globalAlpha = 1;
+    };
+    notes.forEach((s, i) => drawNote(s, slotX(i, g), 1, i === playing || i === drag));
+    if (ghost != null && drag == null){ drawNote(ghost, slotX(Math.min(notes.length, MAXN - 1), g), .3, false); }
+    if (!notes.length && ghost == null){ x.font = '14px "Homemade Apple", cursive'; x.fillStyle = 'rgba(243,237,227,.3)'; x.textAlign = 'center'; x.fillText('tap anywhere on the lines', (g.L + g.R) / 2, g.yS(6) - g.gap * 2.8); }
+  });
+}
+
+/* ===================== quiz ===================== */
+function miniKB(lo, hi, mark){
+  const ws = whitesIn(lo, hi), W = 30, H = 96, bw = 18;
+  let s = `<svg class="qkb" viewBox="0 0 ${ws.length * W} ${H + 2}" aria-hidden="true">`;
+  ws.forEach((m, i) => { s += `<rect x="${i * W + .5}" y=".5" width="${W - 1}" height="${H}" rx="4" fill="${m === mark ? pcCol(mod12(m), 70) : '#f2ece2'}" stroke="#16131d"/>`; if (m === mark) s += `<circle cx="${i * W + W / 2}" cy="${H - 16}" r="6" fill="#1b1622"/>`; });
+  ws.forEach((m, i) => { if (isBlack(m + 1) && m + 1 <= hi) s += `<rect x="${(i + 1) * W - bw / 2}" y="0" width="${bw}" height="${H * .6}" rx="3" fill="#1b1622"/>`; });
+  return s + '</svg>';
+}
+let qk = 0;
+SO.quiz($('#q'), { make(){
+  const kind = qk++ % 3;
+  if (kind === 0){
+    const pool = whitesIn(55, 79); let a = pick(pool), b; do { b = pick(pool); } while (Math.abs(a - b) < 3);
+    const answer = b > a ? 1 : 0;
+    return { prompt: 'Two notes. <b>Which one is higher?</b>', options: ['the first', 'the second'], answer,
+      play(){ play('piano', mtof(a), { dur: .8 }); play('piano', mtof(b), { t0: .8, dur: 1 }); },
+      explain: `The first was ${SO.nameOf(a)}, the second ${SO.nameOf(b)}. ${answer ? 'Second' : 'First'} was higher.` };
+  }
+  if (kind === 1){
+    const m = pick(whitesIn(60, 83));
+    const opts = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+    return { prompt: `<b>Which letter is the coloured key?</b> Use the black keys as landmarks.${miniKB(60, 83, m)}`, options: opts, answer: opts.indexOf(letter(m)),
+      play(){ play('piano', mtof(m), { dur: 1 }); },
+      explain: `It’s <b>${letter(m)}</b>. ${{ C: 'Just left of the twins.', D: 'In the middle of the twins.', E: 'Just right of the twins.', F: 'Just left of the triplets.', G: 'First gap in the triplets.', A: 'Second gap in the triplets.', B: 'Just right of the triplets.' }[letter(m)]}` };
+  }
+  const t = pick(whitesIn(60, 71)), ws = whitesIn(69, 86).filter(m => mod12(m) !== mod12(t));
+  const decoys = shuffle(ws.filter(m => Math.abs(m - (t + 12)) <= 4)).slice(0, 2);
+  const c = shuffle([t + 12, ...decoys]), answer = c.indexOf(t + 12);
+  return { prompt: 'First a note, then three more. <b>Which of the three is the same letter, higher?</b>', options: ['1st', '2nd', '3rd'], answer,
+    play(){ play('piano', mtof(t), { dur: .9 }); c.forEach((m, i) => play('piano', mtof(m), { t0: 1.1 + i * .75, dur: .7 })); },
+    explain: `The first note was ${SO.nameOf(t)}. Its octave twin, ${SO.nameOf(t + 12)}, came ${['first', 'second', 'third'][answer]}.` };
+} });
+
+})();
+</script>
+</body>
+</html>

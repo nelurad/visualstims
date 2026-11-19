@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Intervals · Split the Octave</title>
+<meta name="description" content="The distance between two notes, counted in half steps, and why some pairs sound sweet while others clash. Turn your volume on.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist+Mono:wght@400;500&family=Fraunces:ital,opsz,wght,SOFT,WONK@1,9..144,100..900,0..100,0..1&family=Homemade+Apple&display=swap">
+<link rel="stylesheet" href="../kit/series.css">
+<style>
+  /* lesson-specific styles only */
+  .hero h1 .big .lt{display:inline-block;animation:bob 3.2s ease-in-out infinite;animation-delay:calc(var(--i) * -.27s)}
+  .hero canvas.art{cursor:pointer}
+  body.thumb .hero::after,body.thumb .hero .txt{display:none}
+  @media (prefers-reduced-motion: reduce){ .hero h1 .big .lt{animation:none} }
+
+  .hand{font-family:"Homemade Apple","Snell Roundhand",cursive;color:var(--hot);font-size:14px;display:inline-block;transform:rotate(-2deg)}
+
+  /* keyboard + arc overlay */
+  .arcwrap{position:relative}
+  .arcwrap canvas.arc{display:block;width:100%;height:118px}
+  .arcwrap .keys{border-radius:0 0 10px 10px}
+  .bigline{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-top:14px}
+  .bigline .n{font-family:var(--serif);font-style:italic;font-weight:350;font-variation-settings:"opsz" 144,"SOFT" 100,"WONK" 1;font-size:clamp(44px,6vw,64px);line-height:.9;color:var(--hot)}
+  .bigline .u{font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:.06em}
+  .bigline .nm{font-size:clamp(18px,2vw,22px);color:var(--ink);font-weight:600}
+  .bigline .sg{display:block;font-size:14.5px;color:var(--soft);font-weight:400}
+
+  /* toggles that look like a little paper switch */
+  .seg{display:inline-flex;background:var(--card2);border:1px solid var(--rule);border-radius:999px;padding:3px;gap:2px}
+  .seg button{border:0;background:transparent;border-radius:999px;padding:8px 14px;min-height:36px;font-size:14.5px;font-weight:500;cursor:pointer;color:var(--soft)}
+  .seg button[aria-pressed="true"]{background:var(--hot);color:#13261c}
+
+  /* interval cards */
+  .cards.iv{grid-template-columns:repeat(auto-fill,minmax(148px,1fr))}
+  .cards.iv .card{position:relative;min-height:88px;border-radius:14px 12px 15px 11px/12px 15px 11px 14px}
+  .cards.iv .card .sw{position:absolute;right:10px;top:11px;width:10px;height:10px;border-radius:50%;background:var(--c)}
+  .cards.iv .card .h{display:block;font-size:12.5px;color:var(--soft);margin-top:4px;line-height:1.3}
+  .cards.iv .card[aria-pressed="true"]{border-color:var(--hot);background:color-mix(in oklab,var(--hot) 9%,var(--card2))}
+  .detail .v.small{font-size:14.5px;color:var(--soft)}
+  .tlab{display:flex;justify-content:space-between;font:500 10px var(--mono);color:var(--dim);margin-top:6px;letter-spacing:.06em}
+
+  canvas.grab{touch-action:none;cursor:grab;border-radius:12px}
+  canvas.grab:active{cursor:grabbing}
+  .readout .ok{color:var(--ok)}
+  .readout .bad{color:var(--bad)}
+.lab-w .stepl{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:14px 0 8px}
+.lab-w .msg{font-size:16px;color:var(--soft);min-height:3em;margin-top:12px}
+  .msg b{color:var(--ink)}
+  .qopts button small{display:block;font-size:11.5px;color:var(--dim);margin-top:2px}
+  .qopts button.right small,.qopts button.wrong small{color:#ffffffaa}
+  .lvl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .lvl .btn[disabled]{opacity:.35;cursor:not-allowed}
+  .levelup{margin-top:12px;display:none}
+  .levelup.on{display:flex}
+  .tension.wide{height:10px;margin-top:10px}
+  @media (max-width:700px){
+    .arcwrap canvas.arc{height:100px}
+    .seg button{padding:8px 11px;font-size:14px}
+  }
+</style>
+</head>
+<body>
+
+<section class="hero short gut">
+  <canvas class="art" id="art" aria-hidden="true"></canvas>
+  <div class="txt">
+    <div class="kicker" id="so-kicker"></div>
+    <h1><span class="big" id="bigT">Intervals</span><span class="sub">the space between two notes</span></h1>
+    <p>Every tune is a string of little jumps, and every chord is a stack of them. The size of the jump decides whether two notes hug or bicker. <b style="color:var(--ink)">Turn your volume on.</b></p>
+    <div class="soundgo">
+      <button class="btn go" id="hello"><span class="pl"></span> Turn on sound</button>
+      <span class="note">You should hear a few soft notes. Nothing? Turn your volume up. On an iPhone, also flip off the silent switch.</span>
+    </div>
+    <div id="so-strip" style="margin-top:28px"></div>
+  </div>
+</section>
+
+<main class="gut">
+
+<!-- 1 ------------------------------------------------------------------>
+<section class="ch" id="c1">
+  <div class="num">1</div>
+  <h2>An interval is a distance</h2>
+  <p>Pick any two notes. The gap between them is called an <span class="word">interval</span>. That's all it is: a distance, like the space between two stepping stones.</p>
+  <p>You already own the ruler. A <b>half step</b> is the move from one key to the very next key, black or white (lesson 4). To measure an interval, count the half steps from one note to the other.</p>
+  <div class="lab-w">
+    <p class="hint">TRY IT · tap one key, then another. Watch the hops get counted.</p>
+    <div class="arcwrap" id="kb1"><canvas class="arc" id="arc1"></canvas></div>
+    <div class="bigline" id="big1"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn go sm" id="p1m"><span class="pl"></span> One after the other</button>
+      <button class="btn sm" id="p1h"><span class="pl"></span> Together</button>
+    </div>
+  </div>
+  <p>Musicians give the common distances names, like <em>third</em> or <em>fifth</em>. Those names are old and a little odd (they count letter names, not keys), so don't sweat them. The half-step count is the real measurement, and you'll pick up the names by ear.</p>
+  <div class="takeaway"><b>The big idea:</b> an interval is the distance between two notes, measured in half steps.</div>
+</section>
+
+<!-- 2 ------------------------------------------------------------------>
+<section class="ch" id="c2">
+  <div class="num">2</div>
+  <h2>One after the other, or both at once</h2>
+  <p>You can hear an interval two ways. Play the notes <b>one after the other</b> and you get a tiny tune: a <span class="word">melodic</span> interval. Play them <b>at the same time</b> and they melt into one sound: a <span class="word">harmonic</span> interval.</p>
+  <p>Same distance, different experience. A melody is the leap your voice makes when you sing. Harmony is the colour you get when two people sing different notes together.</p>
+  <div class="lab-w">
+    <p class="hint">TRY IT · flip the switch and pick a distance. Each tap plays it.</p>
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <div class="seg" role="group" aria-label="How to play the interval">
+        <button aria-pressed="true" data-mode="0">One after the other</button>
+        <button aria-pressed="false" data-mode="1">Together</button>
+      </div>
+      <div class="chips" id="chips2"></div>
+    </div>
+    <canvas id="roll" style="height:210px"></canvas>
+    <div class="readout" id="r2"></div>
+  </div>
+  <div class="takeaway"><b>The big idea:</b> melody is intervals in a row; harmony is intervals stacked up.</div>
+</section>
+
+<!-- 3 ------------------------------------------------------------------>
+<section class="ch" id="c3">
+  <div class="num">3</div>
+  <h2>Meet the family</h2>
+  <p>Inside one octave there are twelve distances, plus zero (the same note twice). No need to memorise them today. Tap around and notice that each one has its own personality.</p>
+  <p>The trick musicians use to remember them is a <b>song hook</b>: the first two notes of a well-known tune hand you the interval for free. Hum along.</p>
+  <div class="lab-w">
+    <p class="hint">TRY IT · tap a card. You'll hear the hook's two notes, then both together.</p>
+    <div class="cards iv" id="cards"></div>
+    <div class="detail" id="det"></div>
+  </div>
+  <div class="takeaway"><b>The big idea:</b> each interval has its own flavour, and a familiar song can be its name tag.</div>
+</section>
+
+<!-- 4 ------------------------------------------------------------------>
+<section class="ch" id="c4">
+  <div class="num">4</div>
+  <h2>Sweet or sour?</h2>
+  <p>Some pairs sound smooth together. Others grind like a squeaky gate. Musicians call smooth pairs <span class="word">consonant</span> and tense ones <span class="word">dissonant</span>. Neither is wrong; sour is a flavour too.</p>
+  <p>Why the difference? Every note is a wobble in the air (lesson 1). When two notes sound together, their wobbles sometimes line up. If they line up <b>often</b>, in a simple pattern like 2 wobbles against 3, the mix sounds calm. If they almost never line up, like 16 against 15, the mix shudders.</p>
+  <div class="lab-w">
+    <p class="hint">TRY IT · pick a pair and press play. The glowing lines mark where both wobbles peak together.</p>
+    <div class="chips" id="chips4" style="margin-bottom:12px"></div>
+    <canvas id="waves" style="height:300px"></canvas>
+    <div class="row" style="margin-top:12px;justify-content:space-between">
+      <button class="btn go" id="p4"><span class="pl"></span> Play the pair</button>
+      <div style="flex:1;min-width:180px;max-width:300px"><div class="tension wide" id="ten4"><i></i></div><div class="tlab"><span>smooth</span><span>tense</span></div></div>
+    </div>
+    <div class="readout" id="r4"></div>
+  </div>
+  <p>Now the fun part. Below is a little landscape of roughness. The bottom note stays put. Grab the ball and <b>slowly</b> drag the top note away. Listen for the shimmer and the wobble, then the moments where everything suddenly goes calm. Those valleys are the sweet intervals.</p>
+  <div class="lab-w">
+    <p class="hint">TRY IT · press and drag the ball sideways (keep holding to keep the sound). Or let it slide by itself.</p>
+    <canvas id="land" class="grab" style="height:240px" tabindex="0" aria-label="Roughness landscape. Drag, or use arrow keys, to move the top note."></canvas>
+    <div class="row" style="margin-top:12px">
+      <button class="btn go sm" id="slide"><span class="pl"></span> Slow slide</button>
+      <span class="readout" id="r4b" style="margin:0"></span>
+    </div>
+  </div>
+  <div class="takeaway"><b>The big idea:</b> notes whose wobbles line up often sound sweet; notes that rarely line up sound rough.</div>
+</section>
+
+<!-- 5 ------------------------------------------------------------------>
+<section class="ch" id="c5">
+  <div class="num">5</div>
+  <h2>Tension wants to go home</h2>
+  <p>A sour interval isn't a mistake. It's a question. Music uses tension the way a story uses a cliffhanger: it makes you lean in and wait. Moving from a tense interval to a calm one is called <span class="word">resolving</span>.</p>
+  <p>Start an itch below, then choose where it goes. Most people feel a little <em>ahh</em> when the clash melts into a sweet pair, and a little <em>huh?</em> when it slides into another clash.</p>
+  <div class="lab-w">
+    <p class="stepl">1 · start an itch</p>
+    <div class="row" id="itches"></div>
+    <p class="stepl">2 · where should it go?</p>
+    <div class="row" id="goes"></div>
+    <canvas id="res" style="height:200px;margin-top:14px"></canvas>
+    <div class="tension wide" id="ten5"><i></i></div><div class="tlab"><span>calm</span><span>itchy</span></div>
+    <div class="msg" id="m5">Press an itch to begin.</div>
+  </div>
+  <div class="takeaway"><b>The big idea:</b> tense intervals create a pull, and resolving them to calm ones feels like coming home.</div>
+</section>
+
+<!-- 6 ------------------------------------------------------------------>
+<section class="ch" id="c6">
+  <div class="num">6</div>
+  <h2>Same shape, anywhere</h2>
+  <p>Here's a lovely thing: an interval keeps its flavour wherever you put it. A fifth starting on C sounds like a fifth starting on F, just higher. Moving music up or down while keeping its shape is called <span class="word">transposing</span>.</p>
+  <p>That's why you can start Happy Birthday on any note and it's still Happy Birthday. The distances stay the same; only the starting point moves.</p>
+  <div class="lab-w">
+    <p class="hint">TRY IT · choose a distance, then tap any key. The same shape gets built on top of it.</p>
+    <div class="chips" id="chips6" style="margin-bottom:12px"></div>
+    <div class="arcwrap" id="kb6"><canvas class="arc" id="arc6"></canvas></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn go sm" id="walk"><span class="pl"></span> Walk it up the keyboard</button>
+      <button class="btn sm" id="twk"><span class="pl"></span> Twinkle, from a random note</button>
+    </div>
+    <div class="readout" id="r6"></div>
+  </div>
+  <div class="takeaway"><b>The big idea:</b> an interval is a shape, not a place: move it anywhere and it keeps its flavour.</div>
+</section>
+
+<!-- 7 ------------------------------------------------------------------>
+<section class="ch" id="quiz">
+  <div class="num">7</div>
+  <h2>Train your ear</h2>
+  <p>Start with three very different distances: a <b>whole step</b> (Happy Birthday's little step), a <b>fifth</b> (Twinkle's jump) and an <b>octave</b> (<em>Some-where</em> over the rainbow). Each question plays the two notes one after the other, then together. Think of the hooks.</p>
+  <p>Get three in a row and the next level opens up.</p>
+  <div class="lab-w">
+    <div class="lvl" id="lvl"></div>
+    <div id="q"></div>
+    <div class="levelup row" id="lup"><span class="hand" style="font-size:15px">nice ear!</span><button class="btn go sm" id="lupb">Level up &rarr;</button></div>
+  </div>
+  <div class="takeaway"><b>The big idea:</b> with a few song hooks in your pocket, your ear can measure distances on its own.</div>
+</section>
+
+</main>
+
+<script src="../kit/series.js"></script>
+<script>
+(function(){
+'use strict';
+const { $, $$, play, drum, mtof, fit, addDrawer, THUMB, RM, pcCol, NAMES, mod12, isBlack } = SO;
+SO.init('intervals');
+
+/* ---------- shared data ---------- */
+// adapted from lesson 9's IV table (why-twelve), with half-step names and public-domain hooks where possible
+const IV = [
+  { s: 0,  name: 'Unison',       alt: 'same note',   song: 'Happy Birthday: “Hap-py”',            feel: 'The very same note twice. Zero distance, perfectly calm.', ten: 0 },
+  { s: 1,  name: 'Half step',    alt: 'minor 2nd',   song: 'Jaws: “dun… dun…”',                   feel: 'Two next-door neighbours rubbing elbows. Creepy, tense.', ten: .95 },
+  { s: 2,  name: 'Whole step',   alt: 'major 2nd',   song: 'Happy Birthday: “-py birth-”',         feel: 'A plain step, like walking. A little restless.', ten: .6 },
+  { s: 3,  name: 'Minor 3rd',    alt: '',            song: 'Greensleeves: “A-las”',               feel: 'Soft and a bit sad.', ten: .32 },
+  { s: 4,  name: 'Major 3rd',    alt: '',            song: 'Kumbaya: “Kum-ba”',                   feel: 'Bright and happy.', ten: .26 },
+  { s: 5,  name: 'Perfect 4th',  alt: '',            song: 'Here Comes the Bride: “Here comes”',  feel: 'Open, like a fanfare or a hymn.', ten: .18 },
+  { s: 6,  name: 'Tritone',      alt: '',            song: 'The Simpsons: “The Simp-”',           feel: 'Spooky and unsettled. It really wants to move somewhere.', ten: .9 },
+  { s: 7,  name: 'Perfect 5th',  alt: '',            song: 'Twinkle Twinkle: “twin-kle, TWIN-kle”',      feel: 'Strong, open, a little hollow. Very smooth.', ten: .1 },
+  { s: 8,  name: 'Minor 6th',    alt: '',            song: 'The Entertainer: the big leap up',    feel: 'Bittersweet, like a sigh.', ten: .42 },
+  { s: 9,  name: 'Major 6th',    alt: '',            song: 'My Bonnie Lies Over the Ocean: “My Bon-”', feel: 'Warm and sweet.', ten: .35 },
+  { s: 10, name: 'Minor 7th',    alt: '',            song: 'Somewhere (West Side Story): “There’s a”', feel: 'Bluesy and unfinished.', ten: .65 },
+  { s: 11, name: 'Major 7th',    alt: '',            song: 'Rare as a song opener',               feel: 'Dreamy but sharp; it leans up, as if it wants to be an octave.', ten: .85 },
+  { s: 12, name: 'Octave',       alt: '',            song: 'Over the Rainbow: “Some-where”',      feel: 'The same note, higher. Totally smooth.', ten: 0 }
+];
+const ivName = n => n <= 12 ? IV[n].name : 'Octave + ' + IV[n - 12].name.toLowerCase();
+const tenOf = n => IV[mod12(Math.round(n))].ten;
+const hs = n => `${n} half step${n === 1 ? '' : 's'}`;
+const lerp = (a, b, k) => a + (b - a) * k;
+const ease = k => k < 0 ? 0 : k > 1 ? 1 : k * k * (3 - 2 * k);
+
+// a soft wobble for "hand-drawn" lines
+const wob = (i, t, s = 1) => (Math.sin(i * .71 + t * 1.3) * .6 + Math.sin(i * .23 - t * .7 + 2) * .4) * s;
+
+function chipRow(host, items, onPick, sel){
+  host.innerHTML = '';
+  return items.map((it, i) => {
+    const b = document.createElement('button'); b.className = 'chip';
+    b.style.setProperty('--c', it.c || pcCol(it.s)); b.textContent = it.lab;
+    b.setAttribute('aria-pressed', i === sel ? 'true' : 'false');
+    b.addEventListener('click', () => { host.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', 'true'); onPick(it, i); });
+    host.appendChild(b); return b;
+  });
+}
+function setTension(el, v){ el.querySelector('i').style.left = (Math.max(0, Math.min(1, v)) * 100) + '%'; }
+
+/* ---------- hand-drawn arc over a keyboard ---------- */
+function arcKeys(hostSel, cvSel, opt){
+  const host = $(hostSel), cv = $(cvSel);
+  const kb = SO.keys(host, opt);
+  cv.style.minWidth = kb.el.style.minWidth;
+  const st = { a: null, b: null, t0: -9, hop: true };
+  function centre(m){
+    const k = kb.keys[m]; if (!k) return 0;
+    const r = k.getBoundingClientRect(), c = cv.getBoundingClientRect();
+    return r.left - c.left + r.width / 2;
+  }
+  addDrawer(cv, t => {
+    const [x, w, h] = fit(cv); x.clearRect(0, 0, w, h);
+    const base = h - 4, now = performance.now() / 1000;
+    if (st.a == null) return;
+    const ax = centre(st.a), ca = pcCol(st.a);
+    // landing marker on first key
+    x.fillStyle = ca; x.beginPath(); x.arc(ax, base - 3, 4.5, 0, 7); x.fill();
+    if (st.b == null){
+      x.font = '13px "Homemade Apple", cursive'; x.fillStyle = '#c4bccd'; x.textAlign = 'center';
+      x.fillText('now another…', Math.min(w - 60, Math.max(60, ax)), base - 30 + Math.sin(now * 3) * 2);
+      return;
+    }
+    const lo = Math.min(st.a, st.b), hi = Math.max(st.a, st.b), n = hi - lo, bx = centre(st.b), cb = pcCol(st.b);
+    const el = RM ? 99 : now - st.t0;
+    // little hops, one per half step
+    if (st.hop) for (let i = 0; i < n; i++){
+      const k = ease((el - i * .075) / .12); if (k <= 0) break;
+      const x1 = centre(lo + i), x2 = centre(lo + i + 1), mx = (x1 + x2) / 2, hh = 12;
+      x.strokeStyle = 'rgba(243,237,227,.55)'; x.lineWidth = 1.3; x.beginPath();
+      for (let j = 0; j <= 12 * k; j++){ const u = j / 12; const px = lerp(x1, x2, u), py = base - 2 - Math.sin(u * Math.PI) * hh; j ? x.lineTo(px, py) : x.moveTo(px, py); }
+      x.stroke();
+      if (k > .9 && (n <= 13 || (i + 1) % 2 === 0 || i === n - 1)){
+        x.fillStyle = '#c4bccd'; x.font = '500 9.5px "Geist Mono", monospace'; x.textAlign = 'center';
+        x.fillText(i + 1, mx, base - hh - 6);
+      }
+    }
+    // the big arc
+    const k = st.hop ? ease((el - n * .075 - .05) / .45) : ease(el / .4);
+    if (k > 0 && n > 0){
+      const top = Math.max(26, base - 40 - Math.min(52, Math.abs(bx - ax) * .22));
+      const g = x.createLinearGradient(ax, 0, bx, 0); g.addColorStop(0, ca); g.addColorStop(1, cb);
+      for (let pass = 0; pass < 2; pass++){
+        x.strokeStyle = g; x.lineWidth = pass ? 1 : 2.4; x.globalAlpha = pass ? .5 : 1; x.beginPath();
+        const N = 40;
+        for (let j = 0; j <= N * k; j++){
+          const u = j / N, px = lerp(ax, bx, u), py = base - 26 - (base - 26 - top) * Math.sin(u * Math.PI) + wob(j + pass * 9, now * (RM ? 0 : .6), pass ? 1.6 : .7);
+          j ? x.lineTo(px, py) : x.moveTo(px, py);
+        }
+        x.stroke();
+      }
+      x.globalAlpha = 1;
+      if (k >= 1){
+        x.fillStyle = cb; x.beginPath(); x.arc(bx, base - 3, 4.5, 0, 7); x.fill();
+        x.font = 'italic 400 22px Fraunces, serif'; x.textAlign = 'center'; x.fillStyle = '#f3ede3';
+        x.fillText(n === 0 ? '' : `${n}`, (ax + bx) / 2, top - 5);
+      }
+    } else if (n === 0 && el > .1){
+      x.strokeStyle = ca; x.lineWidth = 2; x.beginPath(); x.arc(ax, base - 22, 12, 0, 7); x.stroke();
+      x.font = '13px "Homemade Apple", cursive'; x.textAlign = 'center'; x.fillStyle = '#f3ede3'; x.fillText('zero!', ax, base - 44);
+    }
+  });
+  return { kb, st, set(a, b, hop = true){ st.a = a; st.b = b; st.hop = hop; st.t0 = performance.now() / 1000; kb.mark([a, b].filter(v => v != null), 'sel'); } };
+}
+
+/* ---------- hero ---------- */
+(function hero(){
+  const big = $('#bigT'); big.innerHTML = [...big.textContent].map((c, i) => `<span class="lt" style="--i:${i}">${c}</span>`).join('');
+  const cv = $('#art');
+  const R8 = [[1, 2, 12, 'an octave!'], [2, 3, 7, 'a fifth'], [3, 4, 5, 'a fourth'], [4, 5, 4, 'a major third'], [3, 5, 9, 'a sixth'], [5, 6, 3, 'a minor third']];
+  const HOLD = 5.5;
+  // paper speckle + soft blobs, fixed
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const specks = Array.from({ length: 260 }, () => [rnd(), rnd(), rnd() * 1.2 + .3, rnd()]);
+  const blobs = Array.from({ length: 5 }, (_, i) => ({ x: rnd(), y: rnd(), r: .12 + rnd() * .16, c: [150, 30, 200, 350, 90][i], p: rnd() * 6 }));
+  let cur = 1;
+  function layout(w, h){
+    if (THUMB) return { cx: w * .5, cy: h * .36, R: h * .26 };
+    if (w < 700) return { cx: w * .5, cy: 0, R: Math.min(w * .24, h * .13), phone: true };
+    return { cx: w * .7, cy: h * .43, R: Math.min(h * .28, w * .2) };
+  }
+  function liss(x, cx, cy, R, p, q, ph, now, alpha, trail){
+    const N = 520, pts = [];
+    for (let i = 0; i <= N; i++){
+      const th = i / N * Math.PI * 2;
+      pts.push([cx + R * Math.sin(p * th + ph) + wob(i * .9, now, .9), cy + R * Math.sin(q * th) + wob(i * .9 + 40, now, .9)]);
+    }
+    const ca = pcCol(0), cb = pcCol(R8[cur][2]);
+    for (let pass = 0; pass < 2; pass++){
+      const chunks = 26;
+      for (let c = 0; c < chunks; c++){
+        x.strokeStyle = c < chunks / 2 ? ca : cb;
+        x.globalAlpha = alpha * (pass ? .4 : 1) * (.7 + .3 * Math.sin(c / chunks * Math.PI * 2 + now * .6) ** 2);
+        x.lineWidth = pass ? 1 : 2.6;
+        x.beginPath();
+        const a0 = Math.floor(c * N / chunks), a1 = Math.floor((c + 1) * N / chunks);
+        for (let i = a0; i <= a1; i++){ const [px, py] = pts[i]; const o = pass ? 1.8 : 0; i === a0 ? x.moveTo(px + o, py - o) : x.lineTo(px + o, py - o); }
+        x.stroke();
+      }
+    }
+    x.globalAlpha = 1;
+    return pts;
+  }
+  function drawKeys(x, cx, y, W, s, k){
+    const ww = W / 8, wh = W * .22;
+    const whites = [0, 2, 4, 5, 7, 9, 11, 12];
+    const pos = m => { const wi = whites.indexOf(m); if (wi >= 0) return cx - W / 2 + wi * ww + ww / 2; const l = whites.indexOf(m - 1); return cx - W / 2 + (l + 1) * ww; };
+    whites.forEach((m, i) => {
+      const xx = cx - W / 2 + i * ww;
+      const lit = m === 0 || m === s;
+      x.fillStyle = lit ? pcCol(m) : 'rgba(242,236,226,.82)';
+      x.beginPath(); x.roundRect ? x.roundRect(xx + 1, y, ww - 2, wh, [0, 0, 5, 5]) : x.rect(xx + 1, y, ww - 2, wh); x.fill();
+    });
+    [1, 3, 6, 8, 10].forEach(m => {
+      const xx = pos(m), bw = ww * .6;
+      x.fillStyle = m === s ? pcCol(m) : '#1b1622'; x.fillRect(xx - bw / 2, y, bw, wh * .6);
+    });
+    // arch
+    const ax = pos(0), bx = pos(s), top = y - 12 - W * .05;
+    x.strokeStyle = '#f3ede3'; x.lineWidth = 1.6; x.beginPath();
+    for (let j = 0; j <= 30 * k; j++){ const u = j / 30, px = lerp(ax, bx, u), py = y - 6 - (y - 6 - top) * Math.sin(u * Math.PI); j ? x.lineTo(px, py) : x.moveTo(px, py); }
+    x.stroke();
+    return [cx, y + wh + 34];
+  }
+  addDrawer(cv, T => {
+    const [x, w, h] = fit(cv); x.clearRect(0, 0, w, h);
+    const frozen = RM || THUMB, t = RM ? 3 : T;
+    const idx = frozen ? 1 : (Math.floor(t / HOLD) + 1) % R8.length, into = frozen ? 2.5 : t % HOLD;
+    cur = idx;
+    const [p, q, s, lab] = R8[idx];
+    const lay = layout(w, h), { cx, R } = lay, cy = lay.phone ? 84 + R : lay.cy;
+    // soft paint blobs
+    blobs.forEach(b => {
+      const bx = b.x * w, by = b.y * h, br = b.r * Math.max(w, h);
+      const g = x.createRadialGradient(bx, by, 0, bx, by, br);
+      g.addColorStop(0, `hsla(${b.c} 70% 60% / .08)`); g.addColorStop(1, 'hsla(0 0% 0% / 0)');
+      x.fillStyle = g; x.beginPath();
+      for (let i = 0; i <= 40; i++){ const a = i / 40 * Math.PI * 2, rr = br * (1 + .08 * Math.sin(a * 3 + t * .3 + b.p)); i ? x.lineTo(bx + Math.cos(a) * rr, by + Math.sin(a) * rr) : x.moveTo(bx + rr, by); }
+      x.fill();
+    });
+    // speckles
+    x.fillStyle = '#f3ede3';
+    specks.forEach(([sx, sy, sr, a]) => { x.globalAlpha = .05 + a * .08; x.fillRect(sx * w, sy * h, sr, sr); });
+    x.globalAlpha = 1;
+    // machine frame: two axis tracks
+    const ph = t * .22;
+    x.strokeStyle = 'rgba(243,237,227,.18)'; x.lineWidth = 1; x.setLineDash([3, 5]);
+    x.beginPath(); x.moveTo(cx - R, cy + R + 18); x.lineTo(cx + R, cy + R + 18); x.moveTo(cx - R - 18, cy - R); x.lineTo(cx - R - 18, cy + R); x.stroke(); x.setLineDash([]);
+    // crossfade figure
+    const fade = Math.min(1, into / .9), out = Math.min(1, (HOLD - into) / .6);
+    const pts = liss(x, cx, cy, R, p, q, ph, RM ? 0 : t, Math.min(fade, out), true);
+    // pen + sliders
+    const th = (t * .35) % (Math.PI * 2);
+    const px = cx + R * Math.sin(p * th + ph), py = cy + R * Math.sin(q * th);
+    const ca = pcCol(0), cb = pcCol(s);
+    x.strokeStyle = 'rgba(243,237,227,.25)'; x.beginPath(); x.moveTo(px, cy + R + 18); x.lineTo(px, py); x.lineTo(cx - R - 18, py); x.stroke();
+    x.fillStyle = ca; x.beginPath(); x.arc(px, cy + R + 18, 6, 0, 7); x.fill();
+    x.fillStyle = cb; x.beginPath(); x.arc(cx - R - 18, py, 6, 0, 7); x.fill();
+    x.fillStyle = '#f3ede3'; x.beginPath(); x.arc(px, py, 3.2, 0, 7); x.fill();
+    x.strokeStyle = '#f3ede3'; x.globalAlpha = .25; x.beginPath(); x.arc(px, py, 9 + Math.sin(t * 6) * 2, 0, 7); x.stroke(); x.globalAlpha = 1;
+    // ratio scrawl
+    x.font = `${Math.round(R * .12 + 8)}px "Geist Mono", monospace`; x.fillStyle = 'rgba(243,237,227,.5)'; x.textAlign = 'left';
+    x.fillText(`${p} : ${q}`, lay.phone ? cx - R - 30 : cx + R + 14, lay.phone ? cy - R - 6 : cy - R + 10);
+    // mini keyboard + arch + handwritten name
+    const W = Math.min(R * 2.1, w - 40), ky = cy + R + 44;
+    const [lx, ly] = lay.phone ? [cx, cy + R + 40] : drawKeys(x, cx, ky, W, s, ease(into / 1.2));
+    x.save(); x.translate(lx, ly - 10); x.rotate(-.05);
+    x.font = `${Math.round(Math.max(14, R * .14))}px "Homemade Apple", cursive`; x.textAlign = 'center';
+    x.fillStyle = cb; x.globalAlpha = Math.min(fade, out); x.fillText(lab, 0, 0); x.restore(); x.globalAlpha = 1;
+  });
+  cv.addEventListener('click', () => {
+    const s = R8[cur][2];
+    play('piano', mtof(60), { dur: 1.4, vel: .6 }); play('piano', mtof(60 + s), { t0: .45, dur: 1.4, vel: .6 });
+  });
+})();
+
+/* ---------- 1 · count the half steps ---------- */
+const A1 = arcKeys('#kb1', '#arc1', { lo: 60, hi: 76, inst: 'piano', labels: 'all', keymap: true, onPress: m => pick1(m), dur: 1 });
+let sel1 = [60, 67];
+A1.set(60, 67, false);
+function show1(){
+  const [a, b] = sel1;
+  if (b == null){ $('#big1').innerHTML = `<span class="u">first note: <b style="color:var(--ink)">${NAMES[mod12(a)]}</b>. Tap a second key.</span>`; return; }
+  const n = Math.abs(b - a), iv = n <= 12 ? IV[n] : null;
+  $('#big1').innerHTML = `<span class="n">${n}</span><span><span class="u">HALF STEPS · ${NAMES[mod12(a)]} → ${NAMES[mod12(b)]}</span><span class="nm" style="display:block">${ivName(n)}${iv && iv.alt && iv.alt !== 'same note' ? ` <span style="color:var(--dim);font-weight:400">(${iv.alt})</span>` : ''}</span><span class="sg">${iv ? 'like ' + iv.song : 'a bigger leap than an octave'}</span></span>`;
+}
+function pick1(m){
+  if (sel1.length >= 2) sel1 = [];
+  sel1.push(m);
+  if (sel1.length === 1){ A1.set(m, null); show1(); return; }
+  const [a, b] = sel1, n = Math.abs(b - a);
+  A1.set(a, b, true); show1();
+  if (!RM) for (let i = 1; i <= n; i++) drum('block', { t0: .25 + i * .075, f: 700 + i * 45, vel: .18 });
+  const t = .25 + n * .075 + .45;
+  play('piano', mtof(a), { t0: t, dur: 1.4, vel: .55 }); play('piano', mtof(b), { t0: t, dur: 1.4, vel: .55 });
+}
+show1();
+function play1(together){
+  let [a, b] = sel1; if (b == null){ b = a; }
+  SO.stopAll();
+  A1.set(a, b, false);
+  play('piano', mtof(a), { dur: together ? 1.6 : .8 });
+  play('piano', mtof(b), { t0: together ? 0 : .6, dur: together ? 1.6 : 1.2 });
+}
+$('#p1m').addEventListener('click', () => play1(false));
+$('#p1h').addEventListener('click', () => play1(true));
+
+/* ---------- 2 · melody vs harmony ---------- */
+(function(){
+  const cv = $('#roll'); let mode = 0, mk = 0, s = 7, playT = -9;
+  const opts = [{ s: 1, lab: 'half step' }, { s: 4, lab: 'major 3rd' }, { s: 7, lab: 'fifth' }, { s: 12, lab: 'octave' }];
+  chipRow($('#chips2'), opts, it => { s = it.s; go(); }, 2);
+  $$('.seg button[data-mode]').forEach(b => b.addEventListener('click', () => {
+    mode = +b.dataset.mode; $$('.seg button[data-mode]').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); go();
+  }));
+  function go(){
+    SO.stopAll(); playT = performance.now() / 1000;
+    const a = mtof(60), b = mtof(60 + s);
+    if (mode){ play('piano', a, { dur: 1.5, vel: .6 }); play('piano', b, { dur: 1.5, vel: .6 }); }
+    else { play('piano', a, { dur: .7, vel: .6 }); play('piano', b, { t0: .75, dur: .9, vel: .6 }); }
+    $('#r2').innerHTML = mode ? `<b>together</b>: C and ${NAMES[mod12(60 + s)]} melt into one sound (${hs(s)} apart)`
+                              : `<b>one after the other</b>: C, then up ${hs(s)} to ${NAMES[mod12(60 + s)]}`;
+  }
+  $('#r2').innerHTML = 'pick a distance, or flip the switch';
+  addDrawer(cv, T => {
+    const [x, w, h] = fit(cv); x.clearRect(0, 0, w, h);
+    mk += ((mode ? 1 : 0) - mk) * (RM ? 1 : .12);
+    const now = performance.now() / 1000, el = now - playT;
+    const L = 46, Rr = w - 14, top = 14, bot = h - 26;
+    const yOf = m => lerp(bot, top, (m - 59) / 14);
+    const xOf = tt => lerp(L, Rr, tt / 1.9);
+    // pitch lines
+    for (let m = 59; m <= 73; m++){
+      const y = yOf(m); x.strokeStyle = m % 12 === 0 ? 'rgba(243,237,227,.18)' : 'rgba(243,237,227,.06)'; x.lineWidth = 1;
+      x.beginPath(); x.moveTo(L, y); x.lineTo(Rr, y); x.stroke();
+      if (m % 12 === 0 || m === 60 + s){ x.fillStyle = m === 60 + s ? pcCol(m) : '#8c8499'; x.font = '500 11px "Geist Mono", monospace'; x.textAlign = 'right'; x.fillText(NAMES[mod12(m)], L - 8, y + 4); }
+    }
+    x.fillStyle = '#8c8499'; x.font = '500 10px "Geist Mono", monospace'; x.textAlign = 'left';
+    x.fillText('time →', L, h - 8); x.save(); x.translate(12, h / 2 + 20); x.rotate(-Math.PI / 2); x.fillText('higher →', 0, 0); x.restore();
+    const notes = [
+      { m: 60, t0: 0, d: lerp(.7, 1.5, mk) },
+      { m: 60 + s, t0: lerp(.75, 0, mk), d: lerp(.9, 1.5, mk) }
+    ];
+    notes.forEach((n, i) => {
+      const x0 = xOf(n.t0), x1 = xOf(n.t0 + n.d), y = yOf(n.m), on = el >= n.t0 && el < n.t0 + n.d;
+      const hh = 9 + (on ? 3 : 0);
+      x.fillStyle = pcCol(n.m); x.globalAlpha = on ? 1 : .8;
+      x.beginPath();
+      for (let j = 0; j <= 30; j++){ const u = j / 30, px = lerp(x0, x1, u), py = y - hh + wob(j + i * 20, now * (RM ? 0 : 1), .8); j ? x.lineTo(px, py) : x.moveTo(px, py); }
+      for (let j = 30; j >= 0; j--){ const u = j / 30, px = lerp(x0, x1, u), py = y + hh + wob(j + i * 20 + 7, now * (RM ? 0 : 1), .8); x.lineTo(px, py); }
+      x.closePath(); x.fill(); x.globalAlpha = 1;
+      x.fillStyle = '#1b1622'; x.font = '600 12px "Bricolage Grotesque", sans-serif'; x.textAlign = 'left';
+      x.fillText(NAMES[mod12(n.m)], x0 + 8, y + 4);
+    });
+    // distance bracket
+    const bx = xOf(notes[1].t0) - 12, y1 = yOf(60), y2 = yOf(60 + s);
+    x.strokeStyle = 'rgba(243,237,227,.6)'; x.lineWidth = 1.3; x.beginPath();
+    x.moveTo(bx + 5, y1); x.quadraticCurveTo(bx - 6, (y1 + y2) / 2, bx + 5, y2); x.stroke();
+    x.font = 'italic 400 20px Fraunces, serif'; x.fillStyle = '#f3ede3'; x.textAlign = 'right';
+    x.fillText(`${s}`, bx - 6, (y1 + y2) / 2 + 6);
+    // word
+    x.font = 'italic 300 22px Fraunces, serif'; x.textAlign = 'right'; x.fillStyle = 'rgba(243,237,227,.55)';
+    x.fillText(mk < .5 ? 'melody' : 'harmony', Rr - 4, top + 18);
+    // playhead
+    if (el >= 0 && el < 1.9){ const px = xOf(el); x.strokeStyle = 'rgba(243,237,227,.5)'; x.beginPath(); x.moveTo(px, top); x.lineTo(px, bot + 8); x.stroke(); }
+  });
+})();
+
+/* ---------- 3 · the family of intervals ---------- */
+(function(){
+  const cards = $('#cards'), det = $('#det');
+  function showDet(iv){
+    det.innerHTML = `<div><span class="k">sounds like</span><span class="v small">${iv.song}</span></div>
+      <div><span class="k">feels</span><span class="v small">${iv.feel}</span></div>
+      <div><span class="k">smooth ↔ tense</span><span class="tension" style="display:block;margin-top:12px"><i style="left:${iv.ten * 100}%"></i></span><span class="tlab"><span>smooth</span><span>tense</span></span></div>`;
+  }
+  IV.forEach(iv => {
+    const b = document.createElement('button'); b.className = 'card'; b.setAttribute('aria-pressed', 'false');
+    b.style.setProperty('--c', pcCol(iv.s));
+    b.innerHTML = `<span class="sw"></span><span class="s">${hs(iv.s)}</span><span class="n">${iv.name}</span><span class="h">${iv.song.split(':')[0]}</span>`;
+    b.addEventListener('click', () => {
+      cards.querySelectorAll('.card').forEach(c => c.setAttribute('aria-pressed', c === b ? 'true' : 'false'));
+      showDet(iv); SO.stopAll();
+      const a = iv.s === 1 ? 64 : iv.s === 6 ? 60 : iv.s >= 9 ? 57 : 60;   // rough "song key" starting notes
+      const f1 = mtof(a), f2 = mtof(a + iv.s);
+      if (iv.s === 1){ play('piano', mtof(a - 12), { dur: .5, vel: .7 }); play('piano', mtof(a - 11), { t0: .55, dur: .5, vel: .7 }); play('piano', mtof(a - 12), { t0: 1.1, dur: .45, vel: .75 }); play('piano', mtof(a - 11), { t0: 1.55, dur: .45, vel: .75 }); }
+      else { play('piano', f1, { dur: .55, vel: .6 }); play('piano', f2, { t0: .6, dur: .9, vel: .6 }); }
+      const tt = iv.s === 1 ? 2.3 : 1.7;
+      play('piano', f1, { t0: tt, dur: 1.5, vel: .5 }); if (iv.s) play('piano', f2, { t0: tt, dur: 1.5, vel: .5 });
+    });
+    cards.appendChild(b);
+  });
+  showDet(IV[7]);
+  cards.children[7].setAttribute('aria-pressed', 'true');
+})();
+
+/* ---------- 4a · wobbles lining up ---------- */
+(function(){
+  const PAIRS = [
+    { lab: 'Octave', p: 1, q: 2, s: 12 }, { lab: 'Fifth', p: 2, q: 3, s: 7 }, { lab: 'Fourth', p: 3, q: 4, s: 5 },
+    { lab: 'Major 3rd', p: 4, q: 5, s: 4 }, { lab: 'Whole step', p: 8, q: 9, s: 2 }, { lab: 'Half step', p: 15, q: 16, s: 1 }
+  ];
+  let P = PAIRS[1]; const cv = $('#waves'), btn = $('#p4'); const own = { onStop(){ SO.setPlayBtn(btn, false, 'Play the pair'); } };
+  function info(){
+    setTension($('#ten4'), tenOf(P.s));
+    $('#r4').innerHTML = `top note wobbles <b>${P.q}</b> times while the bottom wobbles <b>${P.p}</b>, so they line up <b>${P.p === 1 ? 'on every bottom wobble' : 'once every ' + P.p + ' bottom wobbles'}</b>. ${P.p <= 3 ? '<span class="ok">Often: smooth.</span>' : P.p <= 4 ? 'Fairly often: pleasant.' : '<span class="bad">Rarely: rough.</span>'}`;
+  }
+  let auto = 0;
+  function start(){ SO.drone([220, 220 * P.q / P.p], 'triangle', .13, own); SO.setPlayBtn(btn, true, 'Play the pair'); clearTimeout(auto); auto = setTimeout(() => { if (SO.isOwner(own)) SO.stopDrone(); }, 15000); }
+  chipRow($('#chips4'), PAIRS.map(p => ({ ...p, c: pcCol(p.s) })), it => { P = it; info(); start(); }, 1);
+  btn.addEventListener('click', () => { if (SO.isOwner(own)) SO.stopDrone(); else start(); });
+  info();
+  addDrawer(cv, T => {
+    const [x, w, h] = fit(cv); x.clearRect(0, 0, w, h);
+    const per = w < 500 ? 10 : 16, L = 8, Rr = w - 8, W = Rr - L;
+    const off = RM ? 0 : T * .5;
+    const lanes = [h * .14, h * .44, h * .76], amp = [h * .07, h * .07, h * .13];
+    const xOf = u => L + (u - off + per) % per / per * W;  // u in bottom-wobble units
+    // coincidence lines
+    const k0 = Math.ceil(off / P.p) * P.p;
+    for (let k = k0 - P.p; k <= off + per + P.p; k += P.p){
+      const u = k - off; if (u < 0 || u > per) continue;
+      const px = L + u / per * W;
+      const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.5, 'hsla(150 85% 74% / .55)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = g; x.fillRect(px - 3, 6, 6, h - 12);
+      x.fillStyle = 'hsl(150 85% 74%)'; x.beginPath(); x.arc(px, lanes[2] - amp[2] * 1, 4, 0, 7); x.fill();
+    }
+    const fs = [1, P.q / P.p], cols = [pcCol(0), pcCol(P.s)];
+    const yw = (lane, u) => {
+      const ph = (u + off) * Math.PI * 2;
+      if (lane < 2) return lanes[lane] - Math.cos(ph * fs[lane]) * amp[lane];
+      return lanes[2] - (Math.cos(ph) + Math.cos(ph * fs[1])) / 2 * amp[2];
+    };
+    for (let lane = 0; lane < 3; lane++){
+      x.strokeStyle = lane < 2 ? cols[lane] : '#f3ede3'; x.lineWidth = lane < 2 ? 1.8 : 2.2; x.beginPath();
+      for (let i = 0; i <= W; i += 1.5){ const u = i / W * per; const y = yw(lane, u); i ? x.lineTo(L + i, y) : x.moveTo(L + i, y); }
+      x.stroke();
+      if (lane < 2){
+        // peak dots = the "claps"
+        x.fillStyle = cols[lane];
+        const f = fs[lane];
+        for (let m = Math.ceil(off * f); m <= (off + per) * f; m++){ const u = m / f - off; x.beginPath(); x.arc(L + u / per * W, lanes[lane] - amp[lane] - 6, 2.6, 0, 7); x.fill(); }
+      }
+    }
+    x.font = '500 10px "Geist Mono", monospace'; x.fillStyle = '#8c8499'; x.textAlign = 'left';
+    x.fillText('bottom note', L + 2, lanes[0] + amp[0] + 13); x.fillText('top note', L + 2, lanes[1] + amp[1] + 13); x.fillText('what reaches your ear: both added up', L + 2, h - 6);
+  });
+})();
+
+/* ---------- 4b · the roughness landscape ---------- */
+(function(){
+  // roughness of two rich tones (Plomp–Levelt curve, Sethares' formula), using the same harmonics as the 'organ' sound
+  const A = [1, .58, .42, .3, .22, .16, .11, .08], F0 = 220, NPT = 600;
+  function diss(r){
+    let d = 0;
+    for (let i = 0; i < A.length; i++) for (let j = 0; j < A.length; j++){
+      const f1 = F0 * (i + 1), f2 = F0 * r * (j + 1), fm = Math.min(f1, f2), df = Math.abs(f2 - f1), s = .24 / (.021 * fm + 19);
+      d += Math.min(A[i], A[j]) * (Math.exp(-3.5 * s * df) - Math.exp(-5.75 * s * df));
+    }
+    return d;
+  }
+  const curve = []; let mx = 0;
+  for (let i = 0; i <= NPT; i++){ const v = diss(Math.pow(2, i / NPT)); curve.push(v); mx = Math.max(mx, v); }
+  for (let i = 0; i <= NPT; i++) curve[i] /= mx;
+  const rough = sx => { const f = sx / 12 * NPT, i = Math.min(NPT - 1, Math.floor(f)); return lerp(curve[i], curve[i + 1], f - i); };
+  const LBL = [[0, 'same'], [3, 'm3'], [4, '3rd'], [5, '4th'], [7, '5th'], [9, '6th'], [12, 'octave']];
+  const cv = $('#land'), sb = $('#slide');
+  let sx = 0, held = false, sliding = false, slideT0 = 0, idleT = 0;
+  const own = { onStop(){ held = false; sliding = false; SO.setPlayBtn(sb, false, 'Slow slide'); } };
+  const geo = () => { const r = cv.getBoundingClientRect(); return { L: 22, Rr: r.width - 22, top: 34, bot: r.height - 34 }; };
+  const fq = () => F0 * Math.pow(2, sx / 12);
+  let D = null;
+  function startD(){ D = SO.drone([F0, fq()], 'organ', .11, own); }
+  function upd(){ if (SO.isOwner(own)) D.set(1, fq()); read(); }
+  function read(){
+    const near = Math.round(sx), dd = Math.abs(sx - near), r = rough(sx);
+    const sweet = dd < .08 && [0, 3, 4, 5, 7, 8, 9, 12].includes(near);
+    $('#r4b').innerHTML = `top note <b>+${sx.toFixed(1)}</b> half steps · ${dd < .12 ? ivName(near).toLowerCase() : 'between keys'} · ${sweet ? '<span class="ok">sweet spot!</span>' : r > .55 ? '<span class="bad">rough</span>' : r > .3 ? 'grainy' : 'fairly smooth'}`;
+  }
+  read();
+  function setX(e){ const g = geo(), r = cv.getBoundingClientRect(); sx = Math.max(0, Math.min(12, (e.clientX - r.left - g.L) / (g.Rr - g.L) * 12)); upd(); }
+  cv.addEventListener('pointerdown', e => { e.preventDefault(); cv.setPointerCapture(e.pointerId); sliding = false; SO.setPlayBtn(sb, false, 'Slow slide'); held = true; setX(e); startD(); });
+  cv.addEventListener('pointermove', e => { if (held) setX(e); });
+  const up = () => { if (held){ held = false; if (SO.isOwner(own)) SO.stopDrone(); } };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+  cv.addEventListener('keydown', e => {
+    const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return; e.preventDefault();
+    sx = Math.max(0, Math.min(12, sx + d * (e.shiftKey ? 1 : .1)));
+    if (!SO.isOwner(own)) startD(); upd();
+    clearTimeout(idleT); idleT = setTimeout(() => { if (SO.isOwner(own) && !sliding) SO.stopDrone(); }, 900);
+  });
+  sb.addEventListener('click', () => {
+    if (sliding){ SO.stopDrone(); return; }
+    sx = 0; startD(); sliding = true; slideT0 = performance.now(); SO.setPlayBtn(sb, true, 'Slow slide'); upd();
+  });
+  addDrawer(cv, T => {
+    const [x, w, h] = fit(cv); x.clearRect(0, 0, w, h);
+    if (sliding){ sx = Math.min(12, (performance.now() - slideT0) / 1000 / 20 * 12); upd(); if (sx >= 12) SO.stopDrone(); }
+    const { L, Rr, top, bot } = geo();
+    const X = s => L + s / 12 * (Rr - L), Y = r => lerp(bot, top, r);
+    // filled hills
+    const g = x.createLinearGradient(0, top, 0, bot); g.addColorStop(0, 'rgba(255,122,122,.32)'); g.addColorStop(.6, 'rgba(255,210,122,.14)'); g.addColorStop(1, 'rgba(127,214,176,.08)');
+    x.fillStyle = g; x.beginPath(); x.moveTo(X(0), bot);
+    for (let i = 0; i <= NPT; i += 2) x.lineTo(X(i / NPT * 12), Y(curve[i]) + wob(i * .2, 0, .6));
+    x.lineTo(X(12), bot); x.closePath(); x.fill();
+    x.strokeStyle = 'rgba(243,237,227,.75)'; x.lineWidth = 1.6; x.beginPath();
+    for (let i = 0; i <= NPT; i += 2){ const px = X(i / NPT * 12), py = Y(curve[i]) + wob(i * .2, 0, .6); i ? x.lineTo(px, py) : x.moveTo(px, py); }
+    x.stroke();
+    // half-step ticks + valley labels
+    x.fillStyle = '#8c8499'; x.font = '500 10px "Geist Mono", monospace'; x.textAlign = 'center';
+    for (let k = 0; k <= 12; k++){ x.fillRect(X(k) - .5, bot + 4, 1, 5); if (w > 480 || k % 2 === 0) x.fillText(k, X(k), bot + 20); }
+    x.font = '13px "Homemade Apple", cursive'; x.fillStyle = 'hsl(150 85% 74%)';
+    LBL.forEach(([k, l]) => { if (k === 0 || (w < 480 && k === 3)) return; const yy = Y(rough(k)); x.fillText(l, X(k) + (k === 0 ? 14 : k === 12 ? -16 : 0), Math.min(bot - 6, yy + 22)); });
+    x.fillStyle = '#8c8499'; x.font = '500 10px "Geist Mono", monospace'; x.textAlign = 'left';
+    x.fillText('rough ↑', L, 14); x.textAlign = 'right'; x.fillText('half steps above the bottom note →', Rr, h - 2);
+    // the ball, shivering with roughness
+    const r = rough(sx), on = SO.isOwner(own), sh = on && !RM ? r * 3.2 : 0;
+    const bxp = X(sx) + (Math.random() - .5) * sh, byp = Y(r) - 13 + (Math.random() - .5) * sh;
+    x.strokeStyle = 'rgba(243,237,227,.25)'; x.setLineDash([2, 4]); x.beginPath(); x.moveTo(X(sx), byp + 13); x.lineTo(X(sx), bot); x.stroke(); x.setLineDash([]);
+    x.fillStyle = pcCol(Math.round(sx)); x.beginPath(); x.arc(bxp, byp, 12, 0, 7); x.fill();
+    x.strokeStyle = '#16131d'; x.lineWidth = 2; x.stroke();
+    x.fillStyle = '#16131d'; x.beginPath(); x.arc(bxp - 3.5, byp - 2, 1.6, 0, 7); x.arc(bxp + 3.5, byp - 2, 1.6, 0, 7); x.fill();
+    x.beginPath(); x.lineWidth = 1.5;
+    if (r < .3){ x.arc(bxp, byp + 1, 4.5, .2, Math.PI - .2); } else { x.moveTo(bxp - 4, byp + 5); for (let i = 1; i <= 4; i++) x.lineTo(bxp - 4 + i * 2, byp + 5 + (i % 2 ? -1.5 : 0)); }
+    x.stroke();
+  });
+})();
+
+/* ---------- 5 · tension and resolution ---------- */
+(function(){
+  const ITCH = [
+    { lab: 'B + F', a: 59, b: 65, to: [
+      { a: 60, b: 64, lab: 'C + E', msg: '<b>Ahh.</b> Each note stepped by just a half step, and the clash melted into a sweet major 3rd.' },
+      { a: 60, b: 65, lab: 'C + F', msg: '<b>Calmer.</b> A perfect 4th: open, but not quite home. Try C + E for the full "ahh".' },
+      { a: 58, b: 64, lab: 'B♭ + E', msg: '<b>Huh?</b> It slid sideways into… another tritone. The itch is still there.' } ] },
+    { lab: 'B + C', a: 59, b: 60, to: [
+      { a: 60, b: 60, lab: 'C + C', msg: '<b>Ahh.</b> The B slid up and the two notes became one. Total calm.' },
+      { a: 57, b: 60, lab: 'A + C', msg: '<b>Settled,</b> and a little wistful: the B stepped down to A, making a soft minor 3rd.' },
+      { a: 59, b: 61, lab: 'B + C♯', msg: '<b>Still rubbing.</b> A whole step is less sour than a half step, but it isn’t resolved.' } ] }
+  ];
+  const cv = $('#res');
+  let it = ITCH[0], cur = { a: 59, b: 65 }, from = { a: 59, b: 65 }, goal = { a: 59, b: 65 }, gT = 0, D = null, stopT = 0, hist = [];
+  const own = { onStop(){ D = null; } };
+  const tenNow = () => tenOf(Math.abs(cur.b - cur.a));
+  function ensure(){ if (!SO.isOwner(own)) D = SO.drone([mtof(cur.a), mtof(cur.b)], 'organ', .1, own); }
+  function startItch(i){
+    it = ITCH[i]; cur = { a: it.a, b: it.b }; goal = { ...cur }; from = { ...cur };
+    clearTimeout(stopT); SO.stopDrone(); ensure();
+    $('#m5').innerHTML = `Hear that itch? <b>${it.lab}</b> ${i ? 'are next-door neighbours: a half step, rubbing.' : 'make a tritone, the spookiest interval.'} Now pick where it goes.`;
+    renderGoes(); $$('#itches .btn').forEach((b, j) => b.setAttribute('aria-pressed', j === i ? 'true' : 'false'));
+    stopT = setTimeout(() => { if (SO.isOwner(own)) SO.stopDrone(); }, 9000);
+  }
+  function resolve(t){
+    clearTimeout(stopT);
+    const fresh = !SO.isOwner(own);
+    if (fresh){ cur = { a: it.a, b: it.b }; ensure(); }
+    setTimeout(() => { from = { ...cur }; goal = { a: t.a, b: t.b }; gT = performance.now(); $('#m5').innerHTML = t.msg; }, fresh ? 1100 : 60);
+    stopT = setTimeout(() => { if (SO.isOwner(own)) SO.stopDrone(); }, (fresh ? 1100 : 0) + 3200);
+  }
+  function renderGoes(){
+    const g = $('#goes'); g.innerHTML = '';
+    it.to.forEach(t => { const b = document.createElement('button'); b.className = 'btn sm'; b.innerHTML = `&rarr; ${t.lab}`; b.addEventListener('click', () => resolve(t)); g.appendChild(b); });
+  }
+  ITCH.forEach((t, i) => { const b = document.createElement('button'); b.className = 'btn go sm'; b.innerHTML = `<span class="pl"></span> ${t.lab} <span style="opacity:.7;font-weight:400">${i ? '(half step)' : '(tritone)'}</span>`; b.addEventListener('click', () => startItch(i)); $('#itches').appendChild(b); });
+  renderGoes();
+  addDrawer(cv, T => {
+    const [x, w, h] = fit(cv); x.clearRect(0, 0, w, h);
+    const now = performance.now();
+    const k = ease((now - gT) / 420);
+    cur = { a: lerp(from.a, goal.a, k), b: lerp(from.b, goal.b, k) };
+    const on = SO.isOwner(own);
+    if (on && D){ D.set(0, mtof(cur.a)); D.set(1, mtof(cur.b)); }
+    const ten = tenNow(); setTension($('#ten5'), ten);
+    const L = 40, Rr = w - 12, top = 12, bot = h - 12, lo = 55.5, hi = 66.5;
+    const yOf = m => lerp(bot, top, (m - lo) / (hi - lo));
+    for (let m = 56; m <= 66; m++){
+      const y = yOf(m); x.strokeStyle = isBlack(m) ? 'rgba(243,237,227,.04)' : 'rgba(243,237,227,.1)'; x.beginPath(); x.moveTo(L, y); x.lineTo(Rr, y); x.stroke();
+      x.fillStyle = '#8c8499'; x.font = '500 10px "Geist Mono", monospace'; x.textAlign = 'right'; x.fillText(NAMES[mod12(m)], L - 8, y + 3.5);
+    }
+    // history trails
+    if (on) hist.push([now, cur.a, cur.b]);
+    hist = hist.filter(p => now - p[0] < 4000);
+    const hx = p => lerp(Rr * .72, L, (now - p[0]) / 4000);
+    [[1, pcCol(Math.round(cur.a))], [2, pcCol(Math.round(cur.b))]].forEach(([j, c]) => {
+      x.strokeStyle = c; x.lineWidth = 3; x.globalAlpha = .55; x.beginPath();
+      let first = true, lastT = 0;
+      hist.forEach(p => { const px = hx(p), py = yOf(p[j]); if (first || p[0] - lastT > 120){ x.moveTo(px, py); first = false; } else x.lineTo(px, py); lastT = p[0]; });
+      x.stroke(); x.globalAlpha = 1;
+    });
+    // the two voices, joined by a string that shivers when tense
+    const cx = Rr * .72, ya = yOf(cur.a), yb = yOf(cur.b);
+    x.strokeStyle = '#f3ede3'; x.lineWidth = 1.4; x.beginPath();
+    const amp = on && !RM ? ten * 9 : ten * 3;
+    for (let i = 0; i <= 30; i++){ const u = i / 30, yy = lerp(ya, yb, u), xx = cx + Math.sin(u * Math.PI) * Math.sin(now / 1000 * (on ? 38 : 2) + u * 20) * amp; i ? x.lineTo(xx, yy) : x.moveTo(xx, yy); }
+    x.stroke();
+    [[ya, cur.a], [yb, cur.b]].forEach(([y, m]) => {
+      x.fillStyle = pcCol(Math.round(m)); x.beginPath(); x.arc(cx, y, on ? 10 : 7, 0, 7); x.fill();
+      x.fillStyle = '#1b1622'; x.font = '600 10px "Bricolage Grotesque", sans-serif'; x.textAlign = 'center'; x.fillText(NAMES[mod12(Math.round(m))], cx, y + 3.5);
+    });
+    x.font = '14px "Homemade Apple", cursive'; x.textAlign = 'left'; x.fillStyle = ten > .5 ? '#ff8a8a' : 'hsl(150 85% 74%)';
+    x.fillText(ten > .5 ? 'itchy…' : 'ahh', cx + 22, (ya + yb) / 2 + 5);
+  });
+})();
+
+/* ---------- 6 · transposition ---------- */
+(function(){
+  let s = 7;
+  const opts = [{ s: 1, lab: 'half step' }, { s: 4, lab: 'major 3rd' }, { s: 5, lab: 'fourth' }, { s: 7, lab: 'fifth' }, { s: 12, lab: 'octave' }];
+  let A6;
+  function build(m){
+    const top = m + s;
+    if (top > 79){ A6.set(m, null); $('#r6').innerHTML = `${NAMES[mod12(m)]} is too high to build a ${IV[s].name.toLowerCase()} on this keyboard. Try a lower key.`; return; }
+    A6.set(m, top, false);
+    play('piano', mtof(top), { t0: .38, dur: .8, vel: .6 });
+    play('piano', mtof(m), { t0: .95, dur: 1.2, vel: .5 }); play('piano', mtof(top), { t0: .95, dur: 1.2, vel: .5 });
+    $('#r6').innerHTML = `<b>${NAMES[mod12(m)]} → ${NAMES[mod12(top)]}</b>: ${hs(s)}, a ${IV[s].name.toLowerCase()}. Different notes, same flavour.`;
+  }
+  A6 = arcKeys('#kb6', '#arc6', { lo: 55, hi: 79, inst: 'piano', labels: 'white', onPress: m => build(m), dur: .7 });
+  A6.set(60, 67, false);
+  chipRow($('#chips6'), opts, it => { s = it.s; const a = A6.st.a ?? 60; build(Math.min(a, 79 - s)); play('piano', mtof(Math.min(a, 79 - s)), { dur: .7, vel: .6 }); }, 3);
+  $('#r6').innerHTML = 'tap any key';
+  let walkTimers = [];
+  $('#walk').addEventListener('click', () => {
+    SO.stopAll(); walkTimers.forEach(clearTimeout); walkTimers = [];
+    const start = 55, steps = []; for (let m = start; m + s <= 79 && steps.length < 8; m += 2) steps.push(m);
+    steps.forEach((m, i) => {
+      play('piano', mtof(m), { t0: i * .55, dur: .5, vel: .5 }); play('piano', mtof(m + s), { t0: i * .55, dur: .5, vel: .5 });
+      walkTimers.push(setTimeout(() => A6.set(m, m + s, false), i * 550 + 30));
+    });
+    $('#r6').innerHTML = `the same ${IV[s].name.toLowerCase()}, climbing a whole step at a time`;
+  });
+  $('#twk').addEventListener('click', () => {
+    SO.stopAll(); walkTimers.forEach(clearTimeout); walkTimers = [];
+    const k = 55 + Math.floor(Math.random() * 13), tune = [0, 0, 7, 7, 9, 9, 7];
+    tune.forEach((d, i) => { play('piano', mtof(k + d), { t0: i * .36, dur: i === 6 ? .9 : .32, vel: .6 }); walkTimers.push(setTimeout(() => A6.set(k + d, null), i * 360 + 30)); });
+    walkTimers.push(setTimeout(() => A6.set(k, k + 7, false), 7 * 360 + 100));
+    $('#r6').innerHTML = `Twinkle starting on <b>${NAMES[mod12(k)]}</b>. The jump is still ${hs(7)}, so it's still Twinkle. Press again for a new starting note.`;
+  });
+})();
+
+/* ---------- 7 · ear-training quiz ---------- */
+(function(){
+  const LV = [
+    { lab: 'Level 1', set: [2, 7, 12] },
+    { lab: 'Level 2', set: [1, 2, 4, 5, 7, 12] },
+    { lab: 'Level 3', set: [1, 2, 3, 4, 5, 6, 7, 9, 12] }
+  ];
+  let lv = 0, unlocked = 0, streak = 0;
+  const hint = { 1: 'Jaws', 2: 'Happy Birthday', 3: 'Greensleeves', 4: 'Kumbaya', 5: 'Here Comes the Bride', 6: 'The Simpsons', 7: 'Twinkle', 9: 'My Bonnie', 12: 'Over the Rainbow' };
+  const lvl = $('#lvl');
+  function drawLv(){
+    lvl.innerHTML = LV.map((l, i) => `<button class="btn sm" data-l="${i}" aria-pressed="${i === lv}" ${i > unlocked ? 'disabled title="Get 3 in a row to unlock"' : ''}>${l.lab} · ${l.set.length} intervals</button>`).join('');
+  }
+  lvl.addEventListener('click', e => { const b = e.target.closest('button[data-l]'); if (!b || b.disabled) return; lv = +b.dataset.l; streak = 0; drawLv(); $('#lup').classList.remove('on'); Q.next(); });
+  drawLv();
+  let last = -1;
+  const Q = SO.quiz($('#q'), { make(){
+    const set = LV[lv].set; let i; do { i = Math.floor(Math.random() * set.length); } while (set.length > 1 && i === last); last = i;
+    const s = set[i], base = 55 + Math.floor(Math.random() * 10);
+    return { prompt: 'How far apart are these two notes?',
+      options: set.map(v => `${IV[v].name}<small>${hint[v]}</small>`), answer: i,
+      play(){ play('piano', mtof(base), { dur: .7, vel: .6 }); play('piano', mtof(base + s), { t0: .75, dur: .8, vel: .6 });
+              play('piano', mtof(base), { t0: 1.75, dur: 1.4, vel: .5 }); play('piano', mtof(base + s), { t0: 1.75, dur: 1.4, vel: .5 }); },
+      explain: `That was a <b>${IV[s].name.toLowerCase()}</b>, ${hs(s)}: think <i>${IV[s].song}</i>.`,
+      after(ok){
+        streak = ok ? streak + 1 : 0;
+        if (streak >= 3 && lv < LV.length - 1){ unlocked = Math.max(unlocked, lv + 1); drawLv(); $('#lup').classList.add('on'); }
+      } };
+  } });
+  $('#lupb').addEventListener('click', () => { lv = Math.min(LV.length - 1, lv + 1); streak = 0; drawLv(); $('#lup').classList.remove('on'); Q.next(); });
+})();
+
+})();
+</script>
+</body>
+</html>
