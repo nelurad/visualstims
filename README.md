@@ -26,4 +26,4 @@ Not brain science, just hands and eyes.
 
 ## Moved to SoundBites
 
-The music and sound pieces (Split the Octave, Rosewood, Santoor) moved to [SoundBites](https://nelurad.github.io/soundbites/) in November 2026. Small redirect pages at `rosewood/` and `split-the-octave/` (and each lesson folder) forward old links there.
+The music and sound pieces (Split the Octave, Rosewood, Santoor) moved to [SoundBites](https://nelurad.github.io/soundbites/) in November 2026. Small redirect pages at `rosewood/`, `santoor/` and `split-the-octave/` (and each lesson folder) forward old links there.
