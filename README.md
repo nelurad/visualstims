@@ -15,7 +15,6 @@ Each stim is a folder with an `index.html` and a 900×600 `thumb.jpg`, listed on
 | 04 | [Blood Rush](blood-rush/) | fMRI as art: pick a task and oxygen-rich blood rushes through branching vessels to the regions doing the work (balloon model of the BOLD response, real-time timing); scanner view shows the voxel map. |
 | 05 | [Wire Together](wire-together/) | Memory consolidation as light: explore and place cells that fire together wire together; sleep and sharp-wave ripples replay the path ~20× faster, copying it out to a cortical ring of string-art chords. Bars show the memory shifting from hippocampus to cortex. |
 | 06 | [Hold That Thought](hold-that-thought/) | Working memory, psychedelic: a rainbow brain of colour-cycling bands over an op-art sunburst whose frontal lobe holds a ring attractor of 72 PFC neurons. A cue leaves a bump of activity that persists through the delay; distractor waves melt through the bands from visual cortex and are gated out or leak in and drag the bump. Rested, stressed, tired and age-14 conditions; live spike raster. |
-| 07 | [Split the Octave](split-the-octave/) | Music theory from square one, as a series of nine playable lessons with live sound: what a sound is, tone colour (timbre), naming the notes, sharps & flats, beat & rhythm, intervals, major & minor, chords, and *Why twelve?* (harmonics, the comma, 12-TET). Shared Web Audio kit in `split-the-octave/kit/`. |
 
 ## Things to touch
 
@@ -24,5 +23,7 @@ Not brain science, just hands and eyes.
 | | Piece | What it is |
 |---|---|---|
 | a | [Lump](lump/) | A ball of clay to play with in 3D: drag to press it in, hold then drag to pull it out, smooth it, spin it on a pottery wheel, pick a clay colour. Built with three.js. |
-| b | [Rosewood](rosewood/) | A xylophone you can actually play: modal bar synthesis (strike position changes the tone; near the cord goes dead), harder/faster hits are louder and brighter, hold to roll, drag for a glissando, multi-touch, computer-keyboard play, hard/rubber/yarn mallets, marimba mode, room echo, and a learn-a-tune mode. Web Audio + canvas. |
-| c | [Santoor](santoor/) | A Persian santur to play: 72 strings in 18 courses of four, brass bass on the right bridges, steel on the left bridges whose short side rings an octave up. Each course is four slightly detuned Karplus–Strong strings (the shimmer), strike position changes the tone, untouched strings ring in sympathy, hold for riz (tremolo), wood or felt mezrabs, and the dastgah tunings Shur, Mahur, Homayun, Segah and Chahargah with koron notes. A *listen* button plays a short phrase in the current tuning. Web Audio + canvas. |
+
+## Moved to SoundBites
+
+The music and sound pieces (Split the Octave, Rosewood, Santoor) moved to [SoundBites](https://nelurad.github.io/soundbites/) in November 2026. Small redirect pages at `rosewood/` and `split-the-octave/` (and each lesson folder) forward old links there.
